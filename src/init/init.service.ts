@@ -1,11 +1,34 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { AuthService } from 'src/auth/auth.service';
+import {
+  Injectable,
+  Logger,
+  LoggerService,
+  OnModuleInit,
+} from '@nestjs/common';
+import _ from 'lodash';
+import { AuthService } from '../auth/auth.service';
+import { DeviceStatusService } from '../device-status/device-status.service';
 
 @Injectable()
 export class InitService implements OnModuleInit {
-  constructor(private readonly authService: AuthService) {}
+  private readonly logger = new Logger(InitService.name);
+  constructor(
+    private readonly authService: AuthService,
+    private readonly deviceStatusService: DeviceStatusService,
+  ) {}
+  async initDeviceStatus() {
+    const uniqueDevices = await this.deviceStatusService.getUniqueDevices();
 
+    return uniqueDevices;
+  }
   async onModuleInit() {
-    await this.authService.refreshToken();
+    try {
+      this.logger.log('onModuleInit start');
+      await this.authService.refreshToken();
+      await this.initDeviceStatus();
+      this.logger.log('onModuleInit success');
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
   }
 }

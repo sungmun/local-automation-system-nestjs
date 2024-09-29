@@ -11,13 +11,20 @@ import { DeviceModule } from './device/device.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { HejhomeApiModule } from './hejhome-api/hejhome-api.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // 전역 모듈로 설정
     }),
-    InitModule,
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'sql_lite.sqlite',
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
+
     TaskModule,
     DeviceStatusModule,
     DeviceControlModule,
@@ -25,8 +32,9 @@ import { HejhomeApiModule } from './hejhome-api/hejhome-api.module';
     DeviceModule,
     AuthModule,
     HejhomeApiModule,
+    InitModule,
   ],
   controllers: [AppController],
-  providers: [AppService, InitService],
+  providers: [AppService],
 })
 export class AppModule {}

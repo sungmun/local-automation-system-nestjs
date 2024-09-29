@@ -1,16 +1,12 @@
-import got from 'got';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ConfigService } from '@nestjs/config';
-import * as http from 'http';
-import * as https from 'https';
-
-import { Injectable } from '@nestjs/common';
-import { HejhomeApiService } from 'src/hejhome-api/hejhome-api.service';
+import { Injectable, Logger } from '@nestjs/common';
+import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
 
 @Injectable()
 export class AuthService {
-  private readonly gotInstance: got.GotInstance<any>;
+  private readonly logger = new Logger(AuthService.name);
 
   constructor(
     private readonly configService: ConfigService,
@@ -18,34 +14,34 @@ export class AuthService {
   ) {}
 
   async refreshToken() {
-    const heyCodePath = path.join(process.env.PWD, 'hey-code.json');
-    const heyCode = require(heyCodePath);
+    const heyCodePath = path.join(process.env.PWD, 'hej-code.json');
+    const heyCode: FileHeyCode = require(heyCodePath);
+
     const refreshToken = heyCode.refresh_token;
-    if (Date.now() - 24 * 60 * 1000 > Date.parse(heyCode.expires_in)) {
+
+    const expiredAt = Date.parse(heyCode.expires_in);
+
+    if (Date.now() - 24 * 60 * 1000 < expiredAt) {
+      this.logger.log('token is not expired', heyCode.expires_in);
+      this.setEnvLoginToken(heyCode.access_token, heyCode.refresh_token);
       return;
     }
 
-    try {
-      const response =
-        await this.hejhomeApiService.getAccessToken(refreshToken);
+    const data = await this.hejhomeApiService.getAccessToken(refreshToken);
 
-      const data = response.body as any;
-      const expiresIn = new Date(Date.now() + data.expires_in * 1000);
+    const expiresIn = new Date(Date.now() + data.expires_in * 1000);
 
-      this.configService.set('HEY_HOME_ACCESS_TOKEN', data.access_token);
-      await fs.writeFile(
-        heyCodePath,
-        JSON.stringify({ ...data, expires_in: expiresIn }),
-      );
-    } catch (error) {
-      if (error.response) {
-        // logger.error('hey home token refresh error', {
-        //   data: error.response.body,
-        // });
-      } else {
-        // logger.error('unexpected error', { data: error });
-      }
-      throw error;
-    }
+    this.setEnvLoginToken(heyCode.access_token, heyCode.refresh_token);
+
+    await fs.writeFile(
+      heyCodePath,
+      JSON.stringify({ ...data, expires_in: expiresIn }),
+    );
+  }
+
+  private async setEnvLoginToken(accessToken: string, refreshToken: string) {
+    this.configService.set('HEY_HOME_ACCESS_TOKEN', accessToken);
+    this.configService.set('HEY_HOME_REFRESH_TOKEN', refreshToken);
+    this.hejhomeApiService.setAccessToken(accessToken);
   }
 }
