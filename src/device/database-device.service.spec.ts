@@ -1,20 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeviceController } from './device.controller';
 import { DataBaseDeviceService } from './database-device.service';
 
-describe('DeviceController', () => {
-  let controller: DeviceController;
+describe('DataBaseDeviceService', () => {
+  let service: DataBaseDeviceService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [DeviceController],
       providers: [DataBaseDeviceService],
     }).compile();
 
-    controller = module.get<DeviceController>(DeviceController);
+    service = module.get<DataBaseDeviceService>(DataBaseDeviceService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(service).toBeDefined();
   });
 });

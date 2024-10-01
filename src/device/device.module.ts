@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
-import { DeviceService } from './device.service';
 import { DeviceController } from './device.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Device } from './entities/device.entity';
+import { CloudDeviceService } from './cloud-device.service';
+import { DataBaseDeviceService } from './database-device.service';
+import { HejhomeApiModule } from 'src/hejhome-api/hejhome-api.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Device])],
+  imports: [TypeOrmModule.forFeature([Device]), HejhomeApiModule],
   controllers: [DeviceController],
-  providers: [DeviceService],
-  exports: [DeviceService],
+  providers: [DataBaseDeviceService, CloudDeviceService],
+  exports: [DataBaseDeviceService, CloudDeviceService],
 })
 export class DeviceModule {}

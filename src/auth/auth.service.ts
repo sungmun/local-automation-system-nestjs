@@ -13,7 +13,7 @@ export class AuthService {
     private readonly hejhomeApiService: HejhomeApiService,
   ) {}
 
-  async refreshToken() {
+  async setRefreshToken() {
     const heyCodePath = path.join(process.env.PWD, 'hej-code.json');
     const heyCode: FileHeyCode = require(heyCodePath);
 

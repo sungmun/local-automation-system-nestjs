@@ -11,14 +11,14 @@ export class Device {
   @Column({ type: 'text' })
   deviceType: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   modelName: string;
 
   @Column({ type: 'text' })
   familyId: string;
 
-  @Column({ type: 'text' })
-  roomId: string;
+  @Column({ nullable: true })
+  roomId?: number;
 
   @Column({ type: 'text' })
   category: string;

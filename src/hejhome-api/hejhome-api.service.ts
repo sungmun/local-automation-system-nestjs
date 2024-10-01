@@ -85,7 +85,7 @@ export class HejhomeApiService {
     return response.data;
   }
 
-  async getDeviceStatus<T extends ResponseDeviceStatus>(deviceId: number) {
+  async getDeviceStatus<T extends ResponseDeviceStatus>(deviceId: string) {
     const response = await this.instance
       .get<T>(`/device/${deviceId}`)
       .catch((error: AxiosError) => {
@@ -98,7 +98,7 @@ export class HejhomeApiService {
     return response.data;
   }
 
-  async getDeviceRawStatus(deviceId: number) {
+  async getDeviceRawStatus(deviceId: string) {
     const response = await this.instance
       .get<ResponseSensorTHStatus>(`/device/TH/${deviceId}`)
       .catch((error: AxiosError) => {

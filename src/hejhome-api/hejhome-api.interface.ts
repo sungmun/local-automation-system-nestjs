@@ -1,5 +1,5 @@
 export interface ResponseDeviceStatus {
-  deviceId: number;
+  Id: string;
   deviceType: string;
   status: {
     [key: string]: any;

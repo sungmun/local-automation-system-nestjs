@@ -4,13 +4,17 @@ import { Repository } from 'typeorm';
 import { Device } from './entities/device.entity';
 
 @Injectable()
-export class DeviceService {
+export class DataBaseDeviceService {
   constructor(
     @InjectRepository(Device)
     private readonly deviceRepository: Repository<Device>,
   ) {}
 
   async bulkInsert(devices: Device[]): Promise<void> {
-    await this.deviceRepository.insert(devices);
+    await this.deviceRepository.save(devices);
+  }
+
+  async findAll(): Promise<Device[]> {
+    return this.deviceRepository.find();
   }
 }

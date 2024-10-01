@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { InitService } from './init/init.service';
 import { InitModule } from './init/init.module';
 import { TaskModule } from './task/task.module';
 import { DeviceStatusModule } from './device-status/device-status.module';
@@ -12,11 +11,18 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { HejhomeApiModule } from './hejhome-api/hejhome-api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { HejhomeMessageQueueModule } from './hejhome-message-queue/hejhome-message-queue.module';
+import { DeviceListenerModule } from './device-listener/device-listener.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // 전역 모듈로 설정
+    }),
+    EventEmitterModule.forRoot({
+      wildcard: true,
+      delimiter: '.',
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
@@ -33,6 +39,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     AuthModule,
     HejhomeApiModule,
     InitModule,
+    HejhomeMessageQueueModule,
+    DeviceListenerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
