@@ -4,12 +4,13 @@ import { ConfigService } from '@nestjs/config';
 import * as http from 'http';
 import * as https from 'https';
 import {
+  RequestDeviceControl,
   ResponseAccessToken,
   ResponseDevice,
-  ResponseDeviceStatus,
+  ResponseDeviceState,
   ResponseHome,
   ResponseHomeWithRooms,
-  ResponseSensorTHStatus,
+  ResponseSensorTHState,
 } from './hejhome-api.interface';
 import axios, { Axios, AxiosError, AxiosInstance } from 'axios';
 
@@ -85,7 +86,7 @@ export class HejhomeApiService {
     return response.data;
   }
 
-  async getDeviceStatus<T extends ResponseDeviceStatus>(deviceId: string) {
+  async getDeviceState<T extends ResponseDeviceState>(deviceId: string) {
     const response = await this.instance
       .get<T>(`/device/${deviceId}`)
       .catch((error: AxiosError) => {
@@ -98,9 +99,9 @@ export class HejhomeApiService {
     return response.data;
   }
 
-  async getDeviceRawStatus(deviceId: string) {
+  async getDeviceRawState(deviceId: string) {
     const response = await this.instance
-      .get<ResponseSensorTHStatus>(`/device/TH/${deviceId}`)
+      .get<ResponseSensorTHState>(`/device/TH/${deviceId}`)
       .catch((error: AxiosError) => {
         this.logger.error(
           `getDeviceRawStatus(${error.response.status}) :${JSON.stringify(error.response.data)}`,
@@ -135,5 +136,9 @@ export class HejhomeApiService {
         throw error;
       });
     return response.data;
+  }
+
+  async setDeviceControl<T>(id: string, body: RequestDeviceControl<T>) {
+    await this.instance.post(`/control/${id}`, body);
   }
 }

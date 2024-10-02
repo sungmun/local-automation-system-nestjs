@@ -1,19 +1,31 @@
-export interface ResponseDeviceStatus {
-  Id: string;
+export interface controlRequest {}
+
+export interface RequestDeviceControl<T extends controlRequest> {
+  requirments: T;
+}
+
+export interface IrAirconditionerControl extends controlRequest {
+  power: '켜짐' | '꺼짐';
+  temperature: number;
+  fanSpeed: number;
+  mode: number;
+}
+export interface ResponseDeviceState {
+  id: string;
   deviceType: string;
-  status: {
+  deviceState: {
     [key: string]: any;
   };
 }
 
-export interface ResponseIrAirconditionerStatus extends ResponseDeviceStatus {
+export interface ResponseIrAirconditionerState extends ResponseDeviceState {
   deviceType: 'IrAirconditioner';
-  status: ResponseIrAirconditioner;
+  deviceState: ResponseIrAirconditioner;
 }
 
-export interface ResponseSensorTHStatus extends ResponseDeviceStatus {
+export interface ResponseSensorTHState extends ResponseDeviceState {
   deviceType: 'SensorTh';
-  status: ResponseSensorTH;
+  deviceState: ResponseSensorTH;
 }
 
 interface ResponseSensorTH {

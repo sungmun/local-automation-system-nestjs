@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { InitModule } from './init/init.module';
 import { TaskModule } from './task/task.module';
-import { DeviceStatusModule } from './device-status/device-status.module';
 import { DeviceControlModule } from './device-control/device-control.module';
 import { RoomModule } from './room/room.module';
 import { DeviceModule } from './device/device.module';
@@ -13,7 +12,8 @@ import { HejhomeApiModule } from './hejhome-api/hejhome-api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { HejhomeMessageQueueModule } from './hejhome-message-queue/hejhome-message-queue.module';
-import { DeviceListenerModule } from './device-listener/device-listener.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { DeviceStateModule } from './device-state/device-state.module';
 
 @Module({
   imports: [
@@ -30,17 +30,18 @@ import { DeviceListenerModule } from './device-listener/device-listener.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-
+    ScheduleModule.forRoot(),
+    InitModule,
     TaskModule,
-    DeviceStatusModule,
+
     DeviceControlModule,
     RoomModule,
     DeviceModule,
     AuthModule,
     HejhomeApiModule,
-    InitModule,
     HejhomeMessageQueueModule,
-    DeviceListenerModule,
+
+    DeviceStateModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Room } from 'src/room/entities/room.entity';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity('Devices')
 export class Device {
@@ -20,6 +21,10 @@ export class Device {
   @Column({ nullable: true })
   roomId?: number;
 
+  @ManyToOne(() => Room)
+  @JoinColumn({ name: 'roomId' })
+  room?: Room;
+
   @Column({ type: 'text' })
   category: string;
 
@@ -28,4 +33,7 @@ export class Device {
 
   @Column()
   hasSubDevices: boolean;
+
+  @Column({ type: 'text', nullable: true, default: '{}' })
+  state?: string;
 }

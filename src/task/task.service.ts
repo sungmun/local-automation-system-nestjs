@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import * as http from 'http';
-import * as https from 'https';
 import { HejhomeMessageQueueService } from '../hejhome-message-queue/hejhome-message-queue.service';
 import { DataBaseDeviceService } from 'src/device/database-device.service';
-import { DeviceStatusService } from 'src/device-status/device-status.service';
+
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { DeviceStateModule } from 'src/device-state/device-state.module';
+import { DeviceStateService } from 'src/device-state/device-state.service';
 
 @Injectable()
 export class TaskService {
@@ -13,7 +13,7 @@ export class TaskService {
   constructor(
     private readonly hejhomeMessageQueueService: HejhomeMessageQueueService,
     private readonly databaseDeviceService: DataBaseDeviceService,
-    private readonly deviceStatusService: DeviceStatusService,
+    private readonly deviceStateService: DeviceStateService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -23,15 +23,14 @@ export class TaskService {
       this.logger.log('MQ is connected and not api check');
       return;
     }
-    this.logger.debug('hejhomeAPICheck start');
     const devices = await this.databaseDeviceService.findAll();
     for (const device of devices) {
-      const status = await this.deviceStatusService.getDeviceStatus(
+      const state = await this.deviceStateService.getDeviceState(
         device.id,
         device.deviceType,
       );
-      this.eventEmitter.emit(`${device.deviceType}.${device.id}`, status);
+
+      this.eventEmitter.emit(`set.${device.deviceType}.${device.id}`, state);
     }
-    this.logger.debug('hejhomeAPICheck end');
   }
 }

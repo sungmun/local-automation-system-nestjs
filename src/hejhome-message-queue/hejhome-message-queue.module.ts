@@ -1,7 +1,6 @@
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
 import { HejhomeMessageQueueService } from './hejhome-message-queue.service';
-import { HejhomeMessageQueueController } from './hejhome-message-queue.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
@@ -12,14 +11,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         uri: `amqps://${configService.get('CLIENT_ID')}:${configService.get('CLIENT_SECRET')}@goqual.io:55001/`,
         connectionInitOptions: { wait: false },
         connectionManagerOptions: {
-          heartbeatIntervalInSeconds: 60,
-          reconnectTimeInSeconds: 60,
+          heartbeatIntervalInSeconds: 360,
+          reconnectTimeInSeconds: 360,
         },
       }),
       inject: [ConfigService],
     }),
   ],
-  controllers: [HejhomeMessageQueueController],
   providers: [HejhomeMessageQueueService],
   exports: [HejhomeMessageQueueService],
 })
