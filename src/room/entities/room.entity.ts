@@ -18,11 +18,17 @@ export class Room {
   @Column({ type: 'tinyint', nullable: true })
   active?: boolean;
 
-  @Column({ type: 'integer', default: 2750 })
-  minTemperature?: number;
+  @Column({ type: 'integer', nullable: true, default: 2750 })
+  acStartTemperature?: number;
 
-  @Column({ type: 'integer', default: 2850 })
-  maxTemperature?: number;
+  @Column({ type: 'integer', nullable: true, default: 2850 })
+  acStopTemperature?: number;
+
+  @Column({ type: 'integer', nullable: true, default: 1800 })
+  heatingStartTemperature?: number;
+
+  @Column({ type: 'integer', nullable: true, default: 2000 })
+  heatingStopTemperature?: number;
 
   @OneToMany(() => Device, (device) => device.room)
   devices?: Device[];

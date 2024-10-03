@@ -29,4 +29,15 @@ export class DataBaseDeviceService {
   async updateState(id: string, state: object): Promise<void> {
     await this.deviceRepository.update(id, { state: JSON.stringify(state) });
   }
+
+  async getDevicesByRoomOrUnassignedAndDeviceType(
+    roomId: number,
+    deviceType: string,
+  ): Promise<Device[]> {
+    return this.deviceRepository
+      .createQueryBuilder('device')
+      .where('device.roomId = :roomId OR device.roomId IS NULL', { roomId })
+      .andWhere('device.deviceType = :deviceType', { deviceType })
+      .getMany();
+  }
 }

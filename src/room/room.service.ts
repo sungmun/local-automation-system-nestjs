@@ -1,13 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { HejhomeApiService } from 'src/hejhome-api/hejhome-api.service';
-import {
-  ResponseHome,
-  ResponseSensorTHState,
-} from 'src/hejhome-api/hejhome-api.interface';
+import { ResponseHome } from 'src/hejhome-api/hejhome-api.interface';
 import { Room } from './entities/room.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeviceControlService } from 'src/device-control/device-control.service';
+import { DataBaseDeviceService } from 'src/device/database-device.service';
 
 @Injectable()
 export class RoomService {
@@ -16,6 +14,7 @@ export class RoomService {
     private readonly roomRepository: Repository<Room>,
     private readonly hejhomeApiService: HejhomeApiService,
     private readonly deviceControlService: DeviceControlService,
+    private readonly databaseDeviceService: DataBaseDeviceService,
   ) {}
 
   async getRoomsWithHomeId(homes: ResponseHome['result']) {
@@ -81,10 +80,25 @@ export class RoomService {
     const room = await this.roomRepository.findOne({ where: { active: true } });
 
     if (room === null) return;
-    const { maxTemperature, minTemperature } = room;
+    const { acStartTemperature, acStopTemperature } = room;
 
-    if (temperature > maxTemperature) {
-      return;
+    const devices =
+      await this.databaseDeviceService.getDevicesByRoomOrUnassignedAndDeviceType(
+        room.id,
+        'IrAirconditioner',
+      );
+
+    let excuteFun;
+    if (temperature > acStartTemperature) {
+      excuteFun = this.deviceControlService.airconditionerOn;
+    } else if (temperature < acStopTemperature) {
+      excuteFun = this.deviceControlService.airconditionerOff;
     }
+
+    if (excuteFun === undefined) return;
+
+    await Promise.all(
+      devices.map(async (device) => await excuteFun(device.id)),
+    );
   }
 }
