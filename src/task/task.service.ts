@@ -24,12 +24,13 @@ export class TaskService {
       return;
     }
     const devices = await this.databaseDeviceService.findAll();
+    this.logger.fatal(`-=-=-=-=-=-=-=-=-=-=-=-`);
     for (const device of devices) {
       const state = await this.deviceStateService.getDeviceState(
         device.id,
         device.deviceType,
       );
-
+      this.logger.debug(`set.${device.deviceType}.${device.id}`);
       this.eventEmitter.emit(`set.${device.deviceType}.${device.id}`, state);
     }
   }

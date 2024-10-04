@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { DeviceControlService } from './device-control.service';
 import { DeviceControlController } from './device-control.controller';
 import { HejhomeApiModule } from 'src/hejhome-api/hejhome-api.module';
+import { TimerManagerModule } from 'src/timer-manager/timer-manager.module';
 
 @Module({
-  imports: [HejhomeApiModule],
+  imports: [HejhomeApiModule, TimerManagerModule],
   controllers: [DeviceControlController],
   providers: [DeviceControlService],
   exports: [DeviceControlService],

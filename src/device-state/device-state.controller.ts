@@ -6,6 +6,7 @@ import {
   ResponseIrAirconditionerState,
   ResponseSensorTHState,
 } from 'src/hejhome-api/hejhome-api.interface';
+import { TimerManagerService } from 'src/timer-manager/timer-manager.service';
 
 @Controller()
 export class DeviceStateController {
@@ -20,10 +21,10 @@ export class DeviceStateController {
   async hasChangedDevice(state: ResponseDeviceState) {
     const changed = await this.deviceStateService.hasChanged(state.id, state);
     if (changed) {
-      this.logger.debug(`hasChangedDevice ${state.deviceType}`, state, changed);
+      this.logger.debug(`hasChangedDevice(${state.deviceType}): ${state.id}`);
       this.eventEmitter.emit(`changed.${state.deviceType}.${state.id}`, state);
     } else {
-      this.logger.verbose(`hasChangedDevice ${state.deviceType}`, changed);
+      this.logger.verbose(`hasChangedDevice(${state.deviceType}):${changed}`);
     }
   }
 

@@ -14,6 +14,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { HejhomeMessageQueueModule } from './hejhome-message-queue/hejhome-message-queue.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { DeviceStateModule } from './device-state/device-state.module';
+import { TimerManagerModule } from './timer-manager/timer-manager.module';
 
 @Module({
   imports: [
@@ -42,6 +43,8 @@ import { DeviceStateModule } from './device-state/device-state.module';
     HejhomeMessageQueueModule,
 
     DeviceStateModule,
+
+    TimerManagerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
