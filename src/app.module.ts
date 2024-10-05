@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { InitModule } from './init/init.module';
 import { TaskModule } from './task/task.module';
 import { DeviceControlModule } from './device-control/device-control.module';
@@ -34,19 +32,14 @@ import { TimerManagerModule } from './timer-manager/timer-manager.module';
     ScheduleModule.forRoot(),
     InitModule,
     TaskModule,
-
     DeviceControlModule,
     RoomModule,
     DeviceModule,
     AuthModule,
     HejhomeApiModule,
     HejhomeMessageQueueModule,
-
     DeviceStateModule,
-
     TimerManagerModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
