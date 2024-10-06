@@ -5,8 +5,8 @@ import {
   ResponseDeviceState,
   ResponseIrAirconditionerState,
   ResponseSensorTHState,
-} from 'src/hejhome-api/hejhome-api.interface';
-import { TimerManagerService } from 'src/timer-manager/timer-manager.service';
+} from '../hejhome-api/hejhome-api.interface';
+import { TimerManagerService } from '../timer-manager/timer-manager.service';
 
 @Controller()
 export class DeviceStateController {

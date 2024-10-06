@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Device } from './entities/device.entity';
 import { CloudDeviceService } from './cloud-device.service';
 import { DataBaseDeviceService } from './database-device.service';
-import { HejhomeApiModule } from 'src/hejhome-api/hejhome-api.module';
+import { HejhomeApiModule } from '../hejhome-api/hejhome-api.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Device]), HejhomeApiModule],

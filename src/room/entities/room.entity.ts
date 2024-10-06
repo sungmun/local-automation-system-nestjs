@@ -1,4 +1,4 @@
-import { Device } from 'src/device/entities/device.entity';
+import { Device } from '../../device/entities/device.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity('Rooms')

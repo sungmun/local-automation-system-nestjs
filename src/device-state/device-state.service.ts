@@ -5,9 +5,9 @@ import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
 import {
   ResponseDeviceState,
   ResponseSensorTHState,
-} from 'src/hejhome-api/hejhome-api.interface';
-import { DataBaseDeviceService } from 'src/device/database-device.service';
-import { RoomService } from 'src/room/room.service';
+} from '../hejhome-api/hejhome-api.interface';
+import { DataBaseDeviceService } from '../device/database-device.service';
+import { RoomService } from '../room/room.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()

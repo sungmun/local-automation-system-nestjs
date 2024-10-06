@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { OnEvent } from '@nestjs/event-emitter';
-import { ResponseSensorTHState } from 'src/hejhome-api/hejhome-api.interface';
+import { ResponseSensorTHState } from '../hejhome-api/hejhome-api.interface';
 
 @Controller()
 export class RoomController {
@@ -13,11 +13,5 @@ export class RoomController {
     this.logger.debug('setRoomTemperature', state);
     const { id, deviceState } = state;
     await this.roomService.setRoomTemperature(id, deviceState.temperature);
-  }
-
-  @OnEvent('changed.SensorTh.*', { async: true })
-  async setRoomTemperatureChanged(state: ResponseSensorTHState) {
-    this.logger.debug('setRoomTemperatureChanged', state);
-    const { id, deviceState } = state;
   }
 }

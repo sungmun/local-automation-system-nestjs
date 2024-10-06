@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IrAirconditionerControl } from 'src/hejhome-api/hejhome-api.interface';
-import { HejhomeApiService } from 'src/hejhome-api/hejhome-api.service';
+import { IrAirconditionerControl } from '../hejhome-api/hejhome-api.interface';
+import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
 
 @Injectable()
 export class DeviceControlService {

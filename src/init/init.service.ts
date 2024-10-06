@@ -2,11 +2,11 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import _ from 'lodash';
 import { AuthService } from '../auth/auth.service';
 
-import { CloudDeviceService } from 'src/device/cloud-device.service';
-import { DataBaseDeviceService } from 'src/device/database-device.service';
+import { CloudDeviceService } from '../device/cloud-device.service';
+import { DataBaseDeviceService } from '../device/database-device.service';
 
-import { TaskService } from 'src/task/task.service';
-import { RoomService } from 'src/room/room.service';
+import { TaskService } from '../task/task.service';
+import { RoomService } from '../room/room.service';
 
 @Injectable()
 export class InitService implements OnModuleInit {
@@ -50,8 +50,8 @@ export class InitService implements OnModuleInit {
         await this.roomService.matchRoomWithSensor(room.room_id);
       }
       this.logger.log('onModuleInit success');
-      this.logger.log('onModuleInit api check');
       this.taskService.hejhomeAPICheck();
+      this.logger.log('onModuleInit api check');
     } catch (error) {
       this.logger.error(error);
       throw error;

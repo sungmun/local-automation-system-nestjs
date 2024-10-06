@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { HejhomeApiService } from 'src/hejhome-api/hejhome-api.service';
-import { ResponseHome } from 'src/hejhome-api/hejhome-api.interface';
+import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
+import { ResponseHome } from '../hejhome-api/hejhome-api.interface';
 import { Room } from './entities/room.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeviceControlService } from 'src/device-control/device-control.service';
-import { DataBaseDeviceService } from 'src/device/database-device.service';
+import { DeviceControlService } from '../device-control/device-control.service';
+import { DataBaseDeviceService } from '../device/database-device.service';
 
 @Injectable()
 export class RoomService {

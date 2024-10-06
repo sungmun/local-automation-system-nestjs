@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { HejhomeApiService } from 'src/hejhome-api/hejhome-api.service';
+import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
 import * as _ from 'lodash';
-import { ResponseRoom } from 'src/hejhome-api/hejhome-api.interface';
+import { ResponseRoom } from '../hejhome-api/hejhome-api.interface';
 import { Device } from './entities/device.entity';
 
 @Injectable()
