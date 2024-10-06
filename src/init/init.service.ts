@@ -41,20 +41,15 @@ export class InitService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    try {
-      this.logger.log('onModuleInit start');
-      await this.authService.setRefreshToken();
-      const rooms = await this.initRooms();
-      await this.initDevice(rooms);
-      for (const room of rooms) {
-        await this.roomService.matchRoomWithSensor(room.room_id);
-      }
-      this.logger.log('onModuleInit success');
-      this.taskService.hejhomeAPICheck();
-      this.logger.log('onModuleInit api check');
-    } catch (error) {
-      this.logger.error(error);
-      throw error;
+    this.logger.log('onModuleInit start');
+    await this.authService.setRefreshToken();
+    const rooms = await this.initRooms();
+    await this.initDevice(rooms);
+    for (const room of rooms) {
+      await this.roomService.matchRoomWithSensor(room.room_id);
     }
+    this.logger.log('onModuleInit success');
+    this.taskService.hejhomeAPICheck();
+    this.logger.log('onModuleInit api check');
   }
 }

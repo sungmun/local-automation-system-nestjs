@@ -19,7 +19,7 @@ export class AuthService {
 
     const refreshToken = heyCode.refresh_token;
 
-    const expiredAt = Date.parse(heyCode.expires_in);
+    const expiredAt = Date.parse(heyCode.expires_in || '2000-01-01');
 
     if (Date.now() - 24 * 60 * 1000 < expiredAt) {
       this.logger.log('token is not expired', heyCode.expires_in);

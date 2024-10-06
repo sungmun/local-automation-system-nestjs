@@ -19,6 +19,7 @@ export class HejhomeApiService {
   private authInstance: AxiosInstance;
   private instance: AxiosInstance;
   private readonly logger = new Logger(HejhomeApiService.name);
+
   constructor(private readonly configService: ConfigService) {
     const clientId = configService.get('CLIENT_ID');
     const clientSecret = configService.get('CLIENT_SECRET');
@@ -39,7 +40,7 @@ export class HejhomeApiService {
   }
 
   setAccessToken(accessToken: string) {
-    this.logger.debug(accessToken);
+    this.logger.debug('accessToken', accessToken);
     this.instance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
   }
 
