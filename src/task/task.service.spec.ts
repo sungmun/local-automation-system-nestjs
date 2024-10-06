@@ -46,6 +46,9 @@ describe('TaskService', () => {
     );
     deviceStateService = module.get<DeviceStateService>(DeviceStateService);
     eventEmitter = module.get<EventEmitter2>(EventEmitter2);
+    jest.spyOn(service['logger'], 'log').mockImplementation(() => {});
+    jest.spyOn(service['logger'], 'debug').mockImplementation(() => {});
+    jest.spyOn(service['logger'], 'fatal').mockImplementation(() => {});
   });
 
   it('서비스가 정의되어야 한다', () => {
