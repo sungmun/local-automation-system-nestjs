@@ -1,11 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { HejhomeMessageQueueService } from '../hejhome-message-queue/hejhome-message-queue.service';
-import { DataBaseDeviceService } from 'src/device/database-device.service';
+import { DataBaseDeviceService } from '../device/database-device.service';
 
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { DeviceStateModule } from 'src/device-state/device-state.module';
-import { DeviceStateService } from 'src/device-state/device-state.service';
+import { DeviceStateService } from '../device-state/device-state.service';
 
 @Injectable()
 export class TaskService {
