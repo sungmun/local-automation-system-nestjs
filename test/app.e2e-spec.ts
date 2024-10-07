@@ -15,10 +15,12 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  describe('RoomController (e2e)', () => {
+    it('PUT /rooms/:roomId/active', async () => {
+      const response = await request(app.getHttpServer()).put(
+        '/rooms/1/active',
+      );
+      expect(response.status).toBe(200);
+    });
   });
 });

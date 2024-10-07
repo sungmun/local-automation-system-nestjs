@@ -2,10 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
 import { ResponseHome } from '../hejhome-api/hejhome-api.interface';
 import { Room } from './entities/room.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeviceControlService } from '../device-control/device-control.service';
 import { DataBaseDeviceService } from '../device/database-device.service';
+import { UpdateRoomDto } from './dto/updateRoom.dto';
 
 @Injectable()
 export class RoomService {
@@ -16,6 +17,27 @@ export class RoomService {
     private readonly deviceControlService: DeviceControlService,
     private readonly databaseDeviceService: DataBaseDeviceService,
   ) {}
+
+  async setRoomById(roomId: number, updateRoomDto: UpdateRoomDto) {
+    if (Object.keys(updateRoomDto).length === 0) return false;
+    const updated = await this.roomRepository.update(roomId, updateRoomDto);
+    return updated.affected === 1;
+  }
+
+  async setRoomActiveById(roomId: number) {
+    await this.roomRepository
+      .createQueryBuilder()
+      .update(Room)
+      .set({
+        active: () => `CASE WHEN id = :roomId THEN true ELSE false END`,
+      })
+      .setParameters({ roomId })
+      .execute();
+  }
+
+  async getRoomById(roomId: number) {
+    return this.roomRepository.findOneBy({ id: roomId });
+  }
 
   async getRoomsWithHomeId(homes: ResponseHome['result']) {
     const roomsWithHomeId = await Promise.all(
