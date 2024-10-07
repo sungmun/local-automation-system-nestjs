@@ -22,5 +22,10 @@ describe('AppController (e2e)', () => {
       );
       expect(response.status).toBe(200);
     });
+
+    it('PATCH /rooms/:roomId', async () => {
+      const response = await request(app.getHttpServer()).patch('/rooms/1');
+      expect(response.status).toBe(200);
+    });
   });
 });

@@ -31,6 +31,7 @@
     "@nestjs/typeorm": "^10.0.2",
     "@types/lodash": "^4.17.9",
     "axios": "^1.7.7",
+    "class-validate": "^0.0.1",
     "got": "^14.4.2",
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.2.0",
