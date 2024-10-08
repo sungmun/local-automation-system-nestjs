@@ -29,7 +29,7 @@ import { TimerManagerModule } from './timer-manager/timer-manager.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    ScheduleModule.forRoot(),
+    ...(process.env.NODE_ENV !== 'test' ? [ScheduleModule.forRoot()] : []),
     InitModule,
     TaskModule,
     DeviceControlModule,

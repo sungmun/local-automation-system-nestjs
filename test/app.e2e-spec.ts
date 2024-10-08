@@ -15,6 +15,10 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   describe('RoomController (e2e)', () => {
     it('PUT /rooms/:roomId/active', async () => {
       const response = await request(app.getHttpServer()).put(
