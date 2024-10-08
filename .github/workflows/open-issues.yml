@@ -1,0 +1,55 @@
+name: Label New Issues
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add_label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add enhancement label if no labels are present
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueLabels = context.payload.issue.labels;
+            if (issueLabels.length === 0) {
+              await github.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                labels: ['enhancement']
+              });
+            }
+  second_task:
+    runs-on: ubuntu-latest
+    needs: add_label
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Create branch from issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+          ISSUE_NUMBER="${{ github.event.issue.number }}"
+          ISSUE_LABELS="${{ github.event.issue.labels }}"
+
+          # Check if the issue has a specific label
+          if [[ "$ISSUE_LABELS" == *"enhancement"* ]]; then
+            BRANCH_NAME="feature/#${ISSUE_NUMBER}"
+          elif [[ "$ISSUE_LABELS" == *"bug"* ]]; then
+            BRANCH_NAME="bugfix/#${ISSUE_NUMBER}"
+          else
+            echo "No matching label found. Exiting."
+            exit 0
+          fi
+
+          # Create a new branch
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout develop
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
