@@ -15,15 +15,18 @@ export class TaskService {
     private readonly deviceStateService: DeviceStateService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
-
   @Cron(CronExpression.EVERY_30_SECONDS)
-  async hejhomeAPICheck() {
+  async checkDevicesEvery30Seconds() {
     if (this.hejhomeMessageQueueService.isConnected()) {
       this.logger.log('MQ is connected and not api check');
       return;
     }
-    const devices = await this.databaseDeviceService.findAll();
     this.logger.fatal(`-=-=-=-=-=-=-=-=-=-=-=-`);
+    this.hejhomeAPICheck();
+  }
+
+  async hejhomeAPICheck() {
+    const devices = await this.databaseDeviceService.findAll();
     for (const device of devices) {
       const state = await this.deviceStateService.getDeviceState(
         device.id,
