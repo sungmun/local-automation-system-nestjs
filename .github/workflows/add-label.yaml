@@ -1,0 +1,28 @@
+name: Add Label
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  feature_branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Branch
+        if: ${{ github.event.label.name == 'enhancement'}}
+        uses: peterjgrainger/action-create-branch@v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: feature/#${{ github.event.issue.number }}
+
+  bugfix_branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Branch
+        if: ${{ github.event.label.name == 'bug'}}
+        uses: peterjgrainger/action-create-branch@v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: bugfix/#${{ github.event.issue.number }}

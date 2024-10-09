@@ -7,56 +7,26 @@ on:
 jobs:
   add_label:
     runs-on: ubuntu-latest
+    environment: CI_CD
     steps:
       - name: Add enhancement label if no labels are present
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const issueLabels = context.payload.issue.labels;
-            if (issueLabels.length === 0) {
-              github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.issue.number,
-                labels: ['enhancement']
-              });
-            }
-
-  issue_branch:
-    runs-on: ubuntu-latest
-    needs: add_label
-    outputs:
-      branch_name: ${{ steps.issue_branch1.outputs.branch_name }}
-    steps:
-      - name: Create branch from issue
-        uses: actions/github-script@v7
-        id: issue_branch1
-        with:
-          script: |
-
-            const issueTitle = context.payload.issue.title;
-            const issueNumber = context.payload.issue.number;
-            const issueLabels = context.payload.issue.labels.map(label => label.name);
-            let branchName;
-            if (issueLabels.includes('enhancement')) {
-              branchName = `feature/#${issueNumber}`;
-              core.setOutput("branch_name", branchName);
-            } else if (issueLabels.includes('bug')) {
-              branchName = `bugfix/#${issueNumber}`;
-              core.setOutput("branch_name", branchName);
-            } else {
-              return;
-            }
-
-  git_operations:
-    runs-on: ubuntu-latest
-    needs: issue_branch
-    steps:
-      - name: Check out the repository
-        uses: actions/checkout@v4
-      - name: Create Branch
-        uses: peterjgrainger/action-create-branch@v3.0.0
-        with:
-          branch: ${{ needs.issue_branch.outputs.branch_name }}
+        if: ${{ github.event.issue.labels.length == 0 }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GIT_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          LABELS: enhancement
+        run: gh issue edit "$NUMBER" --add-label "$LABELS"
+
+        # uses: actions/github-script@v7
+        # with:
+        #   script: |
+        #     const issueLabelNames = context.payload.issue.labels.map(label => label.name);
+        #     if (issueLabelNames.length === 0) {
+        #       await github.rest.issues.addLabels({
+        #         owner: context.repo.owner,
+        #         repo: context.repo.repo,
+        #         issue_number: context.payload.issue.number,
+        #         labels: ['enhancement']
+        #       });
+        #     }
