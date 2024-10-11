@@ -26,6 +26,7 @@ export class InitService implements OnModuleInit {
     );
     return rooms;
   }
+
   private async initDevice(homeWithRooms) {
     const devices = await Promise.all([
       this.cloudDeviceService.getDevicesWithRoomId(homeWithRooms),
