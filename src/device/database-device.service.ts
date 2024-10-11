@@ -26,6 +26,10 @@ export class DataBaseDeviceService {
     return device;
   }
 
+  async updateActive(id: string, active: boolean): Promise<void> {
+    await this.deviceRepository.update(id, { active });
+  }
+
   async updateState(id: string, state: object): Promise<void> {
     await this.deviceRepository.update(id, { state: JSON.stringify(state) });
   }
