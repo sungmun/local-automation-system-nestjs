@@ -50,12 +50,6 @@ yarn start:prod
 yarn test
 ```
 
-### e2e 테스트
-
-```bash
-yarn test:e2e
-```
-
 ### 테스트 커버리지
 
 ```bash
