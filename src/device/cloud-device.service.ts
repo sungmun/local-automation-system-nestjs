@@ -3,6 +3,7 @@ import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
 import * as _ from 'lodash';
 import { ResponseRoom } from '../hejhome-api/hejhome-api.interface';
 import { Device } from './entities/device.entity';
+import { platform } from 'os';
 
 @Injectable()
 export class CloudDeviceService {
@@ -17,7 +18,9 @@ export class CloudDeviceService {
 
   async getDevices() {
     const devices = await this.hejhomeApiService.getDevices();
-    return devices;
+    return devices.map((device) =>
+      Object.assign(device, { platform: 'hej-home' }),
+    );
   }
 
   async getDevicesWithRoomId(
@@ -30,7 +33,10 @@ export class CloudDeviceService {
           room.room_id,
         );
         return roomWithDevices.map((device) =>
-          Object.assign(device, { roomId: room.room_id }),
+          Object.assign(device, {
+            roomId: room.room_id,
+            platform: 'hej-home',
+          }),
         );
       }),
     );
