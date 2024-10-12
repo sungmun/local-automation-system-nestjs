@@ -28,13 +28,8 @@ export class DeviceStateController {
     }
   }
 
-  @OnEvent('changed.IrAirconditioner.*', { async: true })
-  async IrAirconditionerEvent(state: ResponseIrAirconditionerState) {
-    this.eventEmitter.emit(`finish.${state.deviceType}.${state.id}`, state);
-  }
-
-  @OnEvent('changed.SensorTh.*', { async: true })
-  async SensorThEvent(state: ResponseSensorTHState) {
+  @OnEvent('changed.**', { async: true })
+  async changeDeviceEvent(state: ResponseDeviceState) {
     this.eventEmitter.emit(`finish.${state.deviceType}.${state.id}`, state);
   }
 }
