@@ -89,6 +89,7 @@ describe('TaskService', () => {
         category: 'Category1',
         online: true,
         hasSubDevices: false,
+        active: true,
         state: '{}',
       },
     ];

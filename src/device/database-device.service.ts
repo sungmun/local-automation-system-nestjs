@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Device } from './entities/device.entity';
 
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
 @Injectable()
 export class DataBaseDeviceService {
   constructor(
@@ -10,7 +12,9 @@ export class DataBaseDeviceService {
     private readonly deviceRepository: Repository<Device>,
   ) {}
 
-  async bulkInsert(devices: Device[]): Promise<void> {
+  async bulkInsert(
+    devices: PartialBy<Device, 'active' | 'platform'>[],
+  ): Promise<void> {
     await this.deviceRepository.save(devices);
   }
 
@@ -24,6 +28,10 @@ export class DataBaseDeviceService {
       throw new NotFoundException('device not found error', id);
     }
     return device;
+  }
+
+  async updateActive(id: string, active: boolean): Promise<void> {
+    await this.deviceRepository.update(id, { active });
   }
 
   async updateState(id: string, state: object): Promise<void> {

@@ -34,6 +34,9 @@ export class Device {
   @Column()
   hasSubDevices: boolean;
 
+  @Column({ default: true })
+  active: boolean;
+
   @Column({ type: 'text', nullable: true })
   platform?: string;
 
