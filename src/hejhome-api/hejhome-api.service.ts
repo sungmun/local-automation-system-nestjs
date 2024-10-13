@@ -32,16 +32,28 @@ export class HejhomeApiService {
         password: clientSecret,
       },
     });
-    this.instance = axios.create({
-      baseURL: 'https://goqual.io/openapi',
-      httpAgent: new http.Agent({ keepAlive: true }),
-      httpsAgent: new https.Agent({ keepAlive: true }),
-    });
   }
 
   setAccessToken(accessToken: string) {
     this.logger.debug('accessToken', accessToken);
-    this.instance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+
+    this.instance = axios.create({
+      baseURL: 'https://goqual.io/openapi',
+      httpAgent: new http.Agent({ keepAlive: true }),
+      httpsAgent: new https.Agent({ keepAlive: true }),
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  }
+
+  private axiosErrorHandler(methodName: string) {
+    return (error: AxiosError): never => {
+      this.logger.error(
+        `${methodName}(${error.response.status}) :${JSON.stringify(error.response.data || {})}`,
+      );
+      throw error;
+    };
   }
 
   async getAccessToken(refreshToken: string) {
@@ -50,13 +62,7 @@ export class HejhomeApiService {
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
       })
-      .catch((error: AxiosError) => {
-        this.logger.error(
-          `getAccessToken(${error.response.status}) :${JSON.stringify(error.response.data)}`,
-        );
-
-        throw error;
-      });
+      .catch(this.axiosErrorHandler('getAccessToken'));
 
     return response.data;
   }
@@ -64,82 +70,48 @@ export class HejhomeApiService {
   async getRoomWithDevices(hoomId: number, roomId: number) {
     const response = await this.instance
       .get<ResponseDevice[]>(`/homes/${hoomId}/rooms/${roomId}/devices`)
-      .catch((error: AxiosError) => {
-        this.logger.error(
-          `getRoomWithDevices(${error.response.status}) :${JSON.stringify(error.response.data)}`,
-        );
-
-        throw error;
-      });
+      .catch(this.axiosErrorHandler('getRoomWithDevices'));
     return response.data;
   }
 
   async getDevices() {
     const response = await this.instance
       .get<ResponseDevice[]>(`/devices`)
-      .catch((error: AxiosError) => {
-        this.logger.error(
-          `getDevices(${error.response.status}) :${JSON.stringify(error.response.data)}`,
-        );
-
-        throw error;
-      });
+      .catch(this.axiosErrorHandler('getDevices'));
     return response.data;
   }
 
   async getDeviceState<T extends ResponseDeviceState>(deviceId: string) {
     const response = await this.instance
       .get<T>(`/device/${deviceId}`)
-      .catch((error: AxiosError) => {
-        this.logger.error(
-          `getDeviceStatus(${error.response.status}) :${JSON.stringify(error.response.data)}`,
-        );
-
-        throw error;
-      });
+      .catch(this.axiosErrorHandler('getDeviceState'));
     return response.data;
   }
 
   async getDeviceRawState(deviceId: string) {
     const response = await this.instance
       .get<ResponseSensorTHState>(`/device/TH/${deviceId}`)
-      .catch((error: AxiosError) => {
-        this.logger.error(
-          `getDeviceRawStatus(${error.response.status}) :${JSON.stringify(error.response.data)}`,
-        );
-
-        throw error;
-      });
+      .catch(this.axiosErrorHandler('getDeviceRawState'));
     return response.data;
   }
 
   async getHomes() {
     const response = await this.instance
       .get<ResponseHome>('/homes')
-      .catch((error: AxiosError) => {
-        this.logger.error(
-          `getHomes(${error.response.status}) :${JSON.stringify(error.response.data)}`,
-        );
-
-        throw error;
-      });
+      .catch(this.axiosErrorHandler('getHomes'));
     return response.data.result;
   }
 
   async getHomeWithRooms(homeId: number) {
     const response = await this.instance
       .get<ResponseHomeWithRooms>(`/homes/${homeId}/rooms`)
-      .catch((error: AxiosError) => {
-        this.logger.error(
-          `getHomeWithRooms(${error.response.status}) :${JSON.stringify(error.response.data)}`,
-        );
-
-        throw error;
-      });
+      .catch(this.axiosErrorHandler('getHomeWithRooms'));
     return response.data;
   }
 
   async setDeviceControl<T>(id: string, body: RequestDeviceControl<T>) {
-    await this.instance.post(`/control/${id}`, body);
+    await this.instance
+      .post(`/control/${id}`, body)
+      .catch(this.axiosErrorHandler('setDeviceControl'));
   }
 }
