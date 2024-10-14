@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMessageTemplateDto } from './dto/create-message-template.dto';
 import { UpdateMessageTemplateDto } from './dto/update-message-template.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessageTemplate } from './entities/message-template.entity';
 import { Repository } from 'typeorm';
-
+import * as stringTemplate from 'string-template';
 @Injectable()
 export class MessageTemplateService {
   constructor(
@@ -12,19 +12,29 @@ export class MessageTemplateService {
     private readonly messageTemplateRepository: Repository<MessageTemplate>,
   ) {}
 
-  create(createMessageTemplateDto: CreateMessageTemplateDto) {
+  async create(createMessageTemplateDto: CreateMessageTemplateDto) {
     return this.messageTemplateRepository.save(createMessageTemplateDto);
   }
 
-  findAll() {
+  async findAll() {
     return this.messageTemplateRepository.find();
   }
 
-  findOne(id: string) {
-    return this.messageTemplateRepository.findOne({ where: { id } });
+  async findOne(id: string) {
+    const template = await this.messageTemplateRepository.findOne({
+      where: { id },
+    });
+    if (!template) {
+      throw new NotFoundException('Message template not found');
+    }
+    return template;
   }
 
-  update(id: string, updateMessageTemplateDto: UpdateMessageTemplateDto) {
+  async update(id: string, updateMessageTemplateDto: UpdateMessageTemplateDto) {
     return this.messageTemplateRepository.update(id, updateMessageTemplateDto);
+  }
+
+  makeTemplateMessage(content: string, params: object) {
+    return stringTemplate(content, params);
   }
 }

@@ -1,4 +1,4 @@
-import { MessageTemplate } from 'src/message-template/entities/message-template.entity';
+import { MessageTemplate } from '../../message-template/entities/message-template.entity';
 import { Room } from '../../room/entities/room.entity';
 import {
   Column,

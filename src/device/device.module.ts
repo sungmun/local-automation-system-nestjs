@@ -5,9 +5,14 @@ import { Device } from './entities/device.entity';
 import { CloudDeviceService } from './cloud-device.service';
 import { DataBaseDeviceService } from './database-device.service';
 import { HejhomeApiModule } from '../hejhome-api/hejhome-api.module';
+import { MessageTemplateModule } from '../message-template/message-template.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Device]), HejhomeApiModule],
+  imports: [
+    TypeOrmModule.forFeature([Device]),
+    HejhomeApiModule,
+    MessageTemplateModule,
+  ],
   controllers: [DeviceController],
   providers: [DataBaseDeviceService, CloudDeviceService],
   exports: [DataBaseDeviceService, CloudDeviceService],

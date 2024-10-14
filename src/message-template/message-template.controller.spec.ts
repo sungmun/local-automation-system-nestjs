@@ -11,7 +11,9 @@ describe('MessageTemplateController', () => {
       providers: [MessageTemplateService],
     }).compile();
 
-    controller = module.get<MessageTemplateController>(MessageTemplateController);
+    controller = module.get<MessageTemplateController>(
+      MessageTemplateController,
+    );
   });
 
   it('should be defined', () => {

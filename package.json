@@ -32,13 +32,13 @@
     "@types/lodash": "^4.17.9",
     "axios": "^1.7.7",
     "class-validator": "^0.14.1",
-    "got": "^14.4.2",
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "s": "^1.0.0",
     "service": "^0.1.4",
     "sqlite3": "^5.1.7",
+    "string-template": "^1.0.0",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
