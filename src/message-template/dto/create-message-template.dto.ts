@@ -5,7 +5,10 @@ export class CreateMessageTemplateDto {
   name: string;
 
   @IsString()
-  content: string;
+  body: string;
+
+  @IsString()
+  title: string;
 
   @IsString()
   @IsOptional()

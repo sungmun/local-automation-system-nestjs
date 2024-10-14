@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Device } from './entities/device.entity';
+import { MessageTemplateService } from '../message-template/message-template.service';
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
@@ -10,6 +11,7 @@ export class DataBaseDeviceService {
   constructor(
     @InjectRepository(Device)
     private readonly deviceRepository: Repository<Device>,
+    private readonly messageTemplateService: MessageTemplateService,
   ) {}
 
   async bulkInsert(
@@ -50,5 +52,14 @@ export class DataBaseDeviceService {
       .where('device.roomId = :roomId OR device.roomId IS NULL', { roomId })
       .andWhere('device.deviceType = :deviceType', { deviceType })
       .getMany();
+  }
+
+  async connectMessageTemplate(deviceId: string, messageTemplateId: string) {
+    const template =
+      await this.messageTemplateService.findOne(messageTemplateId);
+    const device = await this.findOne(deviceId);
+
+    device.messageTemplates.push(template);
+    await this.deviceRepository.save(device);
   }
 }

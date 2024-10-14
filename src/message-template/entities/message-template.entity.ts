@@ -1,4 +1,4 @@
-import { Device } from 'src/device/entities/device.entity';
+import { Device } from '../../device/entities/device.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -17,7 +17,10 @@ export class MessageTemplate {
   name: string;
 
   @Column({ type: 'text' })
-  content: string;
+  body: string;
+
+  @Column({ type: 'text' })
+  title: string;
 
   @Column({ type: 'text' })
   type: string;
