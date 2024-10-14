@@ -91,6 +91,7 @@ describe('TaskService', () => {
         hasSubDevices: false,
         active: true,
         state: '{}',
+        activeMessageTemplate: false,
       },
     ];
     jest.spyOn(databaseDeviceService, 'findAll').mockResolvedValue(devices);

@@ -13,7 +13,10 @@ export class DataBaseDeviceService {
   ) {}
 
   async bulkInsert(
-    devices: PartialBy<Device, 'active' | 'platform'>[],
+    devices: PartialBy<
+      Device,
+      'active' | 'platform' | 'activeMessageTemplate'
+    >[],
   ): Promise<void> {
     await this.deviceRepository.save(devices);
   }
