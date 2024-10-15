@@ -34,7 +34,7 @@ export class MessageTemplateService {
     return this.messageTemplateRepository.update(id, updateMessageTemplateDto);
   }
 
-  makeTemplateMessage(content: string, params: object) {
+  makeTemplateMessage(content: string, params: object): string {
     return stringTemplate(content, params);
   }
 }

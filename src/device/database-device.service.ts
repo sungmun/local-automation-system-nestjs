@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Device } from './entities/device.entity';
 import { MessageTemplateService } from '../message-template/message-template.service';
+import { ResponseDeviceState } from 'src/hejhome-api/hejhome-api.interface';
+import { PushMessagingService } from 'src/push-messaging/push-messaging.service';
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
@@ -12,6 +14,7 @@ export class DataBaseDeviceService {
     @InjectRepository(Device)
     private readonly deviceRepository: Repository<Device>,
     private readonly messageTemplateService: MessageTemplateService,
+    private readonly pushMessagingService: PushMessagingService,
   ) {}
 
   async bulkInsert(
@@ -71,5 +74,36 @@ export class DataBaseDeviceService {
     device.messageTemplates = [...device.messageTemplates, template];
 
     await this.deviceRepository.save(device);
+  }
+
+  async changedDeviceSendMessage(state: ResponseDeviceState) {
+    const device = await this.findOne(state.id, ['messageTemplates']);
+    if (device.activeMessageTemplate === false) return;
+    const messageTemplates = device.messageTemplates.filter(
+      (template) => template.type === 'changed',
+    );
+
+    const messages = messageTemplates.map((template) => ({
+      body: this.messageTemplateService.makeTemplateMessage(template.body, {
+        name: device.name,
+        afterPower: state.deviceState['power'],
+        delayTime: Math.floor(
+          (Date.now() - Date.parse(device.updateStateAt)) / 1000 / 60,
+        ),
+      }),
+      title: this.messageTemplateService.makeTemplateMessage(template.title, {
+        name: device.name,
+        afterPower: state.deviceState['power'],
+      }),
+    }));
+
+    await Promise.all(
+      messages.map(async (message) => {
+        await this.pushMessagingService.sendMessage(
+          message.title,
+          message.body,
+        );
+      }),
+    );
   }
 }

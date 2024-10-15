@@ -3,5 +3,6 @@ import { PushMessagingService } from './push-messaging.service';
 
 @Module({
   providers: [PushMessagingService],
+  exports: [PushMessagingService],
 })
 export class PushMessagingModule {}

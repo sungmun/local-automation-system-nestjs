@@ -43,4 +43,9 @@ export class DeviceController {
   ) {
     return this.databaseDeviceService.connectMessageTemplate(id, templateId);
   }
+
+  @OnEvent('changed.**', { async: true })
+  async changedDeviceSendMessage(state: ResponseDeviceState) {
+    return this.databaseDeviceService.changedDeviceSendMessage(state);
+  }
 }
