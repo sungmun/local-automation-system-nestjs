@@ -8,13 +8,27 @@ export class DeviceController {
   constructor(private readonly databaseDeviceService: DataBaseDeviceService) {}
 
   @OnEvent('finish.**', { async: true })
-  async FinishEvent(state: ResponseDeviceState) {
+  async finishEvent(state: ResponseDeviceState) {
     await this.databaseDeviceService.updateState(state.id, state.deviceState);
   }
-
+  @Get('/:id')
+  async detailDevice(@Param('id') id: string) {
+    return this.databaseDeviceService.findOne(id, ['messageTemplates', 'room']);
+  }
   @Patch('/:id/active')
-  async updateActive(@Param('id') id: string, @Body() active: boolean) {
+  async updateActive(@Param('id') id: string, @Body('active') active: boolean) {
     await this.databaseDeviceService.updateActive(id, active);
+  }
+
+  @Patch('/:id/active-message-template')
+  async updateActiveMessageTemplate(
+    @Param('id') id: string,
+    @Body('activeMessageTemplate') activeMessageTemplate: boolean,
+  ) {
+    await this.databaseDeviceService.updateActiveMessageTemplate(
+      id,
+      activeMessageTemplate,
+    );
   }
 
   @Get('/')

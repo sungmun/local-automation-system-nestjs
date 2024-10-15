@@ -42,6 +42,13 @@ export class DataBaseDeviceService {
     await this.deviceRepository.update(id, { active });
   }
 
+  async updateActiveMessageTemplate(
+    id: string,
+    activeMessageTemplate: boolean,
+  ): Promise<void> {
+    await this.deviceRepository.update(id, { activeMessageTemplate });
+  }
+
   async updateState(id: string, state: object): Promise<void> {
     await this.deviceRepository.update(id, { state: JSON.stringify(state) });
   }
