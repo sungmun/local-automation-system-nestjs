@@ -4,6 +4,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryColumn,
@@ -58,5 +59,6 @@ export class Device {
     () => MessageTemplate,
     (messageTemplate) => messageTemplate.devices,
   )
+  @JoinTable({ name: 'DeviceMessageTemplates' })
   messageTemplates?: MessageTemplate[];
 }

@@ -27,8 +27,11 @@ export class DataBaseDeviceService {
     return this.deviceRepository.find();
   }
 
-  async findOne(id: string): Promise<Device> {
-    const device = await this.deviceRepository.findOneBy({ id });
+  async findOne(id: string, relations: string[] = []): Promise<Device> {
+    const device = await this.deviceRepository.findOne({
+      where: { id },
+      relations,
+    });
     if (device === null) {
       throw new NotFoundException('device not found error', id);
     }
@@ -57,9 +60,9 @@ export class DataBaseDeviceService {
   async connectMessageTemplate(deviceId: string, messageTemplateId: string) {
     const template =
       await this.messageTemplateService.findOne(messageTemplateId);
-    const device = await this.findOne(deviceId);
+    const device = await this.findOne(deviceId, ['messageTemplates']);
+    device.messageTemplates = [...device.messageTemplates, template];
 
-    device.messageTemplates.push(template);
     await this.deviceRepository.save(device);
   }
 }

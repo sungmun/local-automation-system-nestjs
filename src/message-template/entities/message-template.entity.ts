@@ -5,10 +5,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
+  JoinTable,
+  ManyToMany,
 } from 'typeorm';
 
-@Entity()
+@Entity('MessageTemplates')
 export class MessageTemplate {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -31,6 +32,7 @@ export class MessageTemplate {
   @UpdateDateColumn({ type: 'datetime' })
   updatedAt: Date;
 
-  @ManyToOne(() => Device, (device) => device.messageTemplates)
+  @ManyToMany(() => Device, (device) => device.messageTemplates)
+  @JoinTable({ name: 'DeviceMessageTemplates' })
   devices: Device[];
 }
