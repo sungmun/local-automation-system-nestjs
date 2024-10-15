@@ -8,6 +8,7 @@ import {
   ManyToMany,
   ManyToOne,
   PrimaryColumn,
+  BeforeUpdate,
 } from 'typeorm';
 
 @Entity('Devices')
@@ -51,6 +52,9 @@ export class Device {
 
   @Column({ type: 'text', nullable: true, default: '{}' })
   state?: string;
+
+  @Column({ type: 'date', nullable: true })
+  updateStateAt?: string;
 
   @Column({ default: false })
   activeMessageTemplate: boolean;
