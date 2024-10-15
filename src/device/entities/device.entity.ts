@@ -1,5 +1,15 @@
+import { MessageTemplate } from '../../message-template/entities/message-template.entity';
 import { Room } from '../../room/entities/room.entity';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryColumn,
+  BeforeUpdate,
+} from 'typeorm';
 
 @Entity('Devices')
 export class Device {
@@ -42,4 +52,17 @@ export class Device {
 
   @Column({ type: 'text', nullable: true, default: '{}' })
   state?: string;
+
+  @Column({ type: 'date', nullable: true })
+  updateStateAt?: string;
+
+  @Column({ default: false })
+  activeMessageTemplate: boolean;
+
+  @ManyToMany(
+    () => MessageTemplate,
+    (messageTemplate) => messageTemplate.devices,
+  )
+  @JoinTable({ name: 'DeviceMessageTemplates' })
+  messageTemplates?: MessageTemplate[];
 }

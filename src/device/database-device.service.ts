@@ -2,6 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Device } from './entities/device.entity';
+import { MessageTemplateService } from '../message-template/message-template.service';
+import { ResponseDeviceState } from 'src/hejhome-api/hejhome-api.interface';
+import { PushMessagingService } from 'src/push-messaging/push-messaging.service';
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
@@ -10,10 +13,15 @@ export class DataBaseDeviceService {
   constructor(
     @InjectRepository(Device)
     private readonly deviceRepository: Repository<Device>,
+    private readonly messageTemplateService: MessageTemplateService,
+    private readonly pushMessagingService: PushMessagingService,
   ) {}
 
   async bulkInsert(
-    devices: PartialBy<Device, 'active' | 'platform'>[],
+    devices: PartialBy<
+      Device,
+      'active' | 'platform' | 'activeMessageTemplate'
+    >[],
   ): Promise<void> {
     await this.deviceRepository.save(devices);
   }
@@ -22,8 +30,11 @@ export class DataBaseDeviceService {
     return this.deviceRepository.find();
   }
 
-  async findOne(id: string): Promise<Device> {
-    const device = await this.deviceRepository.findOneBy({ id });
+  async findOne(id: string, relations: string[] = []): Promise<Device> {
+    const device = await this.deviceRepository.findOne({
+      where: { id },
+      relations,
+    });
     if (device === null) {
       throw new NotFoundException('device not found error', id);
     }
@@ -32,6 +43,13 @@ export class DataBaseDeviceService {
 
   async updateActive(id: string, active: boolean): Promise<void> {
     await this.deviceRepository.update(id, { active });
+  }
+
+  async updateActiveMessageTemplate(
+    id: string,
+    activeMessageTemplate: boolean,
+  ): Promise<void> {
+    await this.deviceRepository.update(id, { activeMessageTemplate });
   }
 
   async updateState(id: string, state: object): Promise<void> {
@@ -47,5 +65,45 @@ export class DataBaseDeviceService {
       .where('device.roomId = :roomId OR device.roomId IS NULL', { roomId })
       .andWhere('device.deviceType = :deviceType', { deviceType })
       .getMany();
+  }
+
+  async connectMessageTemplate(deviceId: string, messageTemplateId: string) {
+    const template =
+      await this.messageTemplateService.findOne(messageTemplateId);
+    const device = await this.findOne(deviceId, ['messageTemplates']);
+    device.messageTemplates = [...device.messageTemplates, template];
+
+    await this.deviceRepository.save(device);
+  }
+
+  async changedDeviceSendMessage(state: ResponseDeviceState) {
+    const device = await this.findOne(state.id, ['messageTemplates']);
+    if (device.activeMessageTemplate === false) return;
+    const messageTemplates = device.messageTemplates.filter(
+      (template) => template.type === 'changed',
+    );
+
+    const messages = messageTemplates.map((template) => ({
+      body: this.messageTemplateService.makeTemplateMessage(template.body, {
+        name: device.name,
+        afterPower: state.deviceState['power'],
+        delayTime: Math.floor(
+          (Date.now() - Date.parse(device.updateStateAt)) / 1000 / 60,
+        ),
+      }),
+      title: this.messageTemplateService.makeTemplateMessage(template.title, {
+        name: device.name,
+        afterPower: state.deviceState['power'],
+      }),
+    }));
+
+    await Promise.all(
+      messages.map(async (message) => {
+        await this.pushMessagingService.sendMessage(
+          message.title,
+          message.body,
+        );
+      }),
+    );
   }
 }

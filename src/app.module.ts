@@ -13,6 +13,8 @@ import { HejhomeMessageQueueModule } from './hejhome-message-queue/hejhome-messa
 import { ScheduleModule } from '@nestjs/schedule';
 import { DeviceStateModule } from './device-state/device-state.module';
 import { TimerManagerModule } from './timer-manager/timer-manager.module';
+import { MessageTemplateModule } from './message-template/message-template.module';
+import { PushMessagingModule } from './push-messaging/push-messaging.module';
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { TimerManagerModule } from './timer-manager/timer-manager.module';
     HejhomeMessageQueueModule,
     DeviceStateModule,
     TimerManagerModule,
+    MessageTemplateModule,
+    PushMessagingModule,
   ],
 })
 export class AppModule {}
