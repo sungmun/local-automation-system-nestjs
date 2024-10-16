@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Device } from './entities/device.entity';
 import { MessageTemplateService } from '../message-template/message-template.service';
-import { ResponseDeviceState } from 'src/hejhome-api/hejhome-api.interface';
-import { PushMessagingService } from 'src/push-messaging/push-messaging.service';
+import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
+import { PushMessagingService } from '../push-messaging/push-messaging.service';
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 

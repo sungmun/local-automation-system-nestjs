@@ -7,7 +7,7 @@ import { DataBaseDeviceService } from './database-device.service';
 import { HejhomeApiModule } from '../hejhome-api/hejhome-api.module';
 import { MessageTemplateModule } from '../message-template/message-template.module';
 import { DeviceSubscriber } from './entities/device.entity.subscriber';
-import { PushMessagingModule } from 'src/push-messaging/push-messaging.module';
+import { PushMessagingModule } from '../push-messaging/push-messaging.module';
 
 @Module({
   imports: [
