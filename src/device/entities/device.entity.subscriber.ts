@@ -8,9 +8,6 @@ import { Device } from './device.entity';
 
 @EventSubscriber()
 export class DeviceSubscriber implements EntitySubscriberInterface<Device> {
-  constructor(private readonly dataSource: DataSource) {
-    dataSource.subscribers.push(this);
-  }
   listenTo() {
     return Device;
   }

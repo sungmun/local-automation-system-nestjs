@@ -1,14 +1,18 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios, { AxiosInstance } from 'axios';
+import { Axios } from 'axios';
+import * as http from 'http';
+import * as https from 'https';
 
 @Injectable()
 export class PushMessagingService {
   private readonly logger = new Logger(PushMessagingService.name);
-  private readonly pushInstance: AxiosInstance;
+  private readonly pushInstance: Axios;
   constructor(private readonly configService: ConfigService) {
-    this.pushInstance = axios.create({
+    this.pushInstance = new Axios({
       baseURL: 'https://ntfy.sh',
+      httpAgent: new http.Agent({ keepAlive: true }),
+      httpsAgent: new https.Agent({ keepAlive: true }),
     });
   }
 
