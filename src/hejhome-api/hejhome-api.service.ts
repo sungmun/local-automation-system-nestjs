@@ -12,18 +12,18 @@ import {
   ResponseHomeWithRooms,
   ResponseSensorTHState,
 } from './hejhome-api.interface';
-import axios, { Axios, AxiosError, AxiosInstance } from 'axios';
+import { Axios, AxiosError } from 'axios';
 
 @Injectable()
 export class HejhomeApiService {
-  private authInstance: AxiosInstance;
-  private instance: AxiosInstance;
+  private authInstance: Axios;
+  private instance: Axios;
   private readonly logger = new Logger(HejhomeApiService.name);
 
   constructor(private readonly configService: ConfigService) {
     const clientId = configService.get('CLIENT_ID');
     const clientSecret = configService.get('CLIENT_SECRET');
-    this.authInstance = axios.create({
+    this.authInstance = new Axios({
       baseURL: 'https://goqual.io/oauth',
       httpAgent: new http.Agent({ keepAlive: true }),
       httpsAgent: new https.Agent({ keepAlive: true }),
@@ -37,7 +37,7 @@ export class HejhomeApiService {
   setAccessToken(accessToken: string) {
     this.logger.debug('accessToken', accessToken);
 
-    this.instance = axios.create({
+    this.instance = new Axios({
       baseURL: 'https://goqual.io/openapi',
       httpAgent: new http.Agent({ keepAlive: true }),
       httpsAgent: new https.Agent({ keepAlive: true }),
