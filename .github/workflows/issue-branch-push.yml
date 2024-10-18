@@ -18,7 +18,7 @@ jobs:
           node-version: v22.7.0
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
-      - run: yarn test:cov --coverageReporters=text > coverage.txt
+      - run: npx jest --coverage --coverageReporters="text" > coverage.txt
       - name: Prepare coverage report in markdown
         uses: fingerprintjs/action-coverage-report-md@v2
         id: coverage
