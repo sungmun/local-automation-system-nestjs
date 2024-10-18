@@ -10,8 +10,12 @@ jobs:
   TestCoverageComment:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
       - run: yarn install --frozen-lockfile
-      - run: yarn test:cov --reporter=text > coverage.txt
+      - run: yarn test:cov --coverageReporters=text > coverage.txt
       - name: Prepare coverage report in markdown
         uses: fingerprintjs/action-coverage-report-md@v2
         id: coverage
