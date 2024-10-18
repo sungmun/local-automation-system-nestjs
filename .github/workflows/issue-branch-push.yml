@@ -1,0 +1,25 @@
+name: Issue Branch Push
+
+on:
+  push:
+    branches:
+      - feature/*
+      - bugfix/*
+
+jobs:
+  TestCoverageComment:
+    runs-on: ubuntu-latest
+    steps:
+      - run: yarn test:cov --reporter=text > coverage.txt
+      - name: Prepare coverage report in markdown
+        uses: fingerprintjs/action-coverage-report-md@v2
+        id: coverage
+        with:
+          textReportPath: './coverage.txt'
+      - run: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: "## Test Coverage Report\n\n" + steps.coverage.outputs.markdownReport,
+          })
