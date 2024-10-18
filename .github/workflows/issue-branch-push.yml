@@ -10,6 +10,7 @@ jobs:
   TestCoverageComment:
     runs-on: ubuntu-latest
     steps:
+      - run: yarn install --frozen-lockfile
       - run: yarn test:cov --reporter=text > coverage.txt
       - name: Prepare coverage report in markdown
         uses: fingerprintjs/action-coverage-report-md@v2
