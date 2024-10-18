@@ -7,8 +7,10 @@ on:
       - bugfix/*
 
 jobs:
-  TestCoverageComment:
+  TestCoverage:
     runs-on: ubuntu-latest
+    outputs:
+      markdownReport: ${{ steps.coverage.outputs.markdownReport }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,11 +24,12 @@ jobs:
         id: coverage
         with:
           textReportPath: './coverage.txt'
-      - run: ls -al
-      - run: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: "## Test Coverage Report\n\n" + steps.coverage.outputs.markdownReport,
-          })
+  IssueComment:
+    runs-on: ubuntu-latest
+    needs: TestCoverage
+    steps:
+      - name: Create comment
+        env:
+          MARK_DOWN: ${{ needs.TestCoverage.outputs.markdownReport}}
+        run: |
+          gh issue comment "$(echo ${GITHUB_REF#refs/heads/} | cut -d'/' -f2)" --body "## Test Coverage Report\n\n" + $MARK_DOWN
