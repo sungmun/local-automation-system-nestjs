@@ -10,6 +10,7 @@ jobs:
   TestCoverageComment:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - run: ls -al
       - uses: actions/setup-node@v4
         with:
