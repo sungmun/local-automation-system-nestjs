@@ -12,8 +12,9 @@ jobs:
     steps:
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version: v22.7.0
           cache: 'yarn'
+      - run: ls -al
       - run: yarn install --frozen-lockfile
       - run: yarn test:cov --coverageReporters=text > coverage.txt
       - name: Prepare coverage report in markdown
