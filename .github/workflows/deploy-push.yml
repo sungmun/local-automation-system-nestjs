@@ -16,6 +16,7 @@ jobs:
         with:
           node-version: v22.7.0
           cache: 'yarn'
+      - run: yarn global add @nestjs/cli
       - run: yarn install --frozen-lockfile --prod --silent
       - run: yarn build
       - name: Upload production artifacts
