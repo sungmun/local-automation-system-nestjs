@@ -38,7 +38,7 @@ jobs:
     needs: build
     steps:
       - name: Execute remote commands
-        uses: appleboy/ssh-action@master
+        uses: cross-the-world/ssh-pipeline@master
         env:
           SERVER_PATH: ${{ vars.SERVER_PATH }}
           ARTIFACTS_ID: ${{ needs.build.outputs.artifactsId }}
@@ -46,10 +46,9 @@ jobs:
           REPO: ${{ github.repository }}
         with:
           host: ${{ secrets.REMOTE_SSH_HOST }}
-          username: ${{ secrets.REMOTE_SSH_USERNAME }}
-          password: ${{ secrets.REMOTE_SSH_PASSWORD }}
+          user: ${{ secrets.REMOTE_SSH_USERNAME }}
+          pass: ${{ secrets.REMOTE_SSH_PASSWORD }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
-          envs: SERVER_PATH,ARTIFACTS_ID,GITHUB_TOKEN,REPO
           script: |
             cd "$SERVER_PATH"
             curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$REPO/actions/artifacts/$ARTIFACTS_ID/zip"
