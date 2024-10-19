@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: v22.7.0
           cache: 'yarn'
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --frozen-lockfile --prod --silent
       - run: yarn build
       - name: Upload production artifacts
         id: upload-artifacts
@@ -51,7 +51,6 @@ jobs:
           envs: SERVER_PATH,ARTIFACTS_ID,GITHUB_TOKEN,REPO
           script: |
             cd "$SERVER_PATH"
-            echo 'curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$REPO/actions/artifacts/$ARTIFACTS_ID/zip"'
             curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$REPO/actions/artifacts/$ARTIFACTS_ID/zip"
-            unzip "build.zip"
+            unzip -qqo "build.zip"
             yarn start:prod
