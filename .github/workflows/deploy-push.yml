@@ -54,6 +54,5 @@ jobs:
             cd "$SERVER_PATH"
             curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$REPO/actions/artifacts/$ARTIFACTS_ID/zip"
             unzip -qqo "build.zip"
-            echo "$PATH"
-            PATH=$PATH:/home/kwd/.yarn/bin
+            PATH=$PATH:/home/$(whoami)/.yarn/bin:/home/$(whoami)/.nvm/versions/node/v22.7.0/bin
             pm2 restart ecosystem.config.js
