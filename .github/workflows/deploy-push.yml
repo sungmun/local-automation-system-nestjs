@@ -43,16 +43,15 @@ jobs:
           ARTIFACTS_ID: ${{ needs.build.outputs.artifactsId }}
           GITHUB_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          OWNER: ${{ github.repository_owner }}
         with:
           host: ${{ secrets.REMOTE_SSH_HOST }}
           username: ${{ secrets.REMOTE_SSH_USERNAME }}
           password: ${{ secrets.REMOTE_SSH_PASSWORD }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
-          envs: SERVER_PATH,ARTIFACTS_ID,GITHUB_TOKEN,REPO,OWNER
+          envs: SERVER_PATH,ARTIFACTS_ID,GITHUB_TOKEN,REPO
           script: |
             cd "$SERVER_PATH"
-            echo 'curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$OWNER/$REPO/actions/artifacts/$ARTIFACTS_URL/zip"'
-            curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$OWNER/$REPO/actions/artifacts/$ARTIFACTS_URL/zip"
+            echo 'curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$REPO/actions/artifacts/$ARTIFACTS_ID/zip"'
+            curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$REPO/actions/artifacts/$ARTIFACTS_ID/zip"
             unzip "build.zip"
             yarn start:prod
