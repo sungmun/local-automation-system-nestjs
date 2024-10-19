@@ -39,7 +39,7 @@ jobs:
       - name: Execute remote commands
         uses: appleboy/ssh-action@master
         env:
-          SERVER_PATH: ${{ github.env.SERVER_PATH}}
+          SERVER_PATH: ${{ vars.SERVER_PATH }}
           ARTIFACTS_URL: ${{ needs.build.outputs.artifactsUrl }}
           GITHUB_TOKEN: ${{ github.token }}
         with:
