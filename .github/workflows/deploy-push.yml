@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      artifactsUrl: ${{ steps.upload-artifacts.outputs.artifact-url }}
+      artifactsId: ${{ steps.upload-artifacts.outputs.artifact-id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -40,17 +40,19 @@ jobs:
         uses: appleboy/ssh-action@master
         env:
           SERVER_PATH: ${{ vars.SERVER_PATH }}
-          ARTIFACTS_URL: ${{ needs.build.outputs.artifactsUrl }}
+          ARTIFACTS_ID: ${{ needs.build.outputs.artifactsId }}
           GITHUB_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
         with:
           host: ${{ secrets.REMOTE_SSH_HOST }}
           username: ${{ secrets.REMOTE_SSH_USERNAME }}
           password: ${{ secrets.REMOTE_SSH_PASSWORD }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
-          envs: SERVER_PATH,ARTIFACTS_URL,GITHUB_TOKEN
+          envs: SERVER_PATH,ARTIFACTS_ID,GITHUB_TOKEN,REPO,OWNER
           script: |
             cd "$SERVER_PATH"
-            echo 'curl -L -H \"Authorization: token $GITHUB_TOKEN\" -o \"build.zip\" \"$ARTIFACTS_URL\"'
-            curl -L -H "Authorization: token $GITHUB_TOKEN" -o "build.zip" "$ARTIFACTS_URL"
+            echo 'curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$OWNER/$REPO/actions/artifacts/$ARTIFACTS_URL/zip"'
+            curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$OWNER/$REPO/actions/artifacts/$ARTIFACTS_URL/zip"
             unzip "build.zip"
             yarn start:prod
