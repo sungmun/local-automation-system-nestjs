@@ -11,11 +11,10 @@ jobs:
     outputs:
       artifactsUrl: ${{ steps.upload-artifacts.outputs.artifact-url }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: v22.7.0
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
       - run: yarn build
@@ -40,7 +39,7 @@ jobs:
       - name: Execute remote commands
         uses: appleboy/ssh-action@master
         env:
-          SERVER_PATH: ${{ env.SERVER_PATH }}
+          SERVER_PATH: ${{ github.env.SERVER_PATH}}
           ARTIFACTS_URL: ${{ needs.build.outputs.artifactsUrl }}
           GITHUB_TOKEN: ${{ github.token }}
         with:
