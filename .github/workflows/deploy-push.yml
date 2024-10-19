@@ -32,6 +32,7 @@ jobs:
             package.json
             yarn.lock
             ecosystem.config.js
+            .nvmrc
 
   deploy:
     runs-on: ubuntu-latest
@@ -53,4 +54,6 @@ jobs:
             cd "$SERVER_PATH"
             curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$REPO/actions/artifacts/$ARTIFACTS_ID/zip"
             unzip -qqo "build.zip"
+            echo "$PATH"
+            PATH=$PATH:/home/kwd/.yarn/bin
             pm2 restart ecosystem.config.js
