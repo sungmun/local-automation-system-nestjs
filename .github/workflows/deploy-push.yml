@@ -1,0 +1,55 @@
+name: Deploy and Run
+
+on:
+  push:
+    branches:
+      - feature/#48
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      artifactsUrl: ${{ steps.upload-artifacts.outputs.artifact-url }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - name: Upload production artifacts
+        id: upload-artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          compression-level: 6
+          retention-days: 1
+          name: deploy-artifacts
+          path: |
+            dist/
+            node_modules/
+            package.json
+            yarn.lock
+            ecosystem.config.js
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Execute remote commands
+        uses: appleboy/ssh-action@master
+        env:
+          SERVER_PATH: ${{ env.SERVER_PATH }}
+          ARTIFACTS_URL: ${{ needs.build.outputs.artifactsUrl }}
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          host: ${{ secrets.REMOTE_SSH_HOST }}
+          username: ${{ secrets.REMOTE_SSH_USERNAME }}
+          password: ${{ secrets.REMOTE_SSH_PASSWORD }}
+          port: ${{ secrets.REMOTE_SSH_PORT }}
+          script: |
+            cd $SERVER_PATH
+            curl -L -H "Authorization: token $GITHUB_TOKEN" -o "build.zip" "$ARTIFACTS_URL"
+            unzip "build.zip"
+            yarn start:prod
