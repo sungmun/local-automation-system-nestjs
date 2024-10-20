@@ -24,7 +24,7 @@ jobs:
   TestCoverage:
     runs-on: ubuntu-latest
     needs: FindIssue
-    if: needs.FindIssue.outputs.workflowLabel != ''
+    if: needs.FindIssue.outputs.workflowLabel == ''
     outputs:
       markdownReport: ${{ steps.coverage.outputs.markdownReport }}
     steps:
