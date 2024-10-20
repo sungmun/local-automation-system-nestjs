@@ -12,6 +12,7 @@ jobs:
     outputs:
       workflowLabel: ${{ steps.workflowLabel.outputs.WORKFLOW_LABEL }}
     steps:
+      - uses: actions/checkout@v4
       - name: find issue labels workflow
         id: workflowLabel
         env:
