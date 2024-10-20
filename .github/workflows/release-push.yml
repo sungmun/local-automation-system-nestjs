@@ -15,11 +15,14 @@ jobs:
           node-version: v22.7.0
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
-      - run: yarn --silent test:cov --coverageReporters json-summary
-      - name: Jest Coverage Comment
+      - run: yarn --silent test:cov
+      - uses: ArtiomTr/jest-coverage-report-action@v2
         id: coverage
-        uses: MishaKav/jest-coverage-comment@main
-      - run: echo "${{ steps.coverage.outputs.summaryHtml }}" >> ./docs/coverage.md
+        with:
+          package-manager: yarn
+          skip-step: install
+          output: report-markdown
+      - run: echo "${{ steps.coverage.outputs.report }}" >> ./docs/coverage.md
       - name: Insert document files to template
         uses: ryohidaka/action-md-insert@v1
         with:
