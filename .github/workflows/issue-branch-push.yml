@@ -19,6 +19,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ISSUE_NUMBER=$(echo ${GITHUB_REF#refs/heads/} | cut -d'#' -f2)
+          echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
           echo "WORKFLOW_LABEL=$(gh issue view "$ISSUE_NUMBER" --json labels --jq '.labels|map(.name)|.[]|select(. == "workflow")')" >> $GITHUB_OUTPUT
   TestCoverage:
     runs-on: ubuntu-latest
