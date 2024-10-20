@@ -3,7 +3,7 @@ name: Release docs push
 on:
   push:
     branches:
-      - feature/#5
+      - feature/*
 
 jobs:
   make-coverage-report:
