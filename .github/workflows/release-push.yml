@@ -15,18 +15,25 @@ jobs:
           node-version: v22.7.0
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
-      - run: yarn --silent test:cov
-      - uses: ArtiomTr/jest-coverage-report-action@v2
+      - run: yarn --silent test:cov --coverageReporters=text > coverage.txt
+      - name: Prepare coverage report in markdown
+        uses: fingerprintjs/action-coverage-report-md@v2
         id: coverage
         with:
-          package-manager: yarn
-          skip-step: install
-          output: report-markdown
-      - run: echo "${{ steps.coverage.outputs.report }}" >> ./docs/coverage.md
+          textReportPath: './coverage.txt'
+      - name: Write coverage report to file
+        uses: joutvhu/write-file@v1
+        with:
+          path: './docs/coverage.md'
+          contents: ${{ steps.coverage.outputs.markdownReport }}
+          write_mode: overwrite
       - name: Insert document files to template
         uses: ryohidaka/action-md-insert@v1
         with:
           template_path: './docs/readme-template.md'
           src_dir: './docs'
           dest_file: 'README.md'
-      - run: cat README.md
+      - run: |
+          git add README.md
+          git commit -m 'docs: update coverage report'
+          git push
