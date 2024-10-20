@@ -3,7 +3,7 @@ name: Release docs push
 on:
   push:
     branches:
-      - feature/#58
+      - feature/#5
 
 jobs:
   make-coverage-report:
@@ -15,13 +15,11 @@ jobs:
           node-version: v22.7.0
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
-      - run: yarn --silent test:cov --coverageReporters=text > coverage.txt
-      - name: Prepare coverage report in markdown
-        uses: fingerprintjs/action-coverage-report-md@v2
+      - run: yarn --silent test:cov --coverageReporters json-summary
+      - name: Jest Coverage Comment
         id: coverage
-        with:
-          textReportPath: './coverage.txt'
-      - run: echo "${{ steps.coverage.outputs.markdownReport }}" >> ./docs/coverage.md
+        uses: MishaKav/jest-coverage-comment@main
+      - run: echo "${{ steps.coverage.outputs.summaryHtml }}" >> ./docs/coverage.md
       - name: Insert document files to template
         uses: ryohidaka/action-md-insert@v1
         with:
