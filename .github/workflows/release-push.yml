@@ -1,0 +1,31 @@
+name: Release docs push
+
+on:
+  push:
+    branches:
+      - feature/#58
+
+jobs:
+  make-coverage-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: v22.7.0
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn --silent test:cov --coverageReporters=text > coverage.txt
+      - name: Prepare coverage report in markdown
+        uses: fingerprintjs/action-coverage-report-md@v2
+        id: coverage
+        with:
+          textReportPath: './coverage.txt'
+      - run: echo "${{ steps.coverage.outputs.markdownReport }}" >> ./docs/coverage.md
+      - name: Insert document files to template
+        uses: ryohidaka/action-md-insert@v1
+        with:
+          template_path: './docs/readme-template.md'
+          src_dir: './docs'
+          dest_file: 'README.md'
+      - run: cat README.md
