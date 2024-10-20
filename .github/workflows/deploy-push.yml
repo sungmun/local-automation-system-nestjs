@@ -3,7 +3,7 @@ name: Deploy and Run
 on:
   push:
     branches:
-      - feature/#48
+      - main
 
 jobs:
   build:
