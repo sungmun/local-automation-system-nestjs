@@ -1,0 +1,19 @@
+name: Label New Issues
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add_label:
+    runs-on: ubuntu-latest
+    environment: CI_CD
+    steps:
+      - name: Add enhancement label if no labels are present
+        if: ${{ github.event.issue.labels == 0 }}
+        env:
+          GH_TOKEN: ${{ secrets.GIT_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          LABELS: enhancement
+        run: gh issue edit "$NUMBER" --add-label "$LABELS"

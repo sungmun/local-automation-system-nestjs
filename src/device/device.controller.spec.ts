@@ -3,6 +3,8 @@ import { DeviceController } from './device.controller';
 import { DataBaseDeviceService } from './database-device.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Device } from './entities/device.entity';
+import { MessageTemplateService } from '../message-template/message-template.service';
+import { PushMessagingService } from '../push-messaging/push-messaging.service';
 
 describe('DeviceController', () => {
   let controller: DeviceController;
@@ -14,6 +16,14 @@ describe('DeviceController', () => {
         DataBaseDeviceService,
         {
           provide: getRepositoryToken(Device),
+          useValue: {},
+        },
+        {
+          provide: MessageTemplateService,
+          useValue: {},
+        },
+        {
+          provide: PushMessagingService,
           useValue: {},
         },
       ],

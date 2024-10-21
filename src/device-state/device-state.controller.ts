@@ -1,12 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { DeviceStateService } from './device-state.service';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import {
-  ResponseDeviceState,
-  ResponseIrAirconditionerState,
-  ResponseSensorTHState,
-} from '../hejhome-api/hejhome-api.interface';
-import { TimerManagerService } from '../timer-manager/timer-manager.service';
+import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 
 @Controller()
 export class DeviceStateController {
@@ -28,13 +23,8 @@ export class DeviceStateController {
     }
   }
 
-  @OnEvent('changed.IrAirconditioner.*', { async: true })
-  async IrAirconditionerEvent(state: ResponseIrAirconditionerState) {
-    this.eventEmitter.emit(`finish.${state.deviceType}.${state.id}`, state);
-  }
-
-  @OnEvent('changed.SensorTh.*', { async: true })
-  async SensorThEvent(state: ResponseSensorTHState) {
+  @OnEvent('changed.**', { async: true })
+  async changeDeviceEvent(state: ResponseDeviceState) {
     this.eventEmitter.emit(`finish.${state.deviceType}.${state.id}`, state);
   }
 }

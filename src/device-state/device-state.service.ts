@@ -1,14 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import _ from 'lodash';
-
 import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
-import {
-  ResponseDeviceState,
-  ResponseSensorTHState,
-} from '../hejhome-api/hejhome-api.interface';
+import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 import { DataBaseDeviceService } from '../device/database-device.service';
-import { RoomService } from '../room/room.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class DeviceStateService {
@@ -16,7 +10,6 @@ export class DeviceStateService {
   constructor(
     private readonly hejhomeApiService: HejhomeApiService,
     private readonly databaseDeviceService: DataBaseDeviceService,
-    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async getDeviceState<T extends ResponseDeviceState>(

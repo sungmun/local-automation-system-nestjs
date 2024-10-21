@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
 import * as _ from 'lodash';
-import { ResponseRoom } from '../hejhome-api/hejhome-api.interface';
+import {
+  ResponseDevice,
+  ResponseRoom,
+} from '../hejhome-api/hejhome-api.interface';
 import { Device } from './entities/device.entity';
 
 @Injectable()
@@ -10,9 +13,8 @@ export class CloudDeviceService {
 
   constructor(private readonly hejhomeApiService: HejhomeApiService) {}
 
-  async getUniqueDevices(devices: Device[]) {
-    const uniqueDevices = _.uniqBy(devices.flat(), 'id');
-    return uniqueDevices;
+  async getUniqueDevices(devices: ResponseDevice[]) {
+    return _.uniqBy(devices.flat(), 'id');
   }
 
   async getDevices() {
@@ -30,7 +32,9 @@ export class CloudDeviceService {
           room.room_id,
         );
         return roomWithDevices.map((device) =>
-          Object.assign(device, { roomId: room.room_id }),
+          Object.assign(device, {
+            roomId: room.room_id,
+          }),
         );
       }),
     );

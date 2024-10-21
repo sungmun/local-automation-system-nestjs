@@ -13,6 +13,9 @@ import { HejhomeMessageQueueModule } from './hejhome-message-queue/hejhome-messa
 import { ScheduleModule } from '@nestjs/schedule';
 import { DeviceStateModule } from './device-state/device-state.module';
 import { TimerManagerModule } from './timer-manager/timer-manager.module';
+import { MessageTemplateModule } from './message-template/message-template.module';
+import { PushMessagingModule } from './push-messaging/push-messaging.module';
+import { DeviceSubscriber } from './device/entities/device.entity.subscriber';
 
 @Module({
   imports: [
@@ -28,6 +31,8 @@ import { TimerManagerModule } from './timer-manager/timer-manager.module';
       database: 'sql_lite.sqlite',
       autoLoadEntities: true,
       synchronize: true,
+      logging: process.env.NODE_ENV !== 'production',
+      subscribers: [DeviceSubscriber],
     }),
     ...(process.env.NODE_ENV !== 'test' ? [ScheduleModule.forRoot()] : []),
     InitModule,
@@ -40,6 +45,8 @@ import { TimerManagerModule } from './timer-manager/timer-manager.module';
     HejhomeMessageQueueModule,
     DeviceStateModule,
     TimerManagerModule,
+    MessageTemplateModule,
+    PushMessagingModule,
   ],
 })
 export class AppModule {}

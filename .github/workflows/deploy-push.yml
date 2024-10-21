@@ -1,0 +1,57 @@
+name: Deploy and Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      artifactsId: ${{ steps.upload-artifacts.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: v22.7.0
+          cache: 'yarn'
+      - run: yarn global add @nestjs/cli
+      - run: yarn install --frozen-lockfile --prod --silent
+      - run: yarn build
+      - name: Upload production artifacts
+        id: upload-artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          compression-level: 6
+          retention-days: 1
+          name: deploy-artifacts
+          path: |
+            dist/
+            node_modules/
+            package.json
+            yarn.lock
+            ecosystem.config.js
+            .nvmrc
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Execute remote commands
+        uses: cross-the-world/ssh-pipeline@master
+        env:
+          SERVER_PATH: ${{ vars.SERVER_PATH }}
+          ARTIFACTS_ID: ${{ needs.build.outputs.artifactsId }}
+          GITHUB_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        with:
+          host: ${{ secrets.REMOTE_SSH_HOST }}
+          user: ${{ secrets.REMOTE_SSH_USERNAME }}
+          pass: ${{ secrets.REMOTE_SSH_PASSWORD }}
+          port: ${{ secrets.REMOTE_SSH_PORT }}
+          script: |
+            cd "$SERVER_PATH"
+            curl -L -H "Authorization: Bearer $GITHUB_TOKEN" -o "build.zip" "https://api.github.com/repos/$REPO/actions/artifacts/$ARTIFACTS_ID/zip"
+            unzip -qqo "build.zip"
+            PATH=$PATH:/home/$(whoami)/.yarn/bin:/home/$(whoami)/.nvm/versions/node/v22.7.0/bin
+            pm2 restart ecosystem.config.js
