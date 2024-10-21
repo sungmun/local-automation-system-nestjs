@@ -1,12 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { DeviceStateService } from './device-state.service';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import {
-  ResponseDeviceState,
-  ResponseIrAirconditionerState,
-  ResponseSensorTHState,
-} from '../hejhome-api/hejhome-api.interface';
-import { TimerManagerService } from '../timer-manager/timer-manager.service';
+import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 
 @Controller()
 export class DeviceStateController {
