@@ -27,6 +27,7 @@ jobs:
     if: needs.FindIssue.outputs.workflowLabel == ''
     outputs:
       markdownReport: ${{ steps.coverage.outputs.markdownReport }}
+      coverageFinalJson: ${{ steps.coverage_final.outputs.COVERAGE_FINAL_JSON }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,7 +45,9 @@ jobs:
             ${{ runner.os }}-node-
       - if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
-      - run: yarn --silent test:cov --coverageReporters=text --changedSince=origin/develop > coverage.txt
+      - run: yarn --silent test:cov --changedSince=origin/develop > coverage.txt
+      - id: coverage_final
+        run: echo "COVERAGE_FINAL_JSON=$(cat ./coverage/coverage-final.json)" >> $GITHUB_OUTPUT
       - name: Prepare coverage report in markdown
         uses: fingerprintjs/action-coverage-report-md@v2
         id: coverage
@@ -53,6 +56,7 @@ jobs:
   IssueComment:
     runs-on: ubuntu-latest
     needs: TestCoverage
+    if: needs.TestCoverage.outputs.coverageFinalJson != '{}'
     steps:
       - name: Add coverage report to the job summary
         run: |
