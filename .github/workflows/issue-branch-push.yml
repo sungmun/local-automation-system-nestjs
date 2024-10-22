@@ -56,7 +56,7 @@ jobs:
   IssueComment:
     runs-on: ubuntu-latest
     needs: TestCoverage
-    if: needs.TestCoverage.outputs.coverageFinalJson == '{}'
+    if: needs.TestCoverage.outputs.coverageFinalJson != '{}'
     steps:
       - name: Add coverage report to the job summary
         run: |
