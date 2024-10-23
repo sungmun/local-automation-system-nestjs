@@ -48,7 +48,7 @@ jobs:
       - run: yarn --silent test:cov --changedSince=origin/develop > coverage.txt
       - id: coverage_final
         run: |
-          f [ "$(jq -r 'length' ./coverage/coverage-final.json)" -eq 0 ]; then
+          if [ "$(jq -r 'length' ./coverage/coverage-final.json)" -eq 0 ]; then
             echo "COVERAGE_IS_EMPTY=true" >> $GITHUB_OUTPUT
           else
             echo "COVERAGE_IS_EMPTY=false" >> $GITHUB_OUTPUT
