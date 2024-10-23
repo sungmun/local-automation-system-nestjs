@@ -5,7 +5,6 @@ import {
   ResponseDevice,
   ResponseRoom,
 } from '../hejhome-api/hejhome-api.interface';
-import { Device } from './entities/device.entity';
 
 @Injectable()
 export class CloudDeviceService {
