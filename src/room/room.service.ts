@@ -36,7 +36,11 @@ export class RoomService {
   }
 
   async getRoomById(roomId: number) {
-    return this.roomRepository.findOneBy({ id: roomId });
+    const room = await this.roomRepository.findOneBy({ id: roomId });
+    if (room === null) {
+      throw new NotFoundException('device not found error', `${roomId}`);
+    }
+    return room;
   }
 
   async getRoomsWithHomeId(homes: ResponseHome['result']) {
