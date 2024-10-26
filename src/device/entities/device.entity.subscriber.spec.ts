@@ -17,6 +17,10 @@ describe('DeviceSubscriber', () => {
     } as UpdateEvent<Device>;
   });
 
+  it('Device 엔티티를 구독해야 한다', () => {
+    expect(subscriber.listenTo()).toBe(Device);
+  });
+
   it('상태가 변경되면 updateStateAt이 업데이트되어야 한다', () => {
     subscriber.beforeUpdate(event);
     expect(event.entity.updateStateAt).not.toBeNull();

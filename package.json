@@ -1,6 +1,6 @@
 {
   "name": "local-automation-system-nestjs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Local Automation System",
   "author": "seungmun",
   "license": "MIT",
@@ -82,7 +82,8 @@
     ],
     "coveragePathIgnorePatterns": [
       ".module.ts",
-      ".entity.ts"
+      ".entity.ts",
+      "main.ts"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"

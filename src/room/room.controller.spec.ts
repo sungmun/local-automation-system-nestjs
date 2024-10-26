@@ -7,6 +7,7 @@ import { DataBaseDeviceService } from '../device/database-device.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Room } from './entities/room.entity';
 import { UpdateRoomDto } from './dto/updateRoom.dto';
+import { ResponseSensorTHState } from 'src/hejhome-api/hejhome-api.interface';
 
 describe('RoomController', () => {
   let controller: RoomController;
@@ -81,5 +82,24 @@ describe('RoomController', () => {
     });
   });
 
-  // 추가적인 테스트 케이스를 여기에 작성할 수 있습니다.
+  describe('setRoomTemperature', () => {
+    it('RoomService의 setRoomTemperature가 올바른 인자로 호출되어야 한다', async () => {
+      const state: ResponseSensorTHState = {
+        id: 'sensor1',
+        deviceType: 'SensorTh',
+        deviceState: { temperature: 2500, humidity: 50, battery: 90 },
+      };
+      jest
+        .spyOn(roomService, 'setRoomTemperature')
+        .mockResolvedValue({} as any);
+      const loggerSpy = jest.spyOn(controller['logger'], 'debug');
+      await controller.setRoomTemperature(state);
+
+      expect(loggerSpy).toHaveBeenCalledWith('setRoomTemperature', state);
+      expect(roomService.setRoomTemperature).toHaveBeenCalledWith(
+        'sensor1',
+        2500,
+      );
+    });
+  });
 });

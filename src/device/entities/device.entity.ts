@@ -8,7 +8,6 @@ import {
   ManyToMany,
   ManyToOne,
   PrimaryColumn,
-  BeforeUpdate,
 } from 'typeorm';
 
 @Entity('Devices')

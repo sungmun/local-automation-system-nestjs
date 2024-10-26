@@ -42,6 +42,39 @@ describe('AuthService', () => {
   });
 
   describe('setRefreshToken', () => {
+    it('토큰의 만료 시간이 없는경우 만료시간을 2000-01-01로 설정해야 한다', async () => {
+      const mockData = {
+        access_token: 'access_token',
+        refresh_token: 'refresh_token',
+      };
+      const newTokenData = {
+        access_token: 'new_access_token',
+        refresh_token: 'new_refresh_token',
+        expires_in: 3600,
+        token_type: 'bearer',
+        scope: 'openapi',
+      };
+
+      jest.spyOn(path, 'join').mockReturnValue('hej-code.json');
+      jest.spyOn(fs, 'readFile').mockResolvedValue(JSON.stringify(mockData));
+
+      jest
+        .spyOn(hejhomeApiService, 'getAccessToken')
+        .mockResolvedValue(newTokenData);
+      await service.setRefreshToken();
+
+      expect(configService.set).toHaveBeenCalledWith(
+        'HEJ_HOME_ACCESS_TOKEN',
+        mockData.access_token,
+      );
+      expect(configService.set).toHaveBeenCalledWith(
+        'HEJ_HOME_REFRESH_TOKEN',
+        mockData.refresh_token,
+      );
+      expect(hejhomeApiService.setAccessToken).toHaveBeenCalledWith(
+        mockData.access_token,
+      );
+    });
     it('토큰이 만료되지 않았을 때 설정해야 한다', async () => {
       const mockData = {
         access_token: 'access_token',
