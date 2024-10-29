@@ -3,10 +3,14 @@ import { CreateDeviceLogDto } from './dto/create-device-log.dto';
 import { Repository } from 'typeorm';
 import { DeviceLog } from './entities/device-log.entity';
 import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class DeviceLogService {
-  constructor(private readonly deviceLogRepository: Repository<DeviceLog>) {}
+  constructor(
+    @InjectRepository(DeviceLog)
+    private readonly deviceLogRepository: Repository<DeviceLog>,
+  ) {}
   async log(message: string, createDeviceLogDto: CreateDeviceLogDto) {
     const deviceLog = this.deviceLogRepository.create({
       deviceId: createDeviceLogDto.deviceId,
