@@ -20,9 +20,12 @@ export class DeviceLogService {
     await this.deviceLogRepository.save(deviceLog);
   }
 
+  async findLogs() {
+    return this.deviceLogRepository.find({ order: { createdAt: 'DESC' } });
+  }
+
   async autoChangeLog(state: ResponseDeviceState) {
     const { id, deviceState } = state;
-
     await this.log(
       `[${state.deviceType}](${id}) / ${JSON.stringify(deviceState)}`,
       {
