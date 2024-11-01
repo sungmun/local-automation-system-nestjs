@@ -8,11 +8,12 @@ import {
   ResponseAccessToken,
   ResponseDevice,
   ResponseDeviceState,
+  ResponseDeviceStateError,
   ResponseHome,
   ResponseHomeWithRooms,
   ResponseSensorTHState,
 } from './hejhome-api.interface';
-import { Axios, AxiosError } from 'axios';
+import { Axios, AxiosError, AxiosResponse } from 'axios';
 
 @Injectable()
 export class HejhomeApiService {
@@ -44,15 +45,35 @@ export class HejhomeApiService {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
+      transformResponse: [
+        (data) => {
+          if (typeof data === 'string') {
+            return JSON.parse(data);
+          }
+          return data;
+        },
+      ],
     });
   }
 
   private axiosErrorHandler(methodName: string) {
     return (error: AxiosError): never => {
-      this.logger.error(
-        `${methodName}(${error.response.status}) :${JSON.stringify(error.response.data || {})}`,
-      );
+      if (error.isAxiosError) {
+        this.logger.error(
+          `${methodName}(${error.response.status}) :${JSON.stringify(error.response.data || {})}`,
+        );
+      }
       throw error;
+    };
+  }
+
+  private hejhomeApiErrorHandler<T extends object>(methodName: string) {
+    return (response: AxiosResponse<T>) => {
+      if ('message' in response.data) {
+        this.logger.error(`${methodName} : ${response.data.message}`);
+        throw new Error(response.data.message as string);
+      }
+      return response;
     };
   }
 
@@ -70,6 +91,7 @@ export class HejhomeApiService {
   async getRoomWithDevices(hoomId: number, roomId: number) {
     const response = await this.instance
       .get<ResponseDevice[]>(`/homes/${hoomId}/rooms/${roomId}/devices`)
+      .then(this.hejhomeApiErrorHandler('getRoomWithDevices'))
       .catch(this.axiosErrorHandler('getRoomWithDevices'));
     return response.data;
   }
@@ -77,13 +99,17 @@ export class HejhomeApiService {
   async getDevices() {
     const response = await this.instance
       .get<ResponseDevice[]>(`/devices`)
+      .then(this.hejhomeApiErrorHandler('getDevices'))
       .catch(this.axiosErrorHandler('getDevices'));
     return response.data;
   }
 
-  async getDeviceState<T extends ResponseDeviceState>(deviceId: string) {
+  async getDeviceState<
+    T extends ResponseDeviceState | ResponseDeviceStateError,
+  >(deviceId: string) {
     const response = await this.instance
       .get<T>(`/device/${deviceId}`)
+      .then(this.hejhomeApiErrorHandler('getDeviceState'))
       .catch(this.axiosErrorHandler('getDeviceState'));
     return response.data;
   }
@@ -91,6 +117,7 @@ export class HejhomeApiService {
   async getDeviceRawState(deviceId: string) {
     const response = await this.instance
       .get<ResponseSensorTHState>(`/device/TH/${deviceId}`)
+      .then(this.hejhomeApiErrorHandler('getDeviceRawState'))
       .catch(this.axiosErrorHandler('getDeviceRawState'));
     return response.data;
   }
@@ -98,13 +125,16 @@ export class HejhomeApiService {
   async getHomes() {
     const response = await this.instance
       .get<ResponseHome>('/homes')
+      .then(this.hejhomeApiErrorHandler('getHomes'))
       .catch(this.axiosErrorHandler('getHomes'));
+
     return response.data.result;
   }
 
   async getHomeWithRooms(homeId: number) {
     const response = await this.instance
       .get<ResponseHomeWithRooms>(`/homes/${homeId}/rooms`)
+      .then(this.hejhomeApiErrorHandler('getHomeWithRooms'))
       .catch(this.axiosErrorHandler('getHomeWithRooms'));
     return response.data;
   }
@@ -112,6 +142,7 @@ export class HejhomeApiService {
   async setDeviceControl<T>(id: string, body: RequestDeviceControl<T>) {
     await this.instance
       .post(`/control/${id}`, body)
+      .then(this.hejhomeApiErrorHandler('setDeviceControl'))
       .catch(this.axiosErrorHandler('setDeviceControl'));
   }
 }

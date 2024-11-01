@@ -54,64 +54,81 @@ describe('TaskService', () => {
   it('서비스가 정의되어야 한다', () => {
     expect(service).toBeDefined();
   });
+  describe('checkDevicesEvery30Seconds', () => {
+    it('MQ가 연결되어 있으면 cron 동작을 하지 않아야 한다', async () => {
+      jest
+        .spyOn(hejhomeMessageQueueService, 'isConnected')
+        .mockReturnValue(true);
+      const logSpy = jest.spyOn(service['logger'], 'log');
 
-  it('MQ가 연결되어 있으면 cron 동작을 하지 않아야 한다', async () => {
-    jest.spyOn(hejhomeMessageQueueService, 'isConnected').mockReturnValue(true);
-    const logSpy = jest.spyOn(service['logger'], 'log');
+      await service.checkDevicesEvery30Seconds();
 
-    await service.checkDevicesEvery30Seconds();
+      expect(logSpy).toHaveBeenCalledWith('MQ is connected and not api check');
+      expect(databaseDeviceService.findAll).not.toHaveBeenCalled();
+    });
 
-    expect(logSpy).toHaveBeenCalledWith('MQ is connected and not api check');
-    expect(databaseDeviceService.findAll).not.toHaveBeenCalled();
+    it('MQ가 연결되어 있지 않으면 cron 동작을 해야 한다', async () => {
+      jest
+        .spyOn(hejhomeMessageQueueService, 'isConnected')
+        .mockReturnValue(false);
+      const hejhomeAPICheckSpy = jest
+        .spyOn(service, 'hejhomeAPICheck')
+        .mockImplementation(jest.fn());
+
+      await service.checkDevicesEvery30Seconds();
+
+      expect(hejhomeAPICheckSpy).toHaveBeenCalled();
+    });
   });
-
-  it('MQ가 연결되어 있지 않으면 cron 동작을 해야 한다', async () => {
-    jest
-      .spyOn(hejhomeMessageQueueService, 'isConnected')
-      .mockReturnValue(false);
-    const hejhomeAPICheckSpy = jest
-      .spyOn(service, 'hejhomeAPICheck')
-      .mockImplementation(jest.fn());
-
-    await service.checkDevicesEvery30Seconds();
-
-    expect(hejhomeAPICheckSpy).toHaveBeenCalled();
-  });
-
-  it('hejhomeAPICheck 시 모든 장치 상태를 가져와야 한다', async () => {
-    const devices: Device[] = [
-      {
+  describe('hejhomeAPICheck', () => {
+    beforeEach(() => {
+      const devices: Device[] = [
+        {
+          id: '1',
+          name: 'Device1',
+          deviceType: 'type1',
+          modelName: 'Model1',
+          familyId: 'Family1',
+          category: 'Category1',
+          online: true,
+          hasSubDevices: false,
+          active: true,
+          state: '{}',
+          activeMessageTemplate: false,
+        },
+      ];
+      jest.spyOn(databaseDeviceService, 'findAll').mockResolvedValue(devices);
+    });
+    it('hejhomeAPICheck 시 모든 장치 상태를 가져와야 한다', async () => {
+      const mockDeviceState: ResponseDeviceState = {
         id: '1',
-        name: 'Device1',
         deviceType: 'type1',
-        modelName: 'Model1',
-        familyId: 'Family1',
-        category: 'Category1',
-        online: true,
-        hasSubDevices: false,
-        active: true,
-        state: '{}',
-        activeMessageTemplate: false,
-      },
-    ];
-    jest.spyOn(databaseDeviceService, 'findAll').mockResolvedValue(devices);
-    const mockDeviceState: ResponseDeviceState = {
-      id: '1',
-      deviceType: 'type1',
-      deviceState: {},
-    };
-    jest
-      .spyOn(deviceStateService, 'getDeviceState')
-      .mockResolvedValue(mockDeviceState);
-    const emitSpy = jest.spyOn(eventEmitter, 'emit');
+        deviceState: {},
+      };
+      jest
+        .spyOn(deviceStateService, 'getDeviceState')
+        .mockResolvedValue(mockDeviceState);
+      const emitSpy = jest.spyOn(eventEmitter, 'emit');
 
-    await service.hejhomeAPICheck();
+      await service.hejhomeAPICheck();
 
-    expect(databaseDeviceService.findAll).toHaveBeenCalled();
-    expect(deviceStateService.getDeviceState).toHaveBeenCalledWith(
-      '1',
-      'type1',
-    );
-    expect(emitSpy).toHaveBeenCalledWith('set.type1.1', mockDeviceState);
+      expect(databaseDeviceService.findAll).toHaveBeenCalled();
+      expect(deviceStateService.getDeviceState).toHaveBeenCalledWith(
+        '1',
+        'type1',
+      );
+      expect(emitSpy).toHaveBeenCalledWith('set.type1.1', mockDeviceState);
+    });
+
+    it('장치 상태를 가져오는데 실패하면 로그를 찍어야 한다', async () => {
+      jest
+        .spyOn(deviceStateService, 'getDeviceState')
+        .mockRejectedValue(new Error('test'));
+      const logSpy = jest.spyOn(service['logger'], 'error');
+
+      await service.hejhomeAPICheck();
+
+      expect(logSpy).toHaveBeenCalledWith('[1] - type1 : test');
+    });
   });
 });

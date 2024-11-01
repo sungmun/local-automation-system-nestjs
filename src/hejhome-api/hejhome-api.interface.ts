@@ -18,6 +18,10 @@ export interface ResponseDeviceState {
   };
 }
 
+export interface ResponseDeviceStateError {
+  message: string;
+}
+
 export interface ResponseIrAirconditionerState extends ResponseDeviceState {
   deviceType: 'IrAirconditioner';
   deviceState: ResponseIrAirconditioner;
