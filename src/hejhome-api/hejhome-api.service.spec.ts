@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HejhomeApiService } from './hejhome-api.service';
 import { ConfigService } from '@nestjs/config';
 
-import { AxiosError } from 'axios';
+import { Axios, AxiosError } from 'axios';
 import {
   ResponseAccessToken,
   ResponseDevice,
@@ -13,6 +13,32 @@ import {
   RequestDeviceControl,
   IrAirconditionerControl,
 } from './hejhome-api.interface';
+const errorProcessTest = async (
+  beforeErrorSpy: jest.SpyInstance,
+  method: () => Promise<any>,
+  errorData?: any,
+) => {
+  const errorMessage = 'Network Error';
+  const error = new AxiosError(errorMessage, 'ERR_NETWORK', {} as any, null, {
+    status: 500,
+    data: errorData,
+    headers: {},
+    config: {} as any,
+    statusText: 'Internal Server Error',
+  });
+  beforeErrorSpy.mockRejectedValueOnce(error);
+
+  await expect(method()).rejects.toThrow(errorMessage);
+};
+
+const hejhomeApiErrorProcessTest = async (
+  beforeErrorSpy: jest.SpyInstance,
+  method: () => Promise<any>,
+) => {
+  const errorMessage = 'hejhome-api-error';
+  beforeErrorSpy.mockResolvedValueOnce({ data: { message: errorMessage } });
+  await expect(method()).rejects.toThrow(errorMessage);
+};
 
 describe('HejhomeApiService', () => {
   let service: HejhomeApiService;
@@ -36,34 +62,32 @@ describe('HejhomeApiService', () => {
     configService = module.get<ConfigService>(ConfigService);
   });
 
-  const errorProcessTest = async (
-    beforeErrorSpy: jest.SpyInstance,
-    method: () => Promise<any>,
-    errorData?: any,
-  ) => {
-    const errorMessage = 'Network Error';
-    const error = new AxiosError(errorMessage, 'ERR_NETWORK', {} as any, null, {
-      status: 500,
-      data: errorData,
-      headers: {},
-      config: {} as any,
-      statusText: 'Internal Server Error',
-    });
-    beforeErrorSpy.mockRejectedValueOnce(error);
-
-    await expect(method()).rejects.toThrow(errorMessage);
-  };
-
-  const hejhomeApiErrorProcessTest = async (
-    beforeErrorSpy: jest.SpyInstance,
-    method: () => Promise<any>,
-  ) => {
-    const errorMessage = 'hejhome-api-error';
-    beforeErrorSpy.mockResolvedValueOnce({ data: { message: errorMessage } });
-    await expect(method()).rejects.toThrow(errorMessage);
-  };
-
   describe('setAccessToken', () => {
+    it('transformResponse 콜백을 테스트해야 한다', async () => {
+      const accessToken = 'test-access-token';
+      service.setAccessToken(accessToken);
+
+      const mockResponseData = '{"key":"value"}';
+      const expectedTransformedData = { key: 'value' };
+      const transformResponse =
+        service['instance'].defaults.transformResponse[0];
+      const transformedData = transformResponse(mockResponseData, null, null);
+      expect(transformedData).toEqual({ key: 'value' });
+    });
+
+    it('transformResponse가 문자열이 아닌 데이터를 그대로 반환해야 한다', async () => {
+      const accessToken = 'test-access-token';
+
+      service.setAccessToken(accessToken);
+
+      const transformResponse =
+        service['instance'].defaults.transformResponse[0];
+      const transformedData = transformResponse({ key: 'value' }, null, null);
+      expect(transformedData).toEqual({ key: 'value' });
+    });
+  });
+
+  describe('getAccessToken', () => {
     it('성공적으로 액세스 토큰을 받아야 한다', async () => {
       const mockResponse: ResponseAccessToken = {
         access_token: 'test-access-token',

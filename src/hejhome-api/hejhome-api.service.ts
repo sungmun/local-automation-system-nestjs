@@ -45,12 +45,14 @@ export class HejhomeApiService {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-      transformResponse: (data) => {
-        if (typeof data === 'string') {
-          return JSON.parse(data);
-        }
-        return data;
-      },
+      transformResponse: [
+        (data) => {
+          if (typeof data === 'string') {
+            return JSON.parse(data);
+          }
+          return data;
+        },
+      ],
     });
   }
 
