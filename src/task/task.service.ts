@@ -28,10 +28,15 @@ export class TaskService {
   async hejhomeAPICheck() {
     const devices = await this.databaseDeviceService.findAll();
     for (const device of devices) {
-      const state = await this.deviceStateService.getDeviceState(
-        device.id,
-        device.deviceType,
-      );
+      const state = await this.deviceStateService
+        .getDeviceState(device.id, device.deviceType)
+        .catch((error) => {
+          this.logger.error(
+            `[${device.id}] - ${device.deviceType} : ${error.message}`,
+          );
+          return null;
+        });
+      if (state === null) continue;
       this.logger.debug(`set.${device.deviceType}.${device.id}`);
       this.eventEmitter.emit(`set.${device.deviceType}.${device.id}`, state);
     }
