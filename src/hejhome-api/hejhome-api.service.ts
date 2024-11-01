@@ -46,7 +46,10 @@ export class HejhomeApiService {
         Authorization: `Bearer ${accessToken}`,
       },
       transformResponse: (data) => {
-        return JSON.parse(data as unknown as string);
+        if (typeof data === 'string') {
+          return JSON.parse(data);
+        }
+        return data;
       },
     });
   }

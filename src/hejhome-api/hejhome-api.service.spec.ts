@@ -53,7 +53,17 @@ describe('HejhomeApiService', () => {
 
     await expect(method()).rejects.toThrow(errorMessage);
   };
-  describe('getAccessToken', () => {
+
+  const hejhomeApiErrorProcessTest = async (
+    beforeErrorSpy: jest.SpyInstance,
+    method: () => Promise<any>,
+  ) => {
+    const errorMessage = 'hejhome-api-error';
+    beforeErrorSpy.mockResolvedValueOnce({ data: { message: errorMessage } });
+    await expect(method()).rejects.toThrow(errorMessage);
+  };
+
+  describe('setAccessToken', () => {
     it('성공적으로 액세스 토큰을 받아야 한다', async () => {
       const mockResponse: ResponseAccessToken = {
         access_token: 'test-access-token',
@@ -82,6 +92,7 @@ describe('HejhomeApiService', () => {
           .spyOn(service['logger'], 'error')
           .mockImplementation(() => {});
       });
+
       it('오류 응답데이터가 있다', async () => {
         await errorProcessTest(
           jest.spyOn(service['authInstance'], 'postForm'),
@@ -96,7 +107,7 @@ describe('HejhomeApiService', () => {
       it('오류 응답데이터가 없다', async () => {
         await errorProcessTest(
           jest.spyOn(service['authInstance'], 'postForm'),
-          () => service.getAccessToken('test-refresh-token'),
+          async () => service.getAccessToken('test-refresh-token'),
         );
         expect(logSpy).toHaveBeenCalledWith(`getAccessToken(500) :{}`);
       });
@@ -134,11 +145,19 @@ describe('HejhomeApiService', () => {
           .spyOn(service['logger'], 'error')
           .mockImplementation(() => {});
       });
-
+      it('hejhome-api 에러', async () => {
+        await hejhomeApiErrorProcessTest(
+          jest.spyOn(service['instance'], 'get'),
+          async () => service.getRoomWithDevices(1, 1),
+        );
+        expect(logSpy).toHaveBeenCalledWith(
+          'getRoomWithDevices : hejhome-api-error',
+        );
+      });
       it('오류 응답데이터가 있다', async () => {
         await errorProcessTest(
           jest.spyOn(service['instance'], 'get'),
-          () => service.getRoomWithDevices(1, 1),
+          async () => service.getRoomWithDevices(1, 1),
           { message: 'test-error-message' },
         );
         expect(logSpy).toHaveBeenCalledWith(
@@ -185,6 +204,14 @@ describe('HejhomeApiService', () => {
         logSpy = jest
           .spyOn(service['logger'], 'error')
           .mockImplementation(() => {});
+      });
+
+      it('hejhome-api 에러', async () => {
+        await hejhomeApiErrorProcessTest(
+          jest.spyOn(service['instance'], 'get'),
+          async () => service.getDevices(),
+        );
+        expect(logSpy).toHaveBeenCalledWith('getDevices : hejhome-api-error');
       });
 
       it('오류 응답데이터가 있다', async () => {
@@ -237,6 +264,16 @@ describe('HejhomeApiService', () => {
           .mockImplementation(() => {});
       });
 
+      it('hejhome-api 에러', async () => {
+        await hejhomeApiErrorProcessTest(
+          jest.spyOn(service['instance'], 'get'),
+          async () => service.getDeviceState('device-id'),
+        );
+        expect(logSpy).toHaveBeenCalledWith(
+          'getDeviceState : hejhome-api-error',
+        );
+      });
+
       it('오류 응답데이터가 있다', async () => {
         await errorProcessTest(
           jest.spyOn(service['instance'], 'get'),
@@ -285,6 +322,15 @@ describe('HejhomeApiService', () => {
           .spyOn(service['logger'], 'error')
           .mockImplementation(() => {});
       });
+      it('hejhome-api 에러', async () => {
+        await hejhomeApiErrorProcessTest(
+          jest.spyOn(service['instance'], 'get'),
+          async () => service.getDeviceRawState('device-id'),
+        );
+        expect(logSpy).toHaveBeenCalledWith(
+          'getDeviceRawState : hejhome-api-error',
+        );
+      });
 
       it('오류 응답데이터가 있다', async () => {
         await errorProcessTest(
@@ -327,6 +373,14 @@ describe('HejhomeApiService', () => {
         logSpy = jest
           .spyOn(service['logger'], 'error')
           .mockImplementation(() => {});
+      });
+
+      it('hejhome-api 에러', async () => {
+        await hejhomeApiErrorProcessTest(
+          jest.spyOn(service['instance'], 'get'),
+          async () => service.getHomes(),
+        );
+        expect(logSpy).toHaveBeenCalledWith('getHomes : hejhome-api-error');
       });
 
       it('오류 응답데이터가 있다', async () => {
@@ -373,10 +427,20 @@ describe('HejhomeApiService', () => {
           .mockImplementation(() => {});
       });
 
+      it('hejhome-api 에러', async () => {
+        await hejhomeApiErrorProcessTest(
+          jest.spyOn(service['instance'], 'get'),
+          async () => service.getHomeWithRooms(1),
+        );
+        expect(logSpy).toHaveBeenCalledWith(
+          'getHomeWithRooms : hejhome-api-error',
+        );
+      });
+
       it('오류 응답데이터가 있다', async () => {
         await errorProcessTest(
           jest.spyOn(service['instance'], 'get'),
-          () => service.getHomeWithRooms(1),
+          async () => service.getHomeWithRooms(1),
           { message: 'test-error-message' },
         );
         expect(logSpy).toHaveBeenCalledWith(
@@ -385,8 +449,9 @@ describe('HejhomeApiService', () => {
       });
 
       it('오류 응답데이터가 없다', async () => {
-        await errorProcessTest(jest.spyOn(service['instance'], 'get'), () =>
-          service.getHomeWithRooms(1),
+        await errorProcessTest(
+          jest.spyOn(service['instance'], 'get'),
+          async () => service.getHomeWithRooms(1),
         );
         expect(logSpy).toHaveBeenCalledWith('getHomeWithRooms(500) :{}');
       });
@@ -406,7 +471,7 @@ describe('HejhomeApiService', () => {
 
       const postSpy = jest
         .spyOn(service['instance'], 'post')
-        .mockResolvedValueOnce({});
+        .mockResolvedValueOnce({ data: {} });
 
       await service.setDeviceControl('device-id', controlRequest);
 
@@ -424,10 +489,20 @@ describe('HejhomeApiService', () => {
           .mockImplementation(() => {});
       });
 
+      it('hejhome-api 에러', async () => {
+        await hejhomeApiErrorProcessTest(
+          jest.spyOn(service['instance'], 'post'),
+          async () => service.setDeviceControl('device-id', {} as any),
+        );
+        expect(logSpy).toHaveBeenCalledWith(
+          'setDeviceControl : hejhome-api-error',
+        );
+      });
+
       it('오류 응답데이터가 있다', async () => {
         await errorProcessTest(
           jest.spyOn(service['instance'], 'post'),
-          () => service.setDeviceControl('device-id', {} as any),
+          async () => service.setDeviceControl('device-id', {} as any),
           { message: 'test-error-message' },
         );
         expect(logSpy).toHaveBeenCalledWith(
@@ -436,8 +511,9 @@ describe('HejhomeApiService', () => {
       });
 
       it('오류 응답데이터가 없다', async () => {
-        await errorProcessTest(jest.spyOn(service['instance'], 'post'), () =>
-          service.setDeviceControl('device-id', {} as any),
+        await errorProcessTest(
+          jest.spyOn(service['instance'], 'post'),
+          async () => service.setDeviceControl('device-id', {} as any),
         );
         expect(logSpy).toHaveBeenCalledWith('setDeviceControl(500) :{}');
       });
