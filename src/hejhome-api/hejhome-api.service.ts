@@ -8,6 +8,7 @@ import {
   ResponseAccessToken,
   ResponseDevice,
   ResponseDeviceState,
+  ResponseDeviceStateError,
   ResponseHome,
   ResponseHomeWithRooms,
   ResponseSensorTHState,
@@ -43,6 +44,9 @@ export class HejhomeApiService {
       httpsAgent: new https.Agent({ keepAlive: true }),
       headers: {
         Authorization: `Bearer ${accessToken}`,
+      },
+      transformResponse: (data) => {
+        return JSON.parse(data as unknown as string);
       },
     });
   }
@@ -81,10 +85,15 @@ export class HejhomeApiService {
     return response.data;
   }
 
-  async getDeviceState<T extends ResponseDeviceState>(deviceId: string) {
+  async getDeviceState<
+    T extends ResponseDeviceState | ResponseDeviceStateError,
+  >(deviceId: string) {
     const response = await this.instance
       .get<T>(`/device/${deviceId}`)
       .catch(this.axiosErrorHandler('getDeviceState'));
+    if ('message' in response.data) {
+      throw new Error(response.data.message);
+    }
     return response.data;
   }
 
@@ -99,6 +108,7 @@ export class HejhomeApiService {
     const response = await this.instance
       .get<ResponseHome>('/homes')
       .catch(this.axiosErrorHandler('getHomes'));
+
     return response.data.result;
   }
 
