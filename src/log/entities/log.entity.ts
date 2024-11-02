@@ -6,11 +6,11 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class DeviceLog {
+export class Log {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ nullable: true })
   deviceId: string;
 
   @Column('text')
