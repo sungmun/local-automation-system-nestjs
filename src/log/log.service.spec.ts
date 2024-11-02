@@ -28,13 +28,6 @@ describe('LogService', () => {
 
   describe('log', () => {
     it('로그를 저장해야 한다', async () => {
-      // const createSpy = jest.spyOn(LogRepository, 'create').mockReturnValue({
-      //   id: null,
-      //   deviceId: '1',
-      //   logMessage: 'type1 - test',
-      //   type: 'type1',
-      //   createdAt: null,
-      // });
       const saveSpy = jest.spyOn(LogRepository, 'save').mockResolvedValue(null);
       service.log('test', {
         deviceId: '1',
@@ -58,6 +51,14 @@ describe('LogService', () => {
         deviceId: '1',
         type: 'DEVICE_AUTO_CHANGE',
       });
+    });
+  });
+
+  describe('findLogs', () => {
+    it('findLogs 에서 find 를 호출해야 한다', async () => {
+      const findSpy = jest.spyOn(LogRepository, 'find').mockResolvedValue([]);
+      await service.findLogs();
+      expect(findSpy).toHaveBeenCalled();
     });
   });
 });
