@@ -14,7 +14,7 @@ export class LogService {
   async log(message: string, createLogDto: CreateLogDto) {
     await this.logRepository.save({
       deviceId: createLogDto.deviceId,
-      logMessage: `${createLogDto.type} - ${message}`,
+      logMessage: `${createLogDto.type} - <${message}>`,
       type: createLogDto.type,
     });
   }

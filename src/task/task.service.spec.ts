@@ -124,7 +124,7 @@ describe('TaskService', () => {
       jest
         .spyOn(deviceStateService, 'getDeviceState')
         .mockRejectedValue(new Error('test'));
-      const logSpy = jest.spyOn(service['logger'], 'error');
+      const logSpy = jest.spyOn(service['logger'], 'error').mockReturnValue();
 
       await service.hejhomeAPICheck();
 
