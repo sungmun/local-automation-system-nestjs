@@ -16,7 +16,7 @@ import { TimerManagerModule } from './timer-manager/timer-manager.module';
 import { MessageTemplateModule } from './message-template/message-template.module';
 import { PushMessagingModule } from './push-messaging/push-messaging.module';
 import { DeviceSubscriber } from './device/entities/device.entity.subscriber';
-import { DeviceLogModule } from './device-log/device-log.module';
+import { LogModule } from './log/log.module';
 
 @Module({
   imports: [
@@ -48,7 +48,7 @@ import { DeviceLogModule } from './device-log/device-log.module';
     TimerManagerModule,
     MessageTemplateModule,
     PushMessagingModule,
-    DeviceLogModule,
+    LogModule,
   ],
 })
 export class AppModule {}
