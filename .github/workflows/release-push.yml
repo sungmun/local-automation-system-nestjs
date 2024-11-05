@@ -1,9 +1,10 @@
-name: Release docs push
+name: Release and hotfix docs push
 
 on:
   push:
     branches:
       - release/*
+      - hotfix/*
 
 jobs:
   find-version:
