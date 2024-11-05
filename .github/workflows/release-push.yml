@@ -41,9 +41,13 @@ jobs:
           template_path: './docs/readme-template.md'
           src_dir: './docs'
           dest_file: 'README.md'
-      - run: |
+      - name: Commit docs commit and push
+        env:
+          E_MAIL: action@github.com
+          USER_NAME: GitHub Action
+        run: |
           git add README.md
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git commit -m 'docs: update coverage report'
+          git config --global user.email "${{ env.E_MAIL }}"
+          git config --global user.name "${{ env.USER_NAME }}"
+          git commit -m 'docs: update coverage report with latest test results'
           git push
