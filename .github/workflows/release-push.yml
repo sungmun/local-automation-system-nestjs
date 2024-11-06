@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: check version
         run: |
-          VERSION=${{ needs.find-version.outputs.version }}
+          VERSION=echo "${{ needs.find-version.outputs.version }}"
           PACKAGE_VERSION=echo "v$(jq -r '.version' package.json)"
           if [ "$VERSION" != "$PACKAGE_VERSION" ]; then
             echo "Version mismatch: $VERSION vs $PACKAGE_VERSION"
