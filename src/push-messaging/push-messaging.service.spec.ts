@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PushMessagingService } from './push-messaging.service';
 import { ConfigService } from '@nestjs/config';
+import { LogService } from '../log/log.service';
 
 describe('PushMessagingService', () => {
   let service: PushMessagingService;
@@ -14,6 +15,12 @@ describe('PushMessagingService', () => {
           provide: ConfigService,
           useValue: {
             get: jest.fn().mockReturnValue('test-uri'),
+          },
+        },
+        {
+          provide: LogService,
+          useValue: {
+            log: jest.fn(),
           },
         },
       ],
