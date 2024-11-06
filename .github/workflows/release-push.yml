@@ -18,7 +18,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "VERSION=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+          echo "VERSION=$(echo ${GITHUB_REF#refs/heads/}| cut -d'/' -f2)" >> $GITHUB_OUTPUT
   vaild-version:
     runs-on: ubuntu-latest
     needs: find-version
@@ -28,7 +28,7 @@ jobs:
       - name: check version
         run: |
           VERSION=${{ needs.find-version.outputs.version }}
-          PACKAGE_VERSION=$(jq '.version' package.json)
+          PACKAGE_VERSION=echo "v$(jq -r '.version' package.json)"
           if [ "$VERSION" != "$PACKAGE_VERSION" ]; then
             echo "Version mismatch: $VERSION vs $PACKAGE_VERSION"
             exit 1
