@@ -6,6 +6,11 @@ on:
       - release/*
       - hotfix/*
 
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  E_MAIL: action@github.com
+  USER_NAME: GitHub Action
+
 jobs:
   find-version:
     runs-on: ubuntu-latest
@@ -69,14 +74,13 @@ jobs:
           template_path: './docs/readme-template.md'
           src_dir: './docs'
           dest_file: 'README.md'
-      - name: Commit docs commit and push
-        env:
-          E_MAIL: action@github.com
-          USER_NAME: GitHub Action
+      - name: Setup Git
         run: |
-          git add README.md
           git config --global user.email "${{ env.E_MAIL }}"
           git config --global user.name "${{ env.USER_NAME }}"
+      - name: Commit docs commit and push
+        run: |
+          git add README.md
           git commit -m 'docs: update coverage report with latest test results'
           git push
   main-merge:
@@ -88,14 +92,17 @@ jobs:
           fetch-depth: 0 # 모든 브랜치를 가져오기 위해 필요
       - name: Setup Git
         run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
+          git config --global user.email "${{ env.E_MAIL }}"
+          git config --global user.name "${{ env.USER_NAME }}"
       - name: Merge release/hotfix branch into main
         run: |
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          git pull origin $BRANCH
           git checkout main
-          git merge --no-ff release/${{ needs.find-version.outputs.version }} -m "Merge release branch"
+          git merge --no-ff $BRANCH -m "Merge release branch"
           git tag ${{ needs.find-version.outputs.version }}
           git push origin main --tags
+          git branch -d $BRANCH
       - name: Merge main into develop
         run: |
           git checkout develop
