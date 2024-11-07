@@ -103,6 +103,7 @@ jobs:
           git tag ${{ needs.find-version.outputs.version }}
           git push origin main --tags
           git branch -d $BRANCH
+          git push origin :$BRANCH
       - name: Merge main into develop
         run: |
           git checkout develop
