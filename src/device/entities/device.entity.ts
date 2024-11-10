@@ -1,3 +1,4 @@
+import { DeviceCommand } from '../../recipe/entities/device-command.entity';
 import { MessageTemplate } from '../../message-template/entities/message-template.entity';
 import { Room } from '../../room/entities/room.entity';
 import {
@@ -7,6 +8,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
 } from 'typeorm';
 
@@ -64,4 +66,9 @@ export class Device {
   )
   @JoinTable({ name: 'DeviceMessageTemplates' })
   messageTemplates?: MessageTemplate[];
+
+  @OneToMany(() => DeviceCommand, (deviceCommand) => deviceCommand.device, {
+    cascade: ['remove'],
+  })
+  deviceCommands?: DeviceCommand[];
 }
