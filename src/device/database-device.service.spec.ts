@@ -107,6 +107,34 @@ describe('DataBaseDeviceService', () => {
     });
   });
 
+  describe('findInIds', () => {
+    it('id 배열에 해당하는 장치를 반환해야 한다', async () => {
+      const devices: Device[] = [
+        {
+          id: 'device1',
+          name: 'Device1',
+          deviceType: 'Type1',
+          modelName: 'Model1',
+          familyId: 'Family1',
+          roomId: 1,
+          room: undefined,
+          category: 'Category1',
+          online: true,
+          hasSubDevices: false,
+          active: true,
+          platform: 'Platform1',
+          state: JSON.stringify({ power: 'on' }),
+          updateStateAt: new Date().toISOString(),
+          activeMessageTemplate: false,
+          messageTemplates: [],
+        },
+      ];
+      jest.spyOn(deviceRepository, 'find').mockResolvedValue(devices);
+      const result = await service.findInIds(['device1']);
+      expect(result).toEqual(devices);
+    });
+  });
+
   describe('findOne', () => {
     it('존재하는 장치를 반환해야 한다', async () => {
       const device: Device = {
