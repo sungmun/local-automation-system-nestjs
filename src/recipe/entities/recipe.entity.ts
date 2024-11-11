@@ -22,4 +22,7 @@ export class Recipe {
     cascade: ['insert', 'update', 'remove'],
   })
   deviceCommands: DeviceCommand[];
+
+  @Column({ nullable: true, default: -1 })
+  timer: number;
 }
