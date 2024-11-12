@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { DeviceCommand } from './device-command.entity';
+import { RecipeConditionGroup } from './recipe-condition-group.entity';
 
 @Entity()
 export class Recipe {
@@ -25,4 +26,7 @@ export class Recipe {
 
   @Column({ nullable: true, default: -1 })
   timer: number;
+
+  @OneToMany(() => RecipeConditionGroup, (group) => group.recipe)
+  recipeGroups: RecipeConditionGroup[];
 }
