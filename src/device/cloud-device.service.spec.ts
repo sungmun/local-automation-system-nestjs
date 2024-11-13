@@ -84,7 +84,9 @@ describe('CloudDeviceService', () => {
       jest.spyOn(hejhomeApiService, 'getDevices').mockResolvedValue(devices);
 
       const result = await service.getDevices();
-      expect(result).toEqual(devices);
+      expect(result).toEqual(
+        devices.map((device) => ({ ...device, platform: 'hejhome' })),
+      );
     });
   });
 
@@ -111,7 +113,12 @@ describe('CloudDeviceService', () => {
         .mockResolvedValue(devicesWithRoomId);
 
       const result = await service.getDevicesWithRoomId(roomsWithHomeId);
-      expect(result).toEqual(devicesWithRoomId);
+      expect(result).toEqual(
+        devicesWithRoomId.map((deviceWithRoomId) => ({
+          ...deviceWithRoomId,
+          platform: 'hejhome',
+        })),
+      );
     });
   });
 });
