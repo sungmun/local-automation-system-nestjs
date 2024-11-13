@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { CreateDeviceCommandDto } from './create-device-command.dto';
 import { Type } from 'class-transformer';
+import { CreateRecipeConditionGroupDto } from './create-condition-group.dto';
 
 export class CreateRecipeDto {
   @IsString()
@@ -32,4 +33,9 @@ export class CreateRecipeDto {
   @ValidateNested({ each: true })
   @Type(() => CreateDeviceCommandDto)
   deviceCommands: CreateDeviceCommandDto[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateRecipeConditionGroupDto)
+  recipeGroups: CreateRecipeConditionGroupDto[];
 }

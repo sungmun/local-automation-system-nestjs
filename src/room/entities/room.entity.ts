@@ -1,7 +1,7 @@
 import {
   RecipeConditionRoomHumidity,
   RecipeConditionRoomTemperature,
-} from 'src/recipe/entities/recipe-condition.entity';
+} from '../../recipe/entities/recipe-condition.entity';
 import { Device } from '../../device/entities/device.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
@@ -44,5 +44,8 @@ export class Room {
     () => RecipeConditionRoomTemperature || RecipeConditionRoomHumidity,
     (condition) => condition.room,
   )
-  conditions?: RecipeConditionRoomTemperature | RecipeConditionRoomHumidity[];
+  recipeConditions?: (
+    | RecipeConditionRoomTemperature
+    | RecipeConditionRoomHumidity
+  )[];
 }

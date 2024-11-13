@@ -28,9 +28,17 @@ export class DeviceCommand {
   @Column()
   order: number;
 
-  @ManyToOne(() => Device, (device) => device.deviceCommands)
+  @ManyToOne(() => Device, (device) => device.deviceCommands, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    orphanedRowAction: 'delete',
+  })
   device: Device;
 
-  @ManyToOne(() => Recipe, (recipe) => recipe.deviceCommands)
+  @ManyToOne(() => Recipe, (recipe) => recipe.deviceCommands, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    orphanedRowAction: 'delete',
+  })
   recipe: Recipe;
 }

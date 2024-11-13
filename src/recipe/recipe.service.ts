@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
-
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
-
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Recipe } from './entities/recipe.entity';
@@ -49,37 +47,43 @@ export class RecipeService {
     });
   }
 
-  findAll() {
+  async findAll() {
     return this.recipeRepository.find();
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return this.recipeRepository.findOne({
       where: { id },
-      relations: ['deviceCommands'],
+      relations: ['deviceCommands', 'recipeGroups', 'recipeGroups.conditions'],
     });
   }
 
   async update(id: number, updateRecipeDto: UpdateRecipeDto) {
-    const { deviceCommands, ...updateRecipe } =
+    const { deviceCommands, recipeGroups, ...updateRecipe } =
       instanceToPlain(updateRecipeDto);
-    if (deviceCommands) {
-      const [recipe, makeDeviceCommands] = await Promise.all([
-        this.recipeRepository.findOne({
-          where: { id },
-          relations: ['deviceCommands'],
-        }),
-        this.createDeviceCommands(deviceCommands),
-      ]);
-      recipe.deviceCommands = makeDeviceCommands;
 
-      await this.recipeRepository.save({ ...recipe, ...updateRecipe });
-    } else {
+    if (!deviceCommands && !recipeGroups) {
       await this.recipeRepository.update(id, updateRecipe);
+      return;
     }
+    const recipe = await this.recipeRepository.findOne({
+      where: { id },
+      relations: ['deviceCommands', 'recipeGroups', 'recipeGroups.conditions'],
+    });
+
+    if (recipe === null) return;
+
+    if (deviceCommands) {
+      recipe.deviceCommands = await this.createDeviceCommands(deviceCommands);
+    }
+
+    if (recipeGroups) {
+      recipe.recipeGroups = recipeGroups;
+    }
+    await this.recipeRepository.save({ ...recipe, ...updateRecipe });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return this.recipeRepository.delete(id);
   }
 }

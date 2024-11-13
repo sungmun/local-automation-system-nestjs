@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -16,9 +17,19 @@ export class RecipeConditionGroup {
   @Column()
   operator: 'AND' | 'OR';
 
-  @OneToMany(() => RecipeCondition, (condition) => condition.group)
+  @OneToMany(() => RecipeCondition, (condition) => condition.group, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   conditions: RecipeCondition[];
 
-  @ManyToOne(() => Recipe, (recipe) => recipe.recipeGroups)
+  @ManyToOne(() => Recipe, (recipe) => recipe.recipeGroups, {
+    orphanedRowAction: 'delete',
+  })
+  @JoinColumn({ name: 'recipeId' })
   recipe: Recipe;
+
+  @Column()
+  recipeId: number;
 }

@@ -67,8 +67,6 @@ export class Device {
   @JoinTable({ name: 'DeviceMessageTemplates' })
   messageTemplates?: MessageTemplate[];
 
-  @OneToMany(() => DeviceCommand, (deviceCommand) => deviceCommand.device, {
-    cascade: ['remove'],
-  })
+  @OneToMany(() => DeviceCommand, (deviceCommand) => deviceCommand.device)
   deviceCommands?: DeviceCommand[];
 }
