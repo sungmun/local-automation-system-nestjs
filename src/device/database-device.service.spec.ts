@@ -6,7 +6,7 @@ import { MessageTemplateService } from '../message-template/message-template.ser
 import { PushMessagingService } from '../push-messaging/push-messaging.service';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
-import { ResponseDeviceState } from 'src/hejhome-api/hejhome-api.interface';
+import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 
 describe('DataBaseDeviceService', () => {
   let service: DataBaseDeviceService;
