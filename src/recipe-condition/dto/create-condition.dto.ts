@@ -1,9 +1,9 @@
-import { IsNotEmpty, Allow, IsIn, IsNumber, ValidateIf } from 'class-validator';
-import { RecipeConditionType } from '../entities/recipe-condition.entity';
+import { IsNotEmpty, IsIn, IsNumber, ValidateIf } from 'class-validator';
+import { RecipeConditionType } from '../../recipe-condition/entities/recipe-condition.entity';
 import { Transform } from 'class-transformer';
 
 export class CreateRecipeConditionDto {
-  @IsIn(['ROOM_TEMPERATURE', 'ROOM_HUMIDITY'])
+  @IsIn(Object.values(RecipeConditionType))
   @IsNotEmpty()
   type: RecipeConditionType;
 

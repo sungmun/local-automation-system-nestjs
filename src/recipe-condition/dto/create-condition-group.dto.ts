@@ -1,10 +1,4 @@
-import {
-  IsNotEmpty,
-  Allow,
-  IsIn,
-  ValidateNested,
-  IsArray,
-} from 'class-validator';
+import { IsNotEmpty, IsIn, ValidateNested, IsArray } from 'class-validator';
 import { CreateRecipeConditionDto } from './create-condition.dto';
 import { Type } from 'class-transformer';
 

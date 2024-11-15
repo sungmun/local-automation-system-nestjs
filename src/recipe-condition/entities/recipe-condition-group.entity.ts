@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { RecipeCondition } from './recipe-condition.entity';
-import { Recipe } from './recipe.entity';
+import { Recipe } from '../../recipe/entities/recipe.entity';
 
 @Entity()
 export class RecipeConditionGroup {
@@ -19,13 +19,13 @@ export class RecipeConditionGroup {
 
   @OneToMany(() => RecipeCondition, (condition) => condition.group, {
     cascade: true,
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
   })
   conditions: RecipeCondition[];
 
   @ManyToOne(() => Recipe, (recipe) => recipe.recipeGroups, {
     orphanedRowAction: 'delete',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'recipeId' })
   recipe: Recipe;
