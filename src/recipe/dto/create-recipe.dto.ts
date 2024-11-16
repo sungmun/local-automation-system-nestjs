@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { CreateDeviceCommandDto } from './create-device-command.dto';
 import { Type } from 'class-transformer';
-import { CreateRecipeConditionGroupDto } from './create-condition-group.dto';
+import { CreateRecipeConditionGroupDto } from '../../recipe-condition/dto/create-condition-group.dto';
 
 export class CreateRecipeDto {
   @IsString()

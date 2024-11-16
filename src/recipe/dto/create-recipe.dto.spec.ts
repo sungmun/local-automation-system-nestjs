@@ -12,12 +12,18 @@ describe('CreateRecipeDto', () => {
       platform: 'platform',
     };
 
+    const recipeGroup = {
+      conditions: [],
+      operator: 'AND',
+    };
+
     const recipe = {
       name: '레시피 이름',
       description: '레시피 설명',
       type: '유형',
       active: true,
       deviceCommands: [deviceCommand],
+      recipeGroups: [recipeGroup],
     };
 
     const errors = await validate(plainToInstance(CreateRecipeDto, recipe));

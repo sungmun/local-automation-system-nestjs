@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { DeviceCommand } from './device-command.entity';
-import { RecipeConditionGroup } from './recipe-condition-group.entity';
+import { RecipeConditionGroup } from '../../recipe-condition/entities/recipe-condition-group.entity';
 
 @Entity()
 export class Recipe {
@@ -20,13 +20,15 @@ export class Recipe {
   type: string;
 
   @OneToMany(() => DeviceCommand, (deviceCommand) => deviceCommand.recipe, {
-    cascade: ['insert', 'update', 'remove'],
+    cascade: true,
   })
   deviceCommands: DeviceCommand[];
 
   @Column({ nullable: true, default: -1 })
   timer: number;
 
-  @OneToMany(() => RecipeConditionGroup, (group) => group.recipe)
+  @OneToMany(() => RecipeConditionGroup, (group) => group.recipe, {
+    cascade: true,
+  })
   recipeGroups: RecipeConditionGroup[];
 }
