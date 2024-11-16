@@ -1,89 +1,84 @@
-import { Injectable } from '@nestjs/common';
-import { UpdateRecipeDto } from './dto/update-recipe.dto';
-import { CreateRecipeDto } from './dto/create-recipe.dto';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Recipe } from './entities/recipe.entity';
 import { DeviceCommand } from './entities/device-command.entity';
-import { DataBaseDeviceService } from '../device/database-device.service';
-import { instanceToPlain } from 'class-transformer';
-import { CreateDeviceCommandDto } from './dto/create-device-command.dto';
+
+import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
+import { TimerManagerService } from '../timer-manager/timer-manager.service';
+import { RecipeConditionService } from '../recipe-condition/recipe-condition.service';
 
 @Injectable()
 export class RecipeService {
+  private readonly logger = new Logger(RecipeService.name);
   constructor(
     @InjectRepository(Recipe)
     private recipeRepository: Repository<Recipe>,
-    @InjectRepository(DeviceCommand)
-    private deviceCommandRepository: Repository<DeviceCommand>,
-    private databaseDeviceService: DataBaseDeviceService,
+    private hejhomeApiService: HejhomeApiService,
+    private timerManagerService: TimerManagerService,
+    private recipeConditionService: RecipeConditionService,
   ) {}
 
-  private async createDeviceCommands(deviceCommands: CreateDeviceCommandDto[]) {
-    const devices = await this.databaseDeviceService.findInIds(
-      deviceCommands.map((deviceCommand) => deviceCommand.deviceId),
-    );
-    const deviceSet = new Map(devices.map((device) => [device.id, device]));
-
-    return deviceCommands.map((deviceCommand, order) => {
-      const createdDeviceCommand = this.deviceCommandRepository.create({
-        ...instanceToPlain(deviceCommand),
-        order,
-        platform: deviceSet.get(deviceCommand.deviceId).platform,
+  async runDeviceCommands(deviceCommands: DeviceCommand[]) {
+    return deviceCommands.reduce((acc, deviceCommand) => {
+      return acc.then(async () => {
+        const parsedCommand = this.parseCommand(deviceCommand.command);
+        this.logger.debug(
+          `Running command for device ${deviceCommand.deviceId}: ${JSON.stringify(parsedCommand)}`,
+        );
+        await this.hejhomeApiService.setDeviceControl(deviceCommand.deviceId, {
+          requirments: parsedCommand,
+        });
       });
+    }, Promise.resolve());
+  }
 
-      return createdDeviceCommand;
+  private parseCommand(command: string): unknown {
+    try {
+      return JSON.parse(command);
+    } catch (error) {
+      this.logger.error(`Failed to parse command: ${command}`);
+      throw error;
+    }
+  }
+
+  async runRecipe(id: number) {
+    const recipe = await this.recipeRepository.findOne({
+      where: { id, active: true },
+      relations: ['deviceCommands'],
     });
-  }
 
-  async saveRecipe(createRecipeDto: CreateRecipeDto) {
-    const deviceCommands = await this.createDeviceCommands(
-      createRecipeDto.deviceCommands,
-    );
-
-    return this.recipeRepository.save({
-      ...createRecipeDto,
-      deviceCommands,
-    });
-  }
-
-  async findAll() {
-    return this.recipeRepository.find();
-  }
-
-  async findOne(id: number) {
-    return this.recipeRepository.findOne({
-      where: { id },
-      relations: ['deviceCommands', 'recipeGroups', 'recipeGroups.conditions'],
-    });
-  }
-
-  async update(id: number, updateRecipeDto: UpdateRecipeDto) {
-    const { deviceCommands, recipeGroups, ...updateRecipe } =
-      instanceToPlain(updateRecipeDto);
-
-    if (!deviceCommands && !recipeGroups) {
-      await this.recipeRepository.update(id, updateRecipe);
+    if (!recipe) {
+      this.logger.warn(`Recipe ${id} not found or inactive`);
       return;
     }
-    const recipe = await this.recipeRepository.findOne({
-      where: { id },
-      relations: ['deviceCommands', 'recipeGroups', 'recipeGroups.conditions'],
-    });
 
-    if (recipe === null) return;
+    const { deviceCommands, timer } = recipe;
 
-    if (deviceCommands) {
-      recipe.deviceCommands = await this.createDeviceCommands(deviceCommands);
+    if (timer !== -1) {
+      const hasTimer = this.timerManagerService.setTimer(
+        `recipe-${id}`,
+        () => this.runDeviceCommands(deviceCommands),
+        timer,
+      );
+      if (!hasTimer) {
+        await this.runDeviceCommands(deviceCommands);
+      }
+    } else {
+      await this.runDeviceCommands(deviceCommands);
     }
-
-    if (recipeGroups) {
-      recipe.recipeGroups = recipeGroups;
-    }
-    await this.recipeRepository.save({ ...recipe, ...updateRecipe });
   }
 
-  async remove(id: number) {
-    return this.recipeRepository.delete(id);
+  async recipeCheck(recipeId: number) {
+    const recipe = await this.recipeRepository.findOne({
+      where: { active: true, id: recipeId },
+      relations: ['recipeGroups', 'recipeGroups.conditions'],
+    });
+
+    if (!recipe) return;
+
+    return this.recipeConditionService.checkRecipeConditions(
+      recipe.recipeGroups,
+    );
   }
 }

@@ -1,22 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RecipeController } from './recipe.controller';
-import { RecipeService } from './recipe.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Recipe } from './entities/recipe.entity';
-import { DeviceCommand } from './entities/device-command.entity';
-import { DataBaseDeviceService } from '../device/database-device.service';
+import { RecipeCrudService } from './recipe-crud.service';
+import { RecipeCommandService } from './recipe-command.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
+import { Logger } from '@nestjs/common';
+import { CreateRecipeConditionGroupDto } from '../recipe-condition/dto/create-condition-group.dto';
 
 describe('RecipeController', () => {
   let controller: RecipeController;
-  let service: RecipeService;
+  let recipeCrudService: jest.Mocked<RecipeCrudService>;
+  let recipeCommandService: jest.Mocked<RecipeCommandService>;
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RecipeController],
       providers: [
         {
-          provide: RecipeService,
+          provide: RecipeCrudService,
           useValue: {
             saveRecipe: jest.fn(),
             findAll: jest.fn(),
@@ -25,54 +26,144 @@ describe('RecipeController', () => {
             remove: jest.fn(),
           },
         },
+        {
+          provide: RecipeCommandService,
+          useValue: {
+            recipeCheck: jest.fn(),
+            runRecipe: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     controller = module.get<RecipeController>(RecipeController);
-    service = module.get<RecipeService>(RecipeService);
+    recipeCrudService = module.get(RecipeCrudService);
+    recipeCommandService = module.get(RecipeCommandService);
   });
 
-  it('서비스가 정의되어야 한다', () => {
-    expect(controller).toBeDefined();
-  });
+  describe('CRUD 작업', () => {
+    describe('create', () => {
+      it('완전한 레시피를 생성해야 합니다', async () => {
+        const deviceCommand = {
+          command: { test: 'test' },
+          deviceId: 'device123',
+          name: '장치 명령',
+          platform: 'platform',
+          order: 0,
+        };
 
-  describe('create', () => {
-    it('레시피를 저장해야 한다', async () => {
-      const createRecipeDto = {} as CreateRecipeDto;
-      await controller.create(createRecipeDto);
-      expect(service.saveRecipe).toHaveBeenCalledWith(createRecipeDto);
+        const recipeGroup: CreateRecipeConditionGroupDto = {
+          conditions: [],
+          operator: 'AND',
+        };
+
+        const createRecipeDto: CreateRecipeDto = {
+          name: '테스트 레시피',
+          description: '테스트 설명',
+          type: '테스트 타입',
+          active: true,
+          timer: 60,
+          deviceCommands: [deviceCommand],
+          recipeGroups: [recipeGroup],
+        };
+
+        await controller.create(createRecipeDto);
+
+        expect(recipeCrudService.saveRecipe).toHaveBeenCalledWith(
+          createRecipeDto,
+        );
+      });
+    });
+
+    describe('findAll', () => {
+      it('모든 레시피를 조회해야 합니다', async () => {
+        await controller.findAll();
+
+        expect(recipeCrudService.findAll).toHaveBeenCalled();
+      });
+    });
+
+    describe('findOne', () => {
+      it('ID로 레시피를 조회해야 합니다', async () => {
+        await controller.findOne('1');
+
+        expect(recipeCrudService.findOne).toHaveBeenCalledWith(1);
+      });
+    });
+
+    describe('update', () => {
+      it('레시피를 업데이트해야 합니다', async () => {
+        const updateRecipeDto: UpdateRecipeDto = {
+          name: '업데이트된 레시피',
+          description: '업데이트된 설명',
+          deviceCommands: [
+            {
+              command: { power: 'off' },
+              deviceId: 'device1',
+              name: '업데이트된 명령',
+            },
+          ],
+        };
+
+        await controller.update('1', updateRecipeDto);
+
+        expect(recipeCrudService.update).toHaveBeenCalledWith(
+          1,
+          updateRecipeDto,
+        );
+      });
+    });
+
+    describe('remove', () => {
+      it('레시피를 삭제해야 합니다', async () => {
+        await controller.remove('1');
+
+        expect(recipeCrudService.remove).toHaveBeenCalledWith(1);
+      });
     });
   });
 
-  describe('findAll', () => {
-    it('레시피를 조회해야 한다', async () => {
-      await controller.findAll();
-      expect(service.findAll).toHaveBeenCalled();
-    });
-  });
+  describe('레시피 조건 체크', () => {
+    describe('recipeConditionCheck', () => {
+      it('조건이 충족되면 레시피를 실행해야 합니다', async () => {
+        const data = { recipeId: 1 };
+        recipeCommandService.recipeCheck.mockResolvedValue(true);
 
-  describe('findOne', () => {
-    it('레시피를 조회해야 한다', async () => {
-      const id = 1;
-      await controller.findOne(id.toString());
-      expect(service.findOne).toHaveBeenCalledWith(id);
-    });
-  });
+        await controller.recipeConditionCheck(data);
 
-  describe('update', () => {
-    it('레시피를 업데이트해야 한다', async () => {
-      const id = 1;
-      const updateRecipeDto = {} as UpdateRecipeDto;
-      await controller.update(id.toString(), updateRecipeDto);
-      expect(service.update).toHaveBeenCalledWith(id, updateRecipeDto);
-    });
-  });
+        expect(recipeCommandService.recipeCheck).toHaveBeenCalledWith(
+          data.recipeId,
+        );
+        expect(recipeCommandService.runRecipe).toHaveBeenCalledWith(
+          data.recipeId,
+        );
+      });
 
-  describe('remove', () => {
-    it('레시피를 삭제해야 한다', async () => {
-      const id = 1;
-      await controller.remove(id.toString());
-      expect(service.remove).toHaveBeenCalledWith(id);
+      it('조건이 충족되지 않으면 레시피를 실행하지 않아야 합니다', async () => {
+        const data = { recipeId: 1 };
+        recipeCommandService.recipeCheck.mockResolvedValue(false);
+
+        await controller.recipeConditionCheck(data);
+
+        expect(recipeCommandService.recipeCheck).toHaveBeenCalledWith(
+          data.recipeId,
+        );
+        expect(recipeCommandService.runRecipe).not.toHaveBeenCalled();
+      });
+
+      it('로그가 정상적으로 기록되어야 합니다', async () => {
+        const data = { recipeId: 1 };
+        const loggerSpy = jest.spyOn(Logger.prototype, 'log');
+        recipeCommandService.recipeCheck.mockResolvedValue(true);
+
+        await controller.recipeConditionCheck(data);
+
+        expect(loggerSpy).toHaveBeenCalledWith('recipeConditionCheck', data);
+        expect(loggerSpy).toHaveBeenCalledWith(
+          'recipeConditionCheck run',
+          true,
+        );
+      });
     });
   });
 });
