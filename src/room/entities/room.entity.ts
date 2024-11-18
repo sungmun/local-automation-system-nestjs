@@ -1,7 +1,7 @@
 import {
   RecipeConditionRoomHumidity,
   RecipeConditionRoomTemperature,
-} from '../../recipe/entities/recipe-condition.entity';
+} from '../../recipe-condition/entities/recipe-condition.entity';
 import { Device } from '../../device/entities/device.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
@@ -40,12 +40,12 @@ export class Room {
   @OneToMany(() => Device, (device) => device.room)
   devices?: Device[];
 
+  @OneToMany(() => RecipeConditionRoomHumidity, (condition) => condition.room)
+  recipeConditionsHumidity?: RecipeConditionRoomHumidity[];
+
   @OneToMany(
-    () => RecipeConditionRoomTemperature || RecipeConditionRoomHumidity,
+    () => RecipeConditionRoomTemperature,
     (condition) => condition.room,
   )
-  recipeConditions?: (
-    | RecipeConditionRoomTemperature
-    | RecipeConditionRoomHumidity
-  )[];
+  recipeConditionsTemperature?: RecipeConditionRoomTemperature[];
 }
