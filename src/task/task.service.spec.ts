@@ -96,10 +96,23 @@ describe('TaskService', () => {
           state: '{}',
           activeMessageTemplate: false,
         },
+        {
+          id: '2',
+          name: 'Device2',
+          deviceType: 'IrDiy',
+          modelName: 'Model2',
+          familyId: 'Family2',
+          category: 'Category2',
+          online: true,
+          hasSubDevices: false,
+          active: true,
+          state: '{}',
+          activeMessageTemplate: false,
+        },
       ];
       jest.spyOn(databaseDeviceService, 'findAll').mockResolvedValue(devices);
     });
-    it('hejhomeAPICheck 시 모든 장치 상태를 가져와야 한다', async () => {
+    it('hejhomeAPICheck 시 IrDiy를 제외한 장치 상태를 가져와야 한다', async () => {
       const mockDeviceState: ResponseDeviceState = {
         id: '1',
         deviceType: 'type1',
