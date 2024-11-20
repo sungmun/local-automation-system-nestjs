@@ -92,6 +92,7 @@ expires_in 이 없으면 자동으로 토큰을 재발급 받습니다.
 - `set.{deviceType}.**`: 장치 상태가 변경이 됬는지 안됬는지 확인이 필요할때 발생
 - `changed.{deviceType}.**`: 장치의 상태가 변경이 됬을 때 발생
 - `finish.{deviceType}.**`: 장치의 상태가 변경이 되고 모든 작업이 완료되었을 때 발생
+- `recipe.condition.check`: 레시피 조건이 충족되었을 때 발생
 
 ## 푸시 발송 참고 사항
 
@@ -101,51 +102,52 @@ WEBHOOK_URL 환경 변수를 설정하여 발송이 가능하며, 발송을 받�
 ## 테스트 커버리지
 
 <!-- coverage.md -->
-St|File                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
---|-----------------------------------|---------|----------|---------|---------|-------------------
-🟢|All files                          |     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;auth|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[auth.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/auth/auth.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;device|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[cloud-device.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device/cloud-device.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;&nbsp;[database-device.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device/database-device.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;&nbsp;[device.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device/device.controller.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;device-control|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[device-control.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device-control/device-control.controller.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;&nbsp;[device-control.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device-control/device-control.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;device-state|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[device-state.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device-state/device-state.controller.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;&nbsp;[device-state.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device-state/device-state.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;device/entities|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[device.entity.subscriber.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device/entities/device.entity.subscriber.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;hejhome-api|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[hejhome-api.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/hejhome-api/hejhome-api.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;hejhome-message-queue|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[hejhome-message-queue.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/hejhome-message-queue/hejhome-message-queue.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;init|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[init.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/init/init.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;log|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[log.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/log/log.controller.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;&nbsp;[log.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/log/log.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;log/dto|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[create-log.dto.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/log/dto/create-log.dto.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;message-template|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[message-template.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/message-template/message-template.controller.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;&nbsp;[message-template.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/message-template/message-template.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;message-template/dto|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[create-message-template.dto.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/message-template/dto/create-message-template.dto.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;&nbsp;[update-message-template.dto.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/message-template/dto/update-message-template.dto.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;push-messaging|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[push-messaging.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/push-messaging/push-messaging.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;room|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[room.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/room/room.controller.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;&nbsp;[room.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/room/room.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;room/dto|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[updateRoom.dto.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/room/dto/updateRoom.dto.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;task|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[task.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/task/task.service.ts)|     100 |      100 |     100 |     100 |
-🟢|&nbsp;timer-manager|     100 |      100 |     100 |     100 |                   
-🟢|&nbsp;&nbsp;[timer-manager.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/timer-manager/timer-manager.service.ts)|     100 |      100 |     100 |     100 |
+
+| St  | File                                                                                                                                                                                                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | -------- | ------- | ------- | ----------------- |
+| 🟢  | All files                                                                                                                                                                                                          | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;auth                                                                                                                                                                                                         | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[auth.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/auth/auth.service.ts)                                                    | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;device                                                                                                                                                                                                       | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[cloud-device.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device/cloud-device.service.ts)                                  | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[database-device.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device/database-device.service.ts)                            | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[device.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device/device.controller.ts)                                        | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;device-control                                                                                                                                                                                               | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[device-control.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device-control/device-control.controller.ts)                | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[device-control.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device-control/device-control.service.ts)                      | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;device-state                                                                                                                                                                                                 | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[device-state.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device-state/device-state.controller.ts)                      | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[device-state.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device-state/device-state.service.ts)                            | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;device/entities                                                                                                                                                                                              | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[device.entity.subscriber.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/device/entities/device.entity.subscriber.ts)                 | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;hejhome-api                                                                                                                                                                                                  | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[hejhome-api.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/hejhome-api/hejhome-api.service.ts)                               | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;hejhome-message-queue                                                                                                                                                                                        | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[hejhome-message-queue.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/hejhome-message-queue/hejhome-message-queue.service.ts) | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;init                                                                                                                                                                                                         | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[init.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/init/init.service.ts)                                                    | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;log                                                                                                                                                                                                          | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[log.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/log/log.controller.ts)                                                 | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[log.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/log/log.service.ts)                                                       | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;log/dto                                                                                                                                                                                                      | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[create-log.dto.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/log/dto/create-log.dto.ts)                                             | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;message-template                                                                                                                                                                                             | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[message-template.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/message-template/message-template.controller.ts)          | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[message-template.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/message-template/message-template.service.ts)                | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;message-template/dto                                                                                                                                                                                         | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[create-message-template.dto.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/message-template/dto/create-message-template.dto.ts)      | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[update-message-template.dto.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/message-template/dto/update-message-template.dto.ts)      | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;push-messaging                                                                                                                                                                                               | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[push-messaging.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/push-messaging/push-messaging.service.ts)                      | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;room                                                                                                                                                                                                         | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[room.controller.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/room/room.controller.ts)                                              | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[room.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/room/room.service.ts)                                                    | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;room/dto                                                                                                                                                                                                     | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[updateRoom.dto.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/room/dto/updateRoom.dto.ts)                                            | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;task                                                                                                                                                                                                         | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[task.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/task/task.service.ts)                                                    | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;timer-manager                                                                                                                                                                                                | 100     | 100      | 100     | 100     |
+| 🟢  | &nbsp;&nbsp;[timer-manager.service.ts](https://github.com/sungmun/local-automation-system-nestjs/blob/42fe044059902c502994e51b5e6c10f879ea15bb/src/timer-manager/timer-manager.service.ts)                         | 100     | 100      | 100     | 100     |
 
 ## 기여
 
