@@ -28,6 +28,10 @@ export class TaskService {
   async hejhomeAPICheck() {
     const devices = await this.databaseDeviceService.findAll();
     for (const device of devices) {
+      if (device.deviceType === 'IrDiy') {
+        this.logger.debug(`skip set.${device.deviceType}.${device.id}`);
+        continue;
+      }
       const state = await this.deviceStateService
         .getDeviceState(device.id, device.deviceType)
         .catch((error) => {
