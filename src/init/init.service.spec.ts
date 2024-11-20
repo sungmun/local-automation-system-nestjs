@@ -5,6 +5,9 @@ import { CloudDeviceService } from '../device/cloud-device.service';
 import { DataBaseDeviceService } from '../device/database-device.service';
 import { TaskService } from '../task/task.service';
 import { RoomService } from '../room/room.service';
+import { HejHomeRoomService } from '../room/hej-home-room.service';
+import { RoomSensorService } from '../room/room-sensor.service';
+import { CreateHejhomeDeviceDto } from '../device/dto/create-device.dto';
 
 describe('InitService', () => {
   let service: InitService;
@@ -12,7 +15,9 @@ describe('InitService', () => {
   let cloudDeviceService: CloudDeviceService;
   let databaseDeviceService: DataBaseDeviceService;
   let taskService: TaskService;
+  let hejHomeRoomService: HejHomeRoomService;
   let roomService: RoomService;
+  let roomSensorService: RoomSensorService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -40,11 +45,15 @@ describe('InitService', () => {
         },
         {
           provide: RoomService,
-          useValue: {
-            getHomesWithRooms: jest.fn(),
-            initRooms: jest.fn(),
-            matchRoomWithSensor: jest.fn(),
-          },
+          useValue: { initRooms: jest.fn() },
+        },
+        {
+          provide: HejHomeRoomService,
+          useValue: { getHomesWithRooms: jest.fn() },
+        },
+        {
+          provide: RoomSensorService,
+          useValue: { matchRoomWithSensor: jest.fn() },
         },
       ],
     }).compile();
@@ -56,12 +65,14 @@ describe('InitService', () => {
       DataBaseDeviceService,
     );
     taskService = module.get<TaskService>(TaskService);
+    hejHomeRoomService = module.get<HejHomeRoomService>(HejHomeRoomService);
     roomService = module.get<RoomService>(RoomService);
+    roomSensorService = module.get<RoomSensorService>(RoomSensorService);
   });
 
   describe('onModuleInit', () => {
     beforeEach(() => {
-      jest.spyOn(roomService, 'getHomesWithRooms').mockResolvedValue([]);
+      jest.spyOn(hejHomeRoomService, 'getHomesWithRooms').mockResolvedValue([]);
     });
 
     it('로그 메시지를 출력해야 한다', async () => {
@@ -79,7 +90,9 @@ describe('InitService', () => {
 
     it('방을 초기화해야 한다', async () => {
       const rooms = [{ room_id: 1, name: 'Room 1', homeId: 1 }];
-      jest.spyOn(roomService, 'getHomesWithRooms').mockResolvedValue(rooms);
+      jest
+        .spyOn(hejHomeRoomService, 'getHomesWithRooms')
+        .mockResolvedValue(rooms);
       await service.onModuleInit();
       expect(roomService.initRooms).toHaveBeenCalledWith(
         rooms.map((room) => ({ ...room, id: room.room_id })),
@@ -111,25 +124,34 @@ describe('InitService', () => {
           familyId: 'Family 2',
           category: 'Category 2',
           online: true,
+          active: true,
+          platform: 'hejhome',
+          activeMessageTemplate: false,
         },
       ];
-      jest.spyOn(roomService, 'getHomesWithRooms').mockResolvedValue(rooms);
+      jest
+        .spyOn(hejHomeRoomService, 'getHomesWithRooms')
+        .mockResolvedValue(rooms);
       jest
         .spyOn(cloudDeviceService, 'getDevicesWithRoomId')
-        .mockResolvedValue(devicesWithRoomId);
+        .mockResolvedValue(devicesWithRoomId as CreateHejhomeDeviceDto[]);
       jest.spyOn(cloudDeviceService, 'getDevices').mockResolvedValue(devices);
       jest
         .spyOn(cloudDeviceService, 'getUniqueDevices')
         .mockResolvedValue(devices);
+
       await service.onModuleInit();
+
       expect(databaseDeviceService.bulkInsert).toHaveBeenCalledWith(devices);
     });
 
     it('방과 센서를 매칭해야 한다', async () => {
       const rooms = [{ room_id: 1, name: 'Room 1', homeId: 1 }];
-      jest.spyOn(roomService, 'getHomesWithRooms').mockResolvedValue(rooms);
+      jest
+        .spyOn(hejHomeRoomService, 'getHomesWithRooms')
+        .mockResolvedValue(rooms);
       await service.onModuleInit();
-      expect(roomService.matchRoomWithSensor).toHaveBeenCalledWith(1);
+      expect(roomSensorService.matchRoomWithSensor).toHaveBeenCalledWith(1);
     });
 
     it('API 체크를 수행해야 한다', async () => {

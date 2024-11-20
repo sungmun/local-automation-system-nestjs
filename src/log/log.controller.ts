@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { LogService } from './log.service';
-import { ResponseDeviceState } from 'src/hejhome-api/hejhome-api.interface';
+import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 import { OnEvent } from '@nestjs/event-emitter';
 
 @Controller('logs')

@@ -5,6 +5,8 @@ import {
   ResponseDevice,
   ResponseRoom,
 } from '../hejhome-api/hejhome-api.interface';
+import { plainToInstance } from 'class-transformer';
+import { CreateHejhomeDeviceDto } from './dto/create-device.dto';
 
 @Injectable()
 export class CloudDeviceService {
@@ -17,7 +19,12 @@ export class CloudDeviceService {
   }
 
   async getDevices() {
-    const devices = await this.hejhomeApiService.getDevices();
+    const hejhomeDevices = await this.hejhomeApiService.getDevices();
+
+    const devices = hejhomeDevices.map((device) =>
+      plainToInstance(CreateHejhomeDeviceDto, device),
+    );
+
     return devices;
   }
 
@@ -31,7 +38,8 @@ export class CloudDeviceService {
           room.room_id,
         );
         return roomWithDevices.map((device) =>
-          Object.assign(device, {
+          plainToInstance(CreateHejhomeDeviceDto, {
+            ...device,
             roomId: room.room_id,
           }),
         );

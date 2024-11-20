@@ -1,3 +1,7 @@
+import {
+  RecipeConditionRoomHumidity,
+  RecipeConditionRoomTemperature,
+} from '../../recipe-condition/entities/recipe-condition.entity';
 import { Device } from '../../device/entities/device.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
@@ -11,6 +15,9 @@ export class Room {
 
   @Column({ type: 'integer', nullable: true })
   temperature?: number;
+
+  @Column({ type: 'integer', nullable: true })
+  humidity?: number;
 
   @Column({ type: 'text', nullable: true })
   sensorId?: string;
@@ -32,4 +39,13 @@ export class Room {
 
   @OneToMany(() => Device, (device) => device.room)
   devices?: Device[];
+
+  @OneToMany(() => RecipeConditionRoomHumidity, (condition) => condition.room)
+  recipeConditionsHumidity?: RecipeConditionRoomHumidity[];
+
+  @OneToMany(
+    () => RecipeConditionRoomTemperature,
+    (condition) => condition.room,
+  )
+  recipeConditionsTemperature?: RecipeConditionRoomTemperature[];
 }

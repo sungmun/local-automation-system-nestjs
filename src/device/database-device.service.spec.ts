@@ -6,7 +6,7 @@ import { MessageTemplateService } from '../message-template/message-template.ser
 import { PushMessagingService } from '../push-messaging/push-messaging.service';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
-import { ResponseDeviceState } from 'src/hejhome-api/hejhome-api.interface';
+import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 
 describe('DataBaseDeviceService', () => {
   let service: DataBaseDeviceService;
@@ -103,6 +103,34 @@ describe('DataBaseDeviceService', () => {
       ];
       jest.spyOn(deviceRepository, 'find').mockResolvedValue(devices);
       const result = await service.findAll();
+      expect(result).toEqual(devices);
+    });
+  });
+
+  describe('findInIds', () => {
+    it('id 배열에 해당하는 장치를 반환해야 한다', async () => {
+      const devices: Device[] = [
+        {
+          id: 'device1',
+          name: 'Device1',
+          deviceType: 'Type1',
+          modelName: 'Model1',
+          familyId: 'Family1',
+          roomId: 1,
+          room: undefined,
+          category: 'Category1',
+          online: true,
+          hasSubDevices: false,
+          active: true,
+          platform: 'Platform1',
+          state: JSON.stringify({ power: 'on' }),
+          updateStateAt: new Date().toISOString(),
+          activeMessageTemplate: false,
+          messageTemplates: [],
+        },
+      ];
+      jest.spyOn(deviceRepository, 'find').mockResolvedValue(devices);
+      const result = await service.findInIds(['device1']);
       expect(result).toEqual(devices);
     });
   });
