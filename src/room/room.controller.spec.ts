@@ -1,105 +1,93 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RoomController } from './room.controller';
-import { RoomService } from './room.service';
-import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
-import { DeviceControlService } from '../device-control/device-control.service';
-import { DataBaseDeviceService } from '../device/database-device.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Room } from './entities/room.entity';
+import { RoomCrudService } from './room-crud.service';
 import { UpdateRoomDto } from './dto/updateRoom.dto';
-import { ResponseSensorTHState } from 'src/hejhome-api/hejhome-api.interface';
 
 describe('RoomController', () => {
   let controller: RoomController;
-  let roomService: RoomService;
+  let roomCrudService: RoomCrudService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RoomController],
       providers: [
-        RoomService,
         {
-          provide: HejhomeApiService,
-          useValue: {},
-        },
-        {
-          provide: DeviceControlService,
-          useValue: {},
-        },
-        {
-          provide: DataBaseDeviceService,
-          useValue: {},
-        },
-        {
-          provide: getRepositoryToken(Room),
-          useValue: {},
+          provide: RoomCrudService,
+          useValue: {
+            findAll: jest.fn(),
+            setRoomActiveById: jest.fn(),
+            getRoomById: jest.fn(),
+            setRoomById: jest.fn(),
+          },
         },
       ],
     }).compile();
 
     controller = module.get<RoomController>(RoomController);
-    roomService = module.get<RoomService>(RoomService);
+    roomCrudService = module.get<RoomCrudService>(RoomCrudService);
   });
 
   it('컨트롤러가 정의되어야 한다', () => {
     expect(controller).toBeDefined();
   });
 
+  describe('findAll', () => {
+    it('모든 방 목록을 반환해야 한다', async () => {
+      const result = [
+        { id: 1, name: '거실' },
+        { id: 2, name: '안방' },
+      ];
+      jest.spyOn(roomCrudService, 'findAll').mockResolvedValue(result);
+
+      expect(await controller.findAll()).toBe(result);
+      expect(roomCrudService.findAll).toHaveBeenCalled();
+    });
+  });
+
   describe('setActiveRoom', () => {
-    it('방을 활성화해야 한다', async () => {
+    it('방을 활성화하고 해당 방 정보를 반환해야 한다', async () => {
       const roomId = 1;
-      const getRoomByIdSpy = jest
-        .spyOn(roomService, 'getRoomById')
-        .mockResolvedValue({ id: roomId } as any);
-      const setRoomActiveByIdSpy = jest
-        .spyOn(roomService, 'setRoomActiveById')
-        .mockResolvedValue();
+      const room = { id: roomId, name: '거실', active: true };
+
+      jest
+        .spyOn(roomCrudService, 'setRoomActiveById')
+        .mockResolvedValue(undefined);
+      jest.spyOn(roomCrudService, 'getRoomById').mockResolvedValue(room);
 
       const result = await controller.setActiveRoom(roomId);
 
-      expect(setRoomActiveByIdSpy).toHaveBeenCalledWith(roomId);
-      expect(getRoomByIdSpy).toHaveBeenCalledWith(roomId);
-      expect(result).toEqual({ id: roomId });
+      expect(roomCrudService.setRoomActiveById).toHaveBeenCalledWith(roomId);
+      expect(roomCrudService.getRoomById).toHaveBeenCalledWith(roomId);
+      expect(result).toBe(room);
     });
   });
 
   describe('setRoom', () => {
-    it('방을 업데이트해야 한다', async () => {
+    it('방 정보를 업데이트하고 업데이트된 방 정보를 반환해야 한다', async () => {
       const roomId = 1;
-      const updateRoomDto: UpdateRoomDto = { name: '새로운 방 이름' };
-      const getRoomByIdSpy = jest
-        .spyOn(roomService, 'getRoomById')
-        .mockResolvedValue({ id: roomId } as any);
-      const setRoomByIdSpy = jest
-        .spyOn(roomService, 'setRoomById')
-        .mockResolvedValue(true);
+      const updateRoomDto: UpdateRoomDto = {
+        name: '새로운 방 이름',
+        acStartTemperature: 22,
+        acStopTemperature: 26,
+      };
+      const updatedRoom = {
+        id: roomId,
+        name: '새로운 방 이름',
+        acStartTemperature: 22,
+        acStopTemperature: 26,
+      };
+
+      jest.spyOn(roomCrudService, 'setRoomById').mockResolvedValue(true);
+      jest.spyOn(roomCrudService, 'getRoomById').mockResolvedValue(updatedRoom);
 
       const result = await controller.setRoom(roomId, updateRoomDto);
 
-      expect(setRoomByIdSpy).toHaveBeenCalledWith(roomId, updateRoomDto);
-      expect(getRoomByIdSpy).toHaveBeenCalledWith(roomId);
-      expect(result).toEqual({ id: roomId });
-    });
-  });
-
-  describe('setRoomTemperature', () => {
-    it('RoomService의 setRoomTemperature가 올바른 인자로 호출되어야 한다', async () => {
-      const state: ResponseSensorTHState = {
-        id: 'sensor1',
-        deviceType: 'SensorTh',
-        deviceState: { temperature: 2500, humidity: 50, battery: 90 },
-      };
-      jest
-        .spyOn(roomService, 'setRoomTemperature')
-        .mockResolvedValue({} as any);
-      const loggerSpy = jest.spyOn(controller['logger'], 'debug');
-      await controller.setRoomTemperature(state);
-
-      expect(loggerSpy).toHaveBeenCalledWith('setRoomTemperature', state);
-      expect(roomService.setRoomTemperature).toHaveBeenCalledWith(
-        'sensor1',
-        2500,
+      expect(roomCrudService.setRoomById).toHaveBeenCalledWith(
+        roomId,
+        updateRoomDto,
       );
+      expect(roomCrudService.getRoomById).toHaveBeenCalledWith(roomId);
+      expect(result).toBe(updatedRoom);
     });
   });
 });
