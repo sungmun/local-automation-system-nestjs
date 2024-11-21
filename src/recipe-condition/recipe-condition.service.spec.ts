@@ -167,6 +167,27 @@ describe('RecipeConditionService', () => {
       const result = await service.checkRoomRecipeConditions(room);
       expect(result).toEqual([1, 2]);
     });
+
+    it('그룹이 없는 조건은 무시해야 합니다', async () => {
+      const room = {
+        recipeConditionsTemperature: [
+          {
+            type: RecipeConditionType.ROOM_TEMPERATURE,
+          },
+        ],
+        recipeConditionsHumidity: [
+          {
+            type: RecipeConditionType.ROOM_HUMIDITY,
+            group: { recipeId: 1 },
+          },
+        ],
+      } as unknown as Room;
+
+      mockValidator.validate.mockResolvedValue(true);
+
+      const result = await service.checkRoomRecipeConditions(room);
+      expect(result).toEqual([1]);
+    });
   });
 
   describe('validateGroupResults', () => {
@@ -195,6 +216,78 @@ describe('RecipeConditionService', () => {
       expect(() =>
         (service as any).validateGroupResults(group, results),
       ).toThrow(NotAcceptableException);
+    });
+  });
+
+  describe('validateGroupConditions', () => {
+    it('room 속성이 있는 조건을 올바르게 처리해야 합니다', async () => {
+      const room = { id: 1 } as Room;
+      const group = {
+        conditions: [
+          {
+            type: RecipeConditionType.ROOM_TEMPERATURE,
+            room,
+          },
+        ],
+      } as unknown as RecipeConditionGroup;
+
+      mockValidator.validate.mockResolvedValue(true);
+
+      const result = await (service as any).validateGroupConditions(group);
+      expect(result).toEqual([true]);
+      expect(mockValidator.validate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          condition: expect.objectContaining({ room }),
+        }),
+      );
+    });
+
+    it('room 속성이 없는 조건을 올바르게 처리해야 합니다', async () => {
+      const group = {
+        conditions: [
+          {
+            type: RecipeConditionType.RESERVE_TIME,
+          },
+        ],
+      } as RecipeConditionGroup;
+
+      mockValidator.validate.mockResolvedValue(true);
+
+      const result = await (service as any).validateGroupConditions(group);
+      expect(result).toEqual([true]);
+    });
+  });
+
+  describe('handleError', () => {
+    it('NotAcceptableException이 아닌 에러는 로그를 기록해야 합니다', () => {
+      const error = new Error('테스트 에러');
+      const recipeGroups = [
+        {
+          operator: 'AND',
+          conditions: [],
+        },
+      ] as RecipeConditionGroup[];
+
+      const loggerSpy = jest.spyOn((service as any).logger, 'error');
+
+      (service as any).handleError(error, recipeGroups);
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        'checkRecipeConditions error',
+        error,
+        JSON.stringify(recipeGroups),
+      );
+    });
+
+    it('NotAcceptableException은 로그를 기록하지 않아야 합니다', () => {
+      const error = new NotAcceptableException('테스트 에러');
+      const recipeGroups = [] as RecipeConditionGroup[];
+
+      const loggerSpy = jest.spyOn((service as any).logger, 'error');
+
+      (service as any).handleError(error, recipeGroups);
+
+      expect(loggerSpy).not.toHaveBeenCalled();
     });
   });
 });
