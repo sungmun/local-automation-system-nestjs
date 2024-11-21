@@ -41,7 +41,7 @@ export class RecipeCondition {
 
 @ChildEntity(RecipeConditionType.RESERVE_TIME)
 export class RecipeConditionReserveTime extends RecipeCondition {
-  @Column()
+  @Column({ nullable: true })
   reserveTime: Date;
 }
 
@@ -57,6 +57,7 @@ export class RecipeConditionRoomTemperature extends RecipeCondition {
   })
   @JoinColumn({ name: 'roomId' })
   room: Room;
+
   @Column()
   temperature: number;
 
@@ -76,6 +77,7 @@ export class RecipeConditionRoomHumidity extends RecipeCondition {
   })
   @JoinColumn({ name: 'roomId' })
   room: Room;
+
   @Column()
   humidity: number;
 
