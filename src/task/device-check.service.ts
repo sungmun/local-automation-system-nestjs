@@ -30,17 +30,10 @@ export class DeviceCheckService {
       this.logger.debug(`skip set.${device.deviceType}.${device.id}`);
       return;
     }
+    const state = await this.getDeviceState(device);
+    if (!state) return;
 
-    try {
-      const state = await this.getDeviceState(device);
-      if (!state) return;
-
-      this.emitDeviceState(device, state);
-    } catch (error) {
-      this.logger.error(
-        `장치 처리 실패 [${device.id}] - ${device.deviceType}: ${error.message}`,
-      );
-    }
+    this.emitDeviceState(device, state);
   }
 
   private async getDeviceState(device: RequireDevice) {
