@@ -13,6 +13,7 @@ import { Room } from '../../room/entities/room.entity';
 export enum RecipeConditionType {
   ROOM_TEMPERATURE = 'ROOM_TEMPERATURE',
   ROOM_HUMIDITY = 'ROOM_HUMIDITY',
+  RESERVE_TIME = 'RESERVE_TIME',
 }
 
 @Entity()
@@ -38,7 +39,11 @@ export class RecipeCondition {
   type: RecipeConditionType;
 }
 
-// export abstract class BaseRoomCondition extends RecipeCondition {}
+@ChildEntity(RecipeConditionType.RESERVE_TIME)
+export class RecipeConditionReserveTime extends RecipeCondition {
+  @Column()
+  reserveTime: Date;
+}
 
 @ChildEntity(RecipeConditionType.ROOM_TEMPERATURE)
 export class RecipeConditionRoomTemperature extends RecipeCondition {
