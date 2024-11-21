@@ -1,17 +1,31 @@
 import { Injectable, Logger, NotAcceptableException } from '@nestjs/common';
-import { RecipeCondition } from './entities/recipe-condition.entity';
+import {
+  RecipeCondition,
+  RecipeConditionType,
+} from './entities/recipe-condition.entity';
 import { Room } from '../room/entities/room.entity';
 import { RecipeConditionGroup } from './entities/recipe-condition-group.entity';
 import { ConditionValidatorFactory } from './validators/condition-validator.factory';
 import { ValidationContext } from './validators/validation-context';
+import { In, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class RecipeConditionService {
   private readonly logger = new Logger(RecipeConditionService.name);
 
   constructor(
+    @InjectRepository(RecipeCondition)
+    private readonly recipeConditionRepository: Repository<RecipeCondition>,
     private readonly conditionValidatorFactory: ConditionValidatorFactory,
   ) {}
+
+  async findRecipeConditionsAndGroupByTypeIn(types: RecipeConditionType[]) {
+    return this.recipeConditionRepository.find({
+      where: { type: In(types) },
+      relations: ['group'],
+    });
+  }
 
   async checkRecipeConditions(
     recipeGroups: RecipeConditionGroup[],
@@ -74,6 +88,25 @@ export class RecipeConditionService {
         JSON.stringify(recipeGroups),
       );
     }
+  }
+
+  async checkReserveTimeRecipeConditions(
+    conditions: RecipeCondition[],
+  ): Promise<number[]> {
+    let passedRecipeIds = new Set<number>();
+    for (const condition of conditions) {
+      if (!condition.group) continue;
+
+      const isValid = await this.validate(
+        condition,
+        new ValidationContext(condition),
+      );
+
+      if (isValid) {
+        passedRecipeIds.add(condition.group.recipeId);
+      }
+    }
+    return Array.from(passedRecipeIds);
   }
 
   async checkRoomRecipeConditions(room: Room): Promise<number[]> {
