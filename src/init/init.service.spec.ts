@@ -3,18 +3,18 @@ import { InitService } from './init.service';
 import { AuthService } from '../auth/auth.service';
 import { CloudDeviceService } from '../device/cloud-device.service';
 import { DataBaseDeviceService } from '../device/database-device.service';
-import { TaskService } from '../task/task.service';
 import { RoomService } from '../room/room.service';
 import { HejHomeRoomService } from '../room/hej-home-room.service';
 import { RoomSensorService } from '../room/room-sensor.service';
 import { CreateHejhomeDeviceDto } from '../device/dto/create-device.dto';
+import { DeviceCheckService } from '../task/device-check.service';
 
 describe('InitService', () => {
   let service: InitService;
   let authService: AuthService;
   let cloudDeviceService: CloudDeviceService;
   let databaseDeviceService: DataBaseDeviceService;
-  let taskService: TaskService;
+  let deviceCheckService: DeviceCheckService;
   let hejHomeRoomService: HejHomeRoomService;
   let roomService: RoomService;
   let roomSensorService: RoomSensorService;
@@ -40,8 +40,8 @@ describe('InitService', () => {
           useValue: { bulkInsert: jest.fn() },
         },
         {
-          provide: TaskService,
-          useValue: { hejhomeAPICheck: jest.fn() },
+          provide: DeviceCheckService,
+          useValue: { checkDevices: jest.fn() },
         },
         {
           provide: RoomService,
@@ -64,7 +64,7 @@ describe('InitService', () => {
     databaseDeviceService = module.get<DataBaseDeviceService>(
       DataBaseDeviceService,
     );
-    taskService = module.get<TaskService>(TaskService);
+    deviceCheckService = module.get<DeviceCheckService>(DeviceCheckService);
     hejHomeRoomService = module.get<HejHomeRoomService>(HejHomeRoomService);
     roomService = module.get<RoomService>(RoomService);
     roomSensorService = module.get<RoomSensorService>(RoomSensorService);
@@ -156,7 +156,7 @@ describe('InitService', () => {
 
     it('API 체크를 수행해야 한다', async () => {
       await service.onModuleInit();
-      expect(taskService.hejhomeAPICheck).toHaveBeenCalled();
+      expect(deviceCheckService.checkDevices).toHaveBeenCalled();
     });
   });
 });
