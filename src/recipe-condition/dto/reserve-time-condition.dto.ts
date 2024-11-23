@@ -1,14 +1,10 @@
 import { IsNotEmpty, IsDate } from 'class-validator';
-import { Transform } from 'class-transformer';
 import { BaseRecipeConditionDto } from './base-recipe-condition.dto';
+import { TransformDate } from '../../common/decorators/transform-date.decorator';
 
 export class ReserveTimeConditionDto extends BaseRecipeConditionDto {
   @IsNotEmpty()
   @IsDate()
-  @Transform(({ value }) => {
-    const date = new Date(value);
-    date.setSeconds(0, 0);
-    return date;
-  })
+  @TransformDate()
   reserveTime: Date;
 }
