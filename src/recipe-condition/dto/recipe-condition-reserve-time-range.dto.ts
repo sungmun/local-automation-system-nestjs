@@ -9,13 +9,13 @@ export class RecipeConditionReserveTimeRangeDto extends BaseRecipeConditionDto {
   @IsDate()
   @MinDate(new Date())
   @TransformDate()
-  @Expose({ name: 'reserveStartTime' })
-  startTime: Date;
+  @Expose({ name: 'startTime' })
+  reserveStartTime: Date;
 
   @IsNotEmpty()
   @IsDate()
-  @Validate(IsDateTimeRangeValid, ['startTime'])
+  @Validate(IsDateTimeRangeValid, ['reserveStartTime'])
   @TransformDate()
-  @Expose({ name: 'reserveEndTime' })
-  endTime: Date;
+  @Expose({ name: 'endTime' })
+  reserveEndTime: Date;
 }

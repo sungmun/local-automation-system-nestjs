@@ -19,8 +19,8 @@ describe('RecipeConditionReserveTimeRangeDto', () => {
 
       const dto = {
         type: RecipeConditionType.RESERVE_TIME_RANGE,
-        reserveStartTime: futureDate.toISOString(),
-        reserveEndTime: new Date(futureDate.getTime() + 3600000).toISOString(),
+        startTime: futureDate.toISOString(),
+        endTime: new Date(futureDate.getTime() + 3600000).toISOString(),
       };
 
       const errors = await createAndValidateDto(dto);
@@ -33,7 +33,7 @@ describe('RecipeConditionReserveTimeRangeDto', () => {
 
       const dto = {
         type: RecipeConditionType.RESERVE_TIME_RANGE,
-        reserveEndTime: futureDate.toISOString(),
+        endTime: futureDate.toISOString(),
       };
 
       const errors = await createAndValidateDto(dto);
@@ -65,8 +65,8 @@ describe('RecipeConditionReserveTimeRangeDto', () => {
 
       const dto = {
         type: RecipeConditionType.RESERVE_TIME_RANGE,
-        reserveStartTime: startDate.toISOString(),
-        reserveEndTime: endDate.toISOString(),
+        startTime: startDate.toISOString(),
+        endTime: endDate.toISOString(),
       };
 
       const errors = await createAndValidateDto(dto);
@@ -79,7 +79,7 @@ describe('RecipeConditionReserveTimeRangeDto', () => {
 
       const dto = {
         type: RecipeConditionType.RESERVE_TIME_RANGE,
-        reserveStartTime: startDate.toISOString(),
+        startTime: startDate.toISOString(),
       };
 
       const errors = await createAndValidateDto(dto);
@@ -95,8 +95,8 @@ describe('RecipeConditionReserveTimeRangeDto', () => {
 
       const dto = {
         type: RecipeConditionType.RESERVE_TIME_RANGE,
-        reserveStartTime: startDate.toISOString(),
-        reserveEndTime: endDate.toISOString(),
+        startTime: startDate.toISOString(),
+        endTime: endDate.toISOString(),
       };
 
       const errors = await createAndValidateDto(dto);
@@ -113,8 +113,8 @@ describe('RecipeConditionReserveTimeRangeDto', () => {
 
       const dto = {
         type: RecipeConditionType.RESERVE_TIME_RANGE,
-        reserveStartTime: startDate.toISOString(),
-        reserveEndTime: endDate.toISOString(),
+        startTime: startDate.toISOString(),
+        endTime: endDate.toISOString(),
       };
 
       const dtoInstance = plainToInstance(
@@ -122,12 +122,12 @@ describe('RecipeConditionReserveTimeRangeDto', () => {
         dto,
       );
 
-      expect(dtoInstance.startTime).toBeInstanceOf(Date);
-      expect(dtoInstance.endTime).toBeInstanceOf(Date);
-      expect(dtoInstance.startTime.getSeconds()).toBe(0);
-      expect(dtoInstance.startTime.getMilliseconds()).toBe(0);
-      expect(dtoInstance.endTime.getSeconds()).toBe(0);
-      expect(dtoInstance.endTime.getMilliseconds()).toBe(0);
+      expect(dtoInstance.reserveStartTime).toBeInstanceOf(Date);
+      expect(dtoInstance.reserveEndTime).toBeInstanceOf(Date);
+      expect(dtoInstance.reserveStartTime.getSeconds()).toBe(0);
+      expect(dtoInstance.reserveStartTime.getMilliseconds()).toBe(0);
+      expect(dtoInstance.reserveEndTime.getSeconds()).toBe(0);
+      expect(dtoInstance.reserveEndTime.getMilliseconds()).toBe(0);
     });
   });
 });
