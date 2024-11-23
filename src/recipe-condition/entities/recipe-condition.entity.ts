@@ -14,6 +14,7 @@ export enum RecipeConditionType {
   ROOM_TEMPERATURE = 'ROOM_TEMPERATURE',
   ROOM_HUMIDITY = 'ROOM_HUMIDITY',
   RESERVE_TIME = 'RESERVE_TIME',
+  RESERVE_TIME_RANGE = 'RESERVE_TIME_RANGE',
 }
 
 @Entity()
@@ -37,6 +38,15 @@ export class RecipeCondition {
 
   @Column({ type: 'text', enum: RecipeConditionType })
   type: RecipeConditionType;
+}
+
+@ChildEntity(RecipeConditionType.RESERVE_TIME_RANGE)
+export class RecipeConditionReserveTimeRange extends RecipeCondition {
+  @Column({ nullable: true })
+  reserveStartTime: Date;
+
+  @Column({ nullable: true })
+  reserveEndTime: Date;
 }
 
 @ChildEntity(RecipeConditionType.RESERVE_TIME)
