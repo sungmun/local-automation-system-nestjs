@@ -1,7 +1,7 @@
 // test/deviceSubscriber.test.ts
 import { DeviceSubscriber } from './device.entity.subscriber';
 import { Device } from './device.entity';
-import { UpdateEvent } from 'typeorm';
+import type { UpdateEvent } from 'typeorm';
 
 describe('DeviceSubscriber', () => {
   let subscriber: DeviceSubscriber;

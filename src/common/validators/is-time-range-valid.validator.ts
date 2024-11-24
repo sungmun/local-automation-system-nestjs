@@ -1,8 +1,8 @@
-import {
-  ValidatorConstraint,
+import type {
   ValidatorConstraintInterface,
   ValidationArguments,
 } from 'class-validator';
+import { ValidatorConstraint } from 'class-validator';
 
 @ValidatorConstraint({ name: 'isDateTimeRangeValid', async: false })
 export class IsDateTimeRangeValid implements ValidatorConstraintInterface {

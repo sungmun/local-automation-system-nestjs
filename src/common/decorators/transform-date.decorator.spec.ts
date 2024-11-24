@@ -27,7 +27,7 @@ describe('TransformDate', () => {
     expect(dto.date.toISOString()).toBe('2024-01-15T10:30:00.000Z');
   });
 
-  it('유효하지 않은 날짜 문자열이 주어지면 Invalid Date를 ���환해야 합니다', () => {
+  it('유효하지 않은 날짜 문자열이 주어지면 Invalid Date를 반환해야 합니다', () => {
     const dto = plainToInstance(TestDto, { date: 'invalid-date' });
     expect(dto.date.toString()).toBe('Invalid Date');
   });
