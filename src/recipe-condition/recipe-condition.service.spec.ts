@@ -14,7 +14,6 @@ import { Repository } from 'typeorm';
 
 describe('RecipeConditionService', () => {
   let service: RecipeConditionService;
-  let validatorFactory: jest.Mocked<ConditionValidatorFactory>;
   let mockValidator: jest.Mocked<IConditionValidator>;
   let recipeConditionRepository: jest.Mocked<Repository<RecipeCondition>>;
 
@@ -43,7 +42,7 @@ describe('RecipeConditionService', () => {
     }).compile();
 
     service = module.get<RecipeConditionService>(RecipeConditionService);
-    validatorFactory = module.get(ConditionValidatorFactory);
+
     recipeConditionRepository = module.get(getRepositoryToken(RecipeCondition));
   });
 

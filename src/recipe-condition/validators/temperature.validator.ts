@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import {
   RecipeCondition,
-  RecipeConditionRoomTemperature,
   RecipeConditionType,
 } from '../entities/recipe-condition.entity';
 import { IConditionValidator } from './condition-validator.interface';
-
 import { BaseValidator } from './base.validator';
 import { RecipeValidator } from './validator.registry';
 import { ValidationContext } from './validation-context';
 import { Room } from '../../room/entities/room.entity';
+import type { RecipeConditionRoomTemperature } from '../entities/child-recipe-conditions';
 
 @Injectable()
 @RecipeValidator()

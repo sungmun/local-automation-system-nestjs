@@ -1,5 +1,4 @@
 import {
-  ChildEntity,
   Column,
   Entity,
   JoinColumn,
@@ -7,8 +6,7 @@ import {
   PrimaryGeneratedColumn,
   TableInheritance,
 } from 'typeorm';
-import { RecipeConditionGroup } from './recipe-condition-group.entity';
-import { Room } from '../../room/entities/room.entity';
+import type { RecipeConditionGroup } from './recipe-condition-group.entity';
 
 export enum RecipeConditionType {
   ROOM_TEMPERATURE = 'ROOM_TEMPERATURE',
@@ -25,11 +23,15 @@ export class RecipeCondition {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => RecipeConditionGroup, (group) => group.conditions, {
-    orphanedRowAction: 'delete',
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
+  @ManyToOne(
+    'RecipeConditionGroup',
+    (group: RecipeConditionGroup) => group.conditions,
+    {
+      orphanedRowAction: 'delete',
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
+  )
   @JoinColumn({ name: 'groupId' })
   group: RecipeConditionGroup;
 
@@ -38,59 +40,4 @@ export class RecipeCondition {
 
   @Column({ type: 'text', enum: RecipeConditionType })
   type: RecipeConditionType;
-}
-
-@ChildEntity(RecipeConditionType.RESERVE_TIME_RANGE)
-export class RecipeConditionReserveTimeRange extends RecipeCondition {
-  @Column({ nullable: true })
-  reserveStartTime: Date;
-
-  @Column({ nullable: true })
-  reserveEndTime: Date;
-}
-
-@ChildEntity(RecipeConditionType.RESERVE_TIME)
-export class RecipeConditionReserveTime extends RecipeCondition {
-  @Column({ nullable: true })
-  reserveTime: Date;
-}
-
-@ChildEntity(RecipeConditionType.ROOM_TEMPERATURE)
-export class RecipeConditionRoomTemperature extends RecipeCondition {
-  @Column()
-  roomId: number;
-
-  @ManyToOne(() => Room, (room) => room.id, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    orphanedRowAction: 'delete',
-  })
-  @JoinColumn({ name: 'roomId' })
-  room: Room;
-
-  @Column()
-  temperature: number;
-
-  @Column()
-  unit: '<' | '>' | '=' | '>=' | '<=';
-}
-
-@ChildEntity(RecipeConditionType.ROOM_HUMIDITY)
-export class RecipeConditionRoomHumidity extends RecipeCondition {
-  @Column()
-  roomId: number;
-
-  @ManyToOne(() => Room, (room) => room.id, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    orphanedRowAction: 'delete',
-  })
-  @JoinColumn({ name: 'roomId' })
-  room: Room;
-
-  @Column()
-  humidity: number;
-
-  @Column()
-  unit: '<' | '>' | '=' | '>=' | '<=';
 }

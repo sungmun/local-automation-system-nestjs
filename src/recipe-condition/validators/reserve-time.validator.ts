@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
   RecipeCondition,
-  RecipeConditionReserveTime,
   RecipeConditionType,
 } from '../entities/recipe-condition.entity';
 import { IConditionValidator } from './condition-validator.interface';
@@ -9,6 +8,7 @@ import { IConditionValidator } from './condition-validator.interface';
 import { BaseValidator } from './base.validator';
 import { RecipeValidator } from './validator.registry';
 import { ValidationContext } from './validation-context';
+import type { RecipeConditionReserveTime } from '../entities/child-recipe-conditions';
 
 @Injectable()
 @RecipeValidator()
