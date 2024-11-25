@@ -23,13 +23,39 @@ export class WeeklyRecurringScheduleValidator
   async validate(context: ValidationContext): Promise<boolean> {
     const condition =
       context.condition as RecipeConditionWeeklyRecurringSchedule;
-    const timeData = new Date(condition.time);
-    const now = new Date();
+    const now = this.getCurrentTimeInKST();
 
     return (
-      condition.dayOfWeeks.split(',').includes(now.getDay().toString()) &&
-      this.compareValues(now.getHours(), timeData.getHours(), '=') &&
-      this.compareValues(now.getMinutes(), timeData.getMinutes(), '=')
+      this.isDayOfWeekMatch(condition.dayOfWeeks, now) &&
+      this.isTimeMatch(condition.time, now)
     );
+  }
+
+  private isDayOfWeekMatch(dayOfWeeks: string, date: Date): boolean {
+    const currentDayOfWeek = date.getDay().toString();
+    const allowedDays = dayOfWeeks.split(',');
+    return allowedDays.includes(currentDayOfWeek);
+  }
+
+  private isTimeMatch(scheduleTime: string, currentTime: Date): boolean {
+    const [hours, minutes] = this.parseTime(scheduleTime);
+    return (
+      this.compareValues(currentTime.getHours(), hours, '=') &&
+      this.compareValues(currentTime.getMinutes(), minutes, '=')
+    );
+  }
+
+  private parseTime(time: string): [number, number] {
+    const [hours, minutes] = time.split(':').map(Number);
+    return [hours, minutes];
+  }
+
+  private getCurrentTimeInKST(): Date {
+    const now = new Date();
+    now.setSeconds(0, 0);
+    const utc = now.getTime();
+    const kstOffset = 9 * 60 * 60000;
+    const kstTime = new Date(utc - kstOffset);
+    return kstTime;
   }
 }

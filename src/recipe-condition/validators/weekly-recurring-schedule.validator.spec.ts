@@ -43,7 +43,7 @@ describe('WeeklyRecurringScheduleValidator', () => {
       const condition = {
         type: RecipeConditionType.WEEKLY_RECURRING_SCHEDULE,
         dayOfWeeks: '1', // 월요일
-        time: '2024-01-15T10:00:00.000Z',
+        time: '10:00:00',
       } as unknown as RecipeCondition;
 
       const context = new ValidationContext(condition);
@@ -59,7 +59,7 @@ describe('WeeklyRecurringScheduleValidator', () => {
       const condition = {
         type: RecipeConditionType.WEEKLY_RECURRING_SCHEDULE,
         dayOfWeeks: '1', // 월요일
-        time: '2024-01-15T10:00:00.000Z',
+        time: '10:00:00',
       } as unknown as RecipeCondition;
 
       const context = new ValidationContext(condition);
@@ -75,7 +75,7 @@ describe('WeeklyRecurringScheduleValidator', () => {
       const condition = {
         type: RecipeConditionType.WEEKLY_RECURRING_SCHEDULE,
         dayOfWeeks: '1', // 월요일
-        time: '2024-01-15T10:00:00.000Z', // 10:00
+        time: '10:00:00',
       } as unknown as RecipeCondition;
 
       const context = new ValidationContext(condition);
@@ -91,7 +91,7 @@ describe('WeeklyRecurringScheduleValidator', () => {
       const condition = {
         type: RecipeConditionType.WEEKLY_RECURRING_SCHEDULE,
         dayOfWeeks: '1,3,5', // 월,수,금
-        time: '2024-01-15T10:00:00.000Z',
+        time: '10:00:00',
       } as unknown as RecipeCondition;
 
       const context = new ValidationContext(condition);
@@ -107,7 +107,7 @@ describe('WeeklyRecurringScheduleValidator', () => {
       const condition = {
         type: RecipeConditionType.WEEKLY_RECURRING_SCHEDULE,
         dayOfWeeks: '1',
-        time: '2024-01-15T10:00:00.000Z',
+        time: '10:00:00',
       } as unknown as RecipeCondition;
 
       const context = new ValidationContext(condition);
