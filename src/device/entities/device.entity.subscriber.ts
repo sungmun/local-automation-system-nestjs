@@ -1,9 +1,5 @@
-import {
-  EntitySubscriberInterface,
-  EventSubscriber,
-  UpdateEvent,
-  DataSource,
-} from 'typeorm';
+import { EventSubscriber } from 'typeorm';
+import type { UpdateEvent, EntitySubscriberInterface } from 'typeorm';
 import { Device } from './device.entity';
 
 @EventSubscriber()

@@ -5,10 +5,10 @@ import { AuthService } from '../auth/auth.service';
 import { CloudDeviceService } from '../device/cloud-device.service';
 import { DataBaseDeviceService } from '../device/database-device.service';
 
-import { TaskService } from '../task/task.service';
 import { RoomService } from '../room/room.service';
 import { HejHomeRoomService } from '../room/hej-home-room.service';
 import { RoomSensorService } from '../room/room-sensor.service';
+import { DeviceCheckService } from '../task/device-check.service';
 
 @Injectable()
 export class InitService implements OnModuleInit {
@@ -20,7 +20,7 @@ export class InitService implements OnModuleInit {
     private readonly hejHomeRoomService: HejHomeRoomService,
     private readonly roomService: RoomService,
     private readonly roomSensorService: RoomSensorService,
-    private readonly taskService: TaskService,
+    private readonly deviceCheckService: DeviceCheckService,
   ) {}
 
   private async initRooms() {
@@ -54,7 +54,7 @@ export class InitService implements OnModuleInit {
       await this.roomSensorService.matchRoomWithSensor(room.room_id);
     }
     this.logger.log('onModuleInit success');
-    this.taskService.hejhomeAPICheck();
+    this.deviceCheckService.checkDevices();
     this.logger.log('onModuleInit api check');
   }
 }

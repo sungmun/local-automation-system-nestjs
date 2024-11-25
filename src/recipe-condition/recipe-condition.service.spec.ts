@@ -1,20 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Logger, NotAcceptableException } from '@nestjs/common';
 import { RecipeConditionService } from './recipe-condition.service';
 import { ConditionValidatorFactory } from './validators/condition-validator.factory';
-import { RecipeConditionGroup } from './entities/recipe-condition-group.entity';
+import { IConditionValidator } from './validators/condition-validator.interface';
 import {
   RecipeCondition,
   RecipeConditionType,
 } from './entities/recipe-condition.entity';
+import { RecipeConditionGroup } from './entities/recipe-condition-group.entity';
 import { Room } from '../room/entities/room.entity';
-
-import { IConditionValidator } from './validators/condition-validator.interface';
+import { NotAcceptableException } from '@nestjs/common';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 describe('RecipeConditionService', () => {
   let service: RecipeConditionService;
-  let validatorFactory: jest.Mocked<ConditionValidatorFactory>;
   let mockValidator: jest.Mocked<IConditionValidator>;
+  let recipeConditionRepository: jest.Mocked<Repository<RecipeCondition>>;
 
   beforeEach(async () => {
     mockValidator = {
@@ -31,11 +32,37 @@ describe('RecipeConditionService', () => {
             getValidator: jest.fn().mockReturnValue(mockValidator),
           },
         },
+        {
+          provide: getRepositoryToken(RecipeCondition),
+          useValue: {
+            find: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<RecipeConditionService>(RecipeConditionService);
-    validatorFactory = module.get(ConditionValidatorFactory);
+
+    recipeConditionRepository = module.get(getRepositoryToken(RecipeCondition));
+  });
+
+  describe('findRecipeConditionsAndGroupByTypeIn', () => {
+    it('지정된 타입의 레시피 조건을 조회해야 합니다', async () => {
+      const types = [RecipeConditionType.RESERVE_TIME];
+      const expectedConditions = [
+        { id: 1, type: RecipeConditionType.RESERVE_TIME },
+      ] as RecipeCondition[];
+
+      recipeConditionRepository.find.mockResolvedValue(expectedConditions);
+
+      const result = await service.findRecipeConditionsAndGroupByTypeIn(types);
+
+      expect(recipeConditionRepository.find).toHaveBeenCalledWith({
+        where: { type: expect.any(Object) },
+        relations: ['group'],
+      });
+      expect(result).toEqual(expectedConditions);
+    });
   });
 
   describe('checkRecipeConditions', () => {
@@ -70,29 +97,43 @@ describe('RecipeConditionService', () => {
       const result = await service.checkRecipeConditions(recipeGroups);
       expect(result).toBe(false);
     });
+  });
 
-    it('에러 발생 시 로그를 기록하고 false를 반환해야 합니다', async () => {
-      const recipeGroups = [
+  describe('checkReserveTimeRecipeConditions', () => {
+    it('유효한 조건의 레시피 ID를 반환해야 합니다', async () => {
+      const conditions = [
         {
-          operator: 'AND',
-          conditions: [
-            { type: RecipeConditionType.ROOM_TEMPERATURE } as RecipeCondition,
-          ],
+          group: { recipeId: 1 },
+          type: RecipeConditionType.RESERVE_TIME,
         },
-      ] as RecipeConditionGroup[];
+        {
+          group: { recipeId: 2 },
+          type: RecipeConditionType.RESERVE_TIME,
+        },
+      ] as RecipeCondition[];
 
-      mockValidator.validate.mockRejectedValue(new Error('테스트 에러'));
-      const loggerSpy = jest.spyOn(Logger.prototype, 'error');
+      mockValidator.validate
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(false);
 
-      const result = await service.checkRecipeConditions(recipeGroups);
+      const result = await service.checkReserveTimeRecipeConditions(conditions);
+      expect(result).toEqual([1]);
+    });
 
-      expect(result).toBe(false);
-      expect(loggerSpy).toHaveBeenCalled();
+    it('그룹이 없는 조건은 무시해야 합니다', async () => {
+      const conditions = [
+        {
+          type: RecipeConditionType.RESERVE_TIME,
+        },
+      ] as RecipeCondition[];
+
+      const result = await service.checkReserveTimeRecipeConditions(conditions);
+      expect(result).toEqual([]);
     });
   });
 
   describe('checkRoomRecipeConditions', () => {
-    it('조건이 없는 경우 빈 배열을 반환해야 합니다', async () => {
+    it('온도와 습도 조건이 없으면 빈 배열을 반환해야 합니다', async () => {
       const room = {
         recipeConditionsTemperature: [],
         recipeConditionsHumidity: [],
@@ -102,7 +143,7 @@ describe('RecipeConditionService', () => {
       expect(result).toEqual([]);
     });
 
-    it('충족된 조건의 레시피 ID를 반환해야 합니다', async () => {
+    it('유효한 조건의 레시피 ID를 반환해야 합니다', async () => {
       const room = {
         recipeConditionsTemperature: [
           {
@@ -118,41 +159,33 @@ describe('RecipeConditionService', () => {
         ],
       } as unknown as Room;
 
-      mockValidator.validate.mockResolvedValue(true);
+      mockValidator.validate
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(true);
 
       const result = await service.checkRoomRecipeConditions(room);
       expect(result).toEqual([1, 2]);
     });
 
-    it('group이 없는 조건은 무시해야 합니다', async () => {
+    it('그룹이 없는 조건은 무시해야 합니다', async () => {
       const room = {
         recipeConditionsTemperature: [
           {
             type: RecipeConditionType.ROOM_TEMPERATURE,
           },
         ],
-        recipeConditionsHumidity: [],
-      } as unknown as Room;
-
-      const result = await service.checkRoomRecipeConditions(room);
-      expect(result).toEqual([]);
-    });
-
-    it('조건이 충족되지 않은 레시피 ID는 제외해야 합니다', async () => {
-      const room = {
-        recipeConditionsTemperature: [
+        recipeConditionsHumidity: [
           {
+            type: RecipeConditionType.ROOM_HUMIDITY,
             group: { recipeId: 1 },
-            type: RecipeConditionType.ROOM_TEMPERATURE,
           },
         ],
-        recipeConditionsHumidity: [],
       } as unknown as Room;
 
-      mockValidator.validate.mockResolvedValue(false);
+      mockValidator.validate.mockResolvedValue(true);
 
       const result = await service.checkRoomRecipeConditions(room);
-      expect(result).toEqual([]);
+      expect(result).toEqual([1]);
     });
   });
 
@@ -182,6 +215,78 @@ describe('RecipeConditionService', () => {
       expect(() =>
         (service as any).validateGroupResults(group, results),
       ).toThrow(NotAcceptableException);
+    });
+  });
+
+  describe('validateGroupConditions', () => {
+    it('room 속성이 있는 조건을 올바르게 처리해야 합니다', async () => {
+      const room = { id: 1 } as Room;
+      const group = {
+        conditions: [
+          {
+            type: RecipeConditionType.ROOM_TEMPERATURE,
+            room,
+          },
+        ],
+      } as unknown as RecipeConditionGroup;
+
+      mockValidator.validate.mockResolvedValue(true);
+
+      const result = await (service as any).validateGroupConditions(group);
+      expect(result).toEqual([true]);
+      expect(mockValidator.validate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          condition: expect.objectContaining({ room }),
+        }),
+      );
+    });
+
+    it('room 속성이 없는 조건을 올바르게 처리해야 합니다', async () => {
+      const group = {
+        conditions: [
+          {
+            type: RecipeConditionType.RESERVE_TIME,
+          },
+        ],
+      } as RecipeConditionGroup;
+
+      mockValidator.validate.mockResolvedValue(true);
+
+      const result = await (service as any).validateGroupConditions(group);
+      expect(result).toEqual([true]);
+    });
+  });
+
+  describe('handleError', () => {
+    it('NotAcceptableException이 아닌 에러는 로그를 기록해야 합니다', () => {
+      const error = new Error('테스트 에러');
+      const recipeGroups = [
+        {
+          operator: 'AND',
+          conditions: [],
+        },
+      ] as RecipeConditionGroup[];
+
+      const loggerSpy = jest.spyOn((service as any).logger, 'error');
+
+      (service as any).handleError(error, recipeGroups);
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        'checkRecipeConditions error',
+        error,
+        JSON.stringify(recipeGroups),
+      );
+    });
+
+    it('NotAcceptableException은 로그를 기록하지 않아야 합니다', () => {
+      const error = new NotAcceptableException('테스트 에러');
+      const recipeGroups = [] as RecipeConditionGroup[];
+
+      const loggerSpy = jest.spyOn((service as any).logger, 'error');
+
+      (service as any).handleError(error, recipeGroups);
+
+      expect(loggerSpy).not.toHaveBeenCalled();
     });
   });
 });

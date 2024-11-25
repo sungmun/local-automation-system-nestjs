@@ -1,9 +1,9 @@
-import {
-  RecipeConditionRoomHumidity,
-  RecipeConditionRoomTemperature,
-} from '../../recipe-condition/entities/recipe-condition.entity';
 import { Device } from '../../device/entities/device.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import {
+  RecipeConditionRoomTemperature,
+  RecipeConditionRoomHumidity,
+} from '../../recipe-condition/entities/child-recipe-conditions';
 
 @Entity('Rooms')
 export class Room {
