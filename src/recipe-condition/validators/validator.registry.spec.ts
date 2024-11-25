@@ -1,7 +1,5 @@
 import { ValidatorRegistry, RecipeValidator } from './validator.registry';
 import { IConditionValidator } from './condition-validator.interface';
-import { RecipeCondition } from '../entities/recipe-condition.entity';
-import { ValidationContext } from './validation-context';
 
 describe('ValidatorRegistry', () => {
   beforeEach(() => {
@@ -13,10 +11,10 @@ describe('ValidatorRegistry', () => {
     it('validator를 등록해야 합니다', () => {
       @RecipeValidator()
       class TestValidator implements IConditionValidator {
-        canHandle(condition: RecipeCondition): boolean {
+        canHandle(): boolean {
           return true;
         }
-        async validate(context: ValidationContext): Promise<boolean> {
+        async validate(): Promise<boolean> {
           return true;
         }
       }
@@ -27,20 +25,20 @@ describe('ValidatorRegistry', () => {
     it('여러 validator를 등록할 수 있어야 합니다', () => {
       @RecipeValidator()
       class TestValidator1 implements IConditionValidator {
-        canHandle(condition: RecipeCondition): boolean {
+        canHandle(): boolean {
           return true;
         }
-        async validate(context: ValidationContext): Promise<boolean> {
+        async validate(): Promise<boolean> {
           return true;
         }
       }
 
       @RecipeValidator()
       class TestValidator2 implements IConditionValidator {
-        canHandle(condition: RecipeCondition): boolean {
+        canHandle(): boolean {
           return true;
         }
-        async validate(context: ValidationContext): Promise<boolean> {
+        async validate(): Promise<boolean> {
           return true;
         }
       }
@@ -56,20 +54,20 @@ describe('ValidatorRegistry', () => {
     it('등록된 모든 validator를 반환해야 합니다', () => {
       @RecipeValidator()
       class TestValidator1 implements IConditionValidator {
-        canHandle(condition: RecipeCondition): boolean {
+        canHandle(): boolean {
           return true;
         }
-        async validate(context: ValidationContext): Promise<boolean> {
+        async validate(): Promise<boolean> {
           return true;
         }
       }
 
       @RecipeValidator()
       class TestValidator2 implements IConditionValidator {
-        canHandle(condition: RecipeCondition): boolean {
+        canHandle(): boolean {
           return true;
         }
-        async validate(context: ValidationContext): Promise<boolean> {
+        async validate(): Promise<boolean> {
           return true;
         }
       }
@@ -88,10 +86,10 @@ describe('ValidatorRegistry', () => {
     it('클래스에 데코레이터를 적용하면 ValidatorRegistry에 등록되어야 합니다', () => {
       @RecipeValidator()
       class TestValidator implements IConditionValidator {
-        canHandle(condition: RecipeCondition): boolean {
+        canHandle(): boolean {
           return true;
         }
-        async validate(context: ValidationContext): Promise<boolean> {
+        async validate(): Promise<boolean> {
           return true;
         }
       }
@@ -104,20 +102,20 @@ describe('ValidatorRegistry', () => {
     it('여러 클래스에 데코레이터를 적용할 수 있어야 합니다', () => {
       @RecipeValidator()
       class TestValidator1 implements IConditionValidator {
-        canHandle(condition: RecipeCondition): boolean {
+        canHandle(): boolean {
           return true;
         }
-        async validate(context: ValidationContext): Promise<boolean> {
+        async validate(): Promise<boolean> {
           return true;
         }
       }
 
       @RecipeValidator()
       class TestValidator2 implements IConditionValidator {
-        canHandle(condition: RecipeCondition): boolean {
+        canHandle(): boolean {
           return true;
         }
-        async validate(context: ValidationContext): Promise<boolean> {
+        async validate(): Promise<boolean> {
           return true;
         }
       }
