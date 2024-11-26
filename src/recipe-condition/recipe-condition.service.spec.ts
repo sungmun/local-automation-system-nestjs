@@ -267,7 +267,9 @@ describe('RecipeConditionService', () => {
         },
       ] as RecipeConditionGroup[];
 
-      const loggerSpy = jest.spyOn((service as any).logger, 'error');
+      const loggerSpy = jest
+        .spyOn(service['logger'], 'error')
+        .mockImplementation();
 
       (service as any).handleError(error, recipeGroups);
 
@@ -282,9 +284,11 @@ describe('RecipeConditionService', () => {
       const error = new NotAcceptableException('테스트 에러');
       const recipeGroups = [] as RecipeConditionGroup[];
 
-      const loggerSpy = jest.spyOn((service as any).logger, 'error');
+      const loggerSpy = jest
+        .spyOn(service['logger'], 'error')
+        .mockImplementation();
 
-      (service as any).handleError(error, recipeGroups);
+      service['handleError'](error, recipeGroups);
 
       expect(loggerSpy).not.toHaveBeenCalled();
     });

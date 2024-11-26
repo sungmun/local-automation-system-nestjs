@@ -8,26 +8,29 @@ import { IConditionValidator } from './condition-validator.interface';
 import { BaseValidator } from './base.validator';
 import { RecipeValidator } from './validator.registry';
 import { ValidationContext } from './validation-context';
-import type { RecipeConditionWeeklyRecurringSchedule } from '../entities/child-recipe-conditions';
+import type { RecipeConditionWeeklyRecurringScheduleTimeRange } from '../entities/child-recipe-conditions';
 
 @Injectable()
 @RecipeValidator()
-export class WeeklyRecurringScheduleValidator
+export class WeeklyRecurringScheduleTimeRangeValidator
   extends BaseValidator
   implements IConditionValidator
 {
   canHandle(condition: RecipeCondition): boolean {
-    return condition.type === RecipeConditionType.WEEKLY_RECURRING_SCHEDULE;
+    return (
+      condition.type ===
+      RecipeConditionType.WEEKLY_RECURRING_SCHEDULE_TIME_RANGE
+    );
   }
 
   async validate(context: ValidationContext): Promise<boolean> {
     const condition =
-      context.condition as RecipeConditionWeeklyRecurringSchedule;
+      context.condition as RecipeConditionWeeklyRecurringScheduleTimeRange;
     const now = this.getCurrentTimeInKST();
 
     return (
       this.isDayOfWeekMatch(condition.dayOfWeeks, now) &&
-      this.isTimeMatch(condition.time, now)
+      this.isTimeInRange(condition.startTime, condition.endTime, now)
     );
   }
 
@@ -37,12 +40,34 @@ export class WeeklyRecurringScheduleValidator
     return allowedDays.includes(currentDayOfWeek);
   }
 
-  private isTimeMatch(scheduleTime: string, currentTime: Date): boolean {
-    const [hours, minutes] = this.parseTime(scheduleTime);
-    return (
-      this.compareValues(currentTime.getHours(), hours, '=') &&
-      this.compareValues(currentTime.getMinutes(), minutes, '=')
+  private isTimeInRange(
+    startTime: string,
+    endTime: string,
+    currentTime: Date,
+  ): boolean {
+    const startTimeInMinutes = this.convertTimeToMinutes(startTime);
+    const endTimeInMinutes = this.convertTimeToMinutes(endTime);
+
+    const currentTimeInMinutes = this.convertTimeToMinutes(
+      `${`${currentTime.getHours()}`.padStart(2, '0')}:${`${currentTime.getMinutes()}`.padStart(2, '0')}`,
     );
+
+    if (startTimeInMinutes > endTimeInMinutes) {
+      return (
+        this.compareValues(currentTimeInMinutes, startTimeInMinutes, '>=') ||
+        this.compareValues(currentTimeInMinutes, endTimeInMinutes, '<=')
+      );
+    }
+
+    return (
+      this.compareValues(currentTimeInMinutes, startTimeInMinutes, '>=') &&
+      this.compareValues(currentTimeInMinutes, endTimeInMinutes, '<=')
+    );
+  }
+
+  convertTimeToMinutes(time: string): number {
+    const [hours, minutes] = this.parseTime(time);
+    return hours * 60 + minutes;
   }
 
   private parseTime(time: string): [number, number] {

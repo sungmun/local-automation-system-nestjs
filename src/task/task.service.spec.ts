@@ -44,7 +44,7 @@ describe('TaskService', () => {
     it('에러가 발생해도 처리되어야 한다', async () => {
       const error = new Error('테스트 에러');
       recipeCheckService.checkReserveTimeRecipes.mockRejectedValue(error);
-
+      jest.spyOn(service['logger'], 'error').mockImplementation();
       await expect(service.checkRecipeEvery1Minute()).resolves.not.toThrow();
     });
   });
@@ -70,7 +70,7 @@ describe('TaskService', () => {
       hejhomeMessageQueueService.isConnected.mockReturnValue(false);
       const error = new Error('테스트 에러');
       deviceCheckService.checkDevices.mockRejectedValue(error);
-
+      jest.spyOn(service['logger'], 'error').mockImplementation();
       await expect(service.checkDevicesEvery30Seconds()).resolves.not.toThrow();
     });
   });

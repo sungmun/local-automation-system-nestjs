@@ -42,7 +42,7 @@ describe('DeviceCheckService', () => {
     databaseDeviceService = module.get(DataBaseDeviceService);
     deviceStateService = module.get(DeviceStateService);
     eventEmitter = module.get(EventEmitter2);
-    loggerSpy = jest.spyOn(service['logger'], 'error');
+    loggerSpy = jest.spyOn(service['logger'], 'error').mockImplementation();
   });
 
   describe('checkDevices', () => {

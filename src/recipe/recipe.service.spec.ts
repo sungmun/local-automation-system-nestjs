@@ -99,7 +99,9 @@ describe('RecipeService', () => {
         },
       ] as DeviceCommand[];
 
-      const loggerSpy = jest.spyOn(service['logger'], 'error');
+      const loggerSpy = jest
+        .spyOn(service['logger'], 'error')
+        .mockImplementation();
 
       await expect(service.runDeviceCommands(deviceCommands)).rejects.toThrow();
       expect(loggerSpy).toHaveBeenCalledWith(

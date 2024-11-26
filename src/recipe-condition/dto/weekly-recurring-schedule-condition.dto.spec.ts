@@ -61,7 +61,6 @@ describe('WeeklyRecurringScheduleConditionDto', () => {
         dto,
       );
       const errors = await validate(dtoInstance);
-      console.log(errors);
 
       expect(errors.length).toBe(0);
       expect(dtoInstance.dayOfWeeks).toBe('1,3,5');

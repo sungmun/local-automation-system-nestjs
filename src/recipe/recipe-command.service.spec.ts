@@ -145,6 +145,7 @@ describe('RecipeCommandService', () => {
         deviceCommands: [{ deviceId: 'device1', command: 'invalid-json' }],
       };
       recipeRepository.findOne.mockResolvedValue(recipe);
+      jest.spyOn(service['logger'], 'error').mockImplementation();
 
       await expect(service.runRecipe(1)).rejects.toThrow();
     });
