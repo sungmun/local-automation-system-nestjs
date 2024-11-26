@@ -37,7 +37,7 @@ describe('RecipeCheckService', () => {
     service = module.get<RecipeCheckService>(RecipeCheckService);
     recipeConditionService = module.get(RecipeConditionService);
     eventEmitter = module.get(EventEmitter2);
-    loggerSpy = jest.spyOn(Logger.prototype, 'error');
+    loggerSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation();
   });
 
   describe('checkReserveTimeRecipes', () => {
