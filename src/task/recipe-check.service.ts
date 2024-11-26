@@ -17,6 +17,9 @@ export class RecipeCheckService {
       const recipeConditions =
         await this.recipeConditionService.findRecipeConditionsAndGroupByTypeIn([
           RecipeConditionType.RESERVE_TIME,
+          RecipeConditionType.RESERVE_TIME_RANGE,
+          RecipeConditionType.WEEKLY_RECURRING_SCHEDULE,
+          RecipeConditionType.WEEKLY_RECURRING_SCHEDULE_TIME_RANGE,
         ]);
 
       const passedRecipeIds =
