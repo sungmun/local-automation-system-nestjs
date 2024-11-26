@@ -63,7 +63,12 @@ describe('RecipeCheckService', () => {
 
       expect(
         recipeConditionService.findRecipeConditionsAndGroupByTypeIn,
-      ).toHaveBeenCalledWith([RecipeConditionType.RESERVE_TIME]);
+      ).toHaveBeenCalledWith([
+        RecipeConditionType.RESERVE_TIME,
+        RecipeConditionType.RESERVE_TIME_RANGE,
+        RecipeConditionType.WEEKLY_RECURRING_SCHEDULE,
+        RecipeConditionType.WEEKLY_RECURRING_SCHEDULE_TIME_RANGE,
+      ]);
       expect(
         recipeConditionService.checkReserveTimeRecipeConditions,
       ).toHaveBeenCalledWith(mockRecipeConditions);
