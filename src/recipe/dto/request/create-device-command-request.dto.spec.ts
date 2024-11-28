@@ -1,9 +1,9 @@
 import { validate } from 'class-validator';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { CreateDeviceCommandDto } from './create-device-command.dto';
+import { CreateDeviceCommandRequestDto } from './create-device-command-request.dto';
 
-describe('CreateDeviceCommandDto', () => {
-  it('유효한 CreateDeviceCommandDto를 검증해야 합니다', async () => {
+describe('CreateDeviceCommandRequestDto', () => {
+  it('유효한 CreateDeviceCommandRequestDto를 검증해야 합니다', async () => {
     const deviceCommand = {
       command: { test: 'test' },
       deviceId: 'device123',
@@ -12,7 +12,7 @@ describe('CreateDeviceCommandDto', () => {
     };
 
     const errors = await validate(
-      plainToInstance(CreateDeviceCommandDto, deviceCommand),
+      plainToInstance(CreateDeviceCommandRequestDto, deviceCommand),
     );
 
     expect(errors.length).toBe(0);
@@ -27,7 +27,7 @@ describe('CreateDeviceCommandDto', () => {
     };
 
     const errors = await validate(
-      plainToInstance(CreateDeviceCommandDto, deviceCommand),
+      plainToInstance(CreateDeviceCommandRequestDto, deviceCommand),
     );
 
     expect(errors.length).toBeGreaterThan(0);
@@ -41,7 +41,10 @@ describe('CreateDeviceCommandDto', () => {
       platform: 'platform',
     };
 
-    const instance = plainToInstance(CreateDeviceCommandDto, deviceCommand);
+    const instance = plainToInstance(
+      CreateDeviceCommandRequestDto,
+      deviceCommand,
+    );
     expect(instanceToPlain(instance).command).toEqual(
       JSON.stringify(deviceCommand.command),
     );

@@ -1,7 +1,8 @@
-import { IsNotEmpty, IsString, IsInt, Min, IsObject } from 'class-validator';
+import { IsNotEmpty, IsString, IsObject } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { DeviceCommandDto } from '../device-command.dto';
 
-export class CreateDeviceCommandDto {
+export class CreateDeviceCommandRequestDto extends DeviceCommandDto {
   @IsObject()
   @IsNotEmpty()
   @Transform(({ value }) => JSON.stringify(value), { toPlainOnly: true })

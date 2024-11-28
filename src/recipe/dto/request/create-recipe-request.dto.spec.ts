@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { CreateRecipeDto } from './create-recipe.dto';
+import { CreateRecipeRequestDto } from './create-recipe-request.dto';
 
-describe('CreateRecipeDto', () => {
-  it('유효한 CreateRecipeDto를 검증해야 합니다', async () => {
+describe('RecipeRequestDto', () => {
+  it('유효한 CreateRecipeRequestDto를 검증해야 합니다', async () => {
     const deviceCommand = {
       command: { test: 'test' },
       deviceId: 'device123',
@@ -26,7 +26,9 @@ describe('CreateRecipeDto', () => {
       recipeGroups: [recipeGroup],
     };
 
-    const errors = await validate(plainToInstance(CreateRecipeDto, recipe));
+    const errors = await validate(
+      plainToInstance(CreateRecipeRequestDto, recipe),
+    );
     expect(errors.length).toBe(0);
   });
 
@@ -38,7 +40,9 @@ describe('CreateRecipeDto', () => {
       deviceCommands: [],
     };
 
-    const errors = await validate(plainToInstance(CreateRecipeDto, recipe));
+    const errors = await validate(
+      plainToInstance(CreateRecipeRequestDto, recipe),
+    );
     expect(errors.length).toBeGreaterThan(0);
   });
 });
