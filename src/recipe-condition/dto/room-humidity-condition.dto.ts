@@ -1,16 +1,12 @@
-import { IsNotEmpty, IsNumber, IsIn } from 'class-validator';
 import { BaseRecipeConditionDto } from './base-recipe-condition.dto';
+import { RecipeConditionType } from '../entities/recipe-condition.entity';
 
 export class RoomHumidityConditionDto extends BaseRecipeConditionDto {
-  @IsNotEmpty()
-  @IsNumber()
+  type: RecipeConditionType.ROOM_HUMIDITY;
+
   humidity: number;
 
-  @IsIn(['<', '>', '=', '>=', '<='])
-  @IsNotEmpty()
   unit: '<' | '>' | '=' | '>=' | '<=';
 
-  @IsNotEmpty()
-  @IsNumber()
   roomId: number;
 }

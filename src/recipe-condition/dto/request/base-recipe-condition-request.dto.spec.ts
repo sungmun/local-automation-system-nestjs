@@ -1,16 +1,16 @@
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { BaseRecipeConditionDto } from './base-recipe-condition.dto';
-import { RecipeConditionType } from '../entities/recipe-condition.entity';
+import { BaseRecipeConditionRequestDto } from './base-recipe-condition-request.dto';
+import { RecipeConditionType } from '../../entities/recipe-condition.entity';
 
-describe('BaseRecipeConditionDto', () => {
+describe('BaseRecipeConditionRequestDto', () => {
   describe('타입(type) 필드 검증', () => {
     it('유효한 타입이 주어지면 검증을 통과해야 합니다', async () => {
       const dto = {
         type: RecipeConditionType.ROOM_TEMPERATURE,
       };
 
-      const dtoInstance = plainToInstance(BaseRecipeConditionDto, dto);
+      const dtoInstance = plainToInstance(BaseRecipeConditionRequestDto, dto);
       const errors = await validate(dtoInstance);
 
       expect(errors.length).toBe(0);
@@ -19,7 +19,7 @@ describe('BaseRecipeConditionDto', () => {
     it('타입이 누락되면 검증에 실패해야 합니다', async () => {
       const dto = {};
 
-      const dtoInstance = plainToInstance(BaseRecipeConditionDto, dto);
+      const dtoInstance = plainToInstance(BaseRecipeConditionRequestDto, dto);
       const errors = await validate(dtoInstance);
 
       expect(errors.length).toBeGreaterThan(0);
@@ -31,7 +31,7 @@ describe('BaseRecipeConditionDto', () => {
         type: 'INVALID_TYPE',
       };
 
-      const dtoInstance = plainToInstance(BaseRecipeConditionDto, dto);
+      const dtoInstance = plainToInstance(BaseRecipeConditionRequestDto, dto);
       const errors = await validate(dtoInstance);
 
       expect(errors.length).toBeGreaterThan(0);
@@ -50,7 +50,7 @@ describe('BaseRecipeConditionDto', () => {
       async (type, isValid) => {
         const dto = { type };
 
-        const dtoInstance = plainToInstance(BaseRecipeConditionDto, dto);
+        const dtoInstance = plainToInstance(BaseRecipeConditionRequestDto, dto);
         const errors = await validate(dtoInstance);
 
         expect(errors.length === 0).toBe(isValid);
