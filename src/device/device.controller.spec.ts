@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DeviceController } from './device.controller';
 import { DataBaseDeviceService } from './database-device.service';
-import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 import { NotFoundException } from '@nestjs/common';
 import { Device } from './entities/device.entity';
 
@@ -21,8 +20,6 @@ describe('DeviceController', () => {
             updateActive: jest.fn(),
             updateActiveMessageTemplate: jest.fn(),
             connectMessageTemplate: jest.fn(),
-            changedDeviceSendMessage: jest.fn(),
-            updateState: jest.fn(),
           },
         },
       ],
@@ -144,30 +141,6 @@ describe('DeviceController', () => {
         '1',
         'template1',
       );
-    });
-  });
-
-  describe('finishEvent', () => {
-    it('장치 상태를 업데이트해야 한다', async () => {
-      const state: ResponseDeviceState = {
-        id: '1',
-        deviceType: 'Type1',
-        deviceState: { power: 'on' },
-      };
-      await controller.finishEvent(state);
-      expect(service.updateState).toHaveBeenCalledWith('1', state.deviceState);
-    });
-  });
-
-  describe('changedDeviceSendMessage', () => {
-    it('장치 상태가 변경되었을 때 메시지를 전송해야 한다', async () => {
-      const state: ResponseDeviceState = {
-        id: '1',
-        deviceType: 'Type1',
-        deviceState: { power: 'on' },
-      };
-      await controller.changedDeviceSendMessage(state);
-      expect(service.changedDeviceSendMessage).toHaveBeenCalledWith(state);
     });
   });
 });

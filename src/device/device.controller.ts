@@ -1,16 +1,10 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { DataBaseDeviceService } from './database-device.service';
-import { OnEvent } from '@nestjs/event-emitter';
-import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 
 @Controller('/devices')
 export class DeviceController {
   constructor(private readonly databaseDeviceService: DataBaseDeviceService) {}
 
-  @OnEvent('finish.**', { async: true })
-  async finishEvent(state: ResponseDeviceState) {
-    await this.databaseDeviceService.updateState(state.id, state.deviceState);
-  }
   @Get('/:id')
   async detailDevice(@Param('id') id: string) {
     return this.databaseDeviceService.findOne(id, ['messageTemplates', 'room']);
@@ -42,10 +36,5 @@ export class DeviceController {
     @Body('templateId') templateId: string,
   ) {
     return this.databaseDeviceService.connectMessageTemplate(id, templateId);
-  }
-
-  @OnEvent('changed.**', { async: true })
-  async changedDeviceSendMessage(state: ResponseDeviceState) {
-    return this.databaseDeviceService.changedDeviceSendMessage(state);
   }
 }

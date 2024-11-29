@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { Logger } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { ResponseSensorTHState } from '../hejhome-api/hejhome-api.interface';
 import { RoomSensorService } from './room-sensor.service';
