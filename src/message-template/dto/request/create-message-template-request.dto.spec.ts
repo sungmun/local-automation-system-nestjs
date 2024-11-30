@@ -1,9 +1,9 @@
 import { validate } from 'class-validator';
-import { CreateMessageTemplateDto } from './create-message-template.dto';
+import { CreateMessageTemplateRequestDto } from './create-message-template-request.dto';
 
 describe('CreateMessageTemplateDto', () => {
   it('모든 필드가 유효한 경우 유효성 검사가 통과해야 한다', async () => {
-    const dto = new CreateMessageTemplateDto();
+    const dto = new CreateMessageTemplateRequestDto();
     dto.name = 'Test Name';
     dto.body = 'Test Body';
     dto.title = 'Test Title';
@@ -14,7 +14,7 @@ describe('CreateMessageTemplateDto', () => {
   });
 
   it('name이 없으면 유효성 검사가 실패해야 한다', async () => {
-    const dto = new CreateMessageTemplateDto();
+    const dto = new CreateMessageTemplateRequestDto();
     dto.body = 'Test Body';
     dto.title = 'Test Title';
 
@@ -23,7 +23,7 @@ describe('CreateMessageTemplateDto', () => {
   });
 
   it('body가 없으면 유효성 검사가 실패해야 한다', async () => {
-    const dto = new CreateMessageTemplateDto();
+    const dto = new CreateMessageTemplateRequestDto();
     dto.name = 'Test Name';
     dto.title = 'Test Title';
 
@@ -32,7 +32,7 @@ describe('CreateMessageTemplateDto', () => {
   });
 
   it('title이 없으면 유효성 검사가 실패해야 한다', async () => {
-    const dto = new CreateMessageTemplateDto();
+    const dto = new CreateMessageTemplateRequestDto();
     dto.name = 'Test Name';
     dto.body = 'Test Body';
 
@@ -41,7 +41,7 @@ describe('CreateMessageTemplateDto', () => {
   });
 
   it('type이 없어도 기본값으로 설정되어 유효성 검사가 통과해야 한다', async () => {
-    const dto = new CreateMessageTemplateDto();
+    const dto = new CreateMessageTemplateRequestDto();
     dto.name = 'Test Name';
     dto.body = 'Test Body';
     dto.title = 'Test Title';

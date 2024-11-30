@@ -1,6 +1,7 @@
 import { IsOptional, IsString } from 'class-validator';
+import { MessageTemplateDto } from '../message-template.dto';
 
-export class CreateMessageTemplateDto {
+export class CreateMessageTemplateRequestDto extends MessageTemplateDto {
   @IsString()
   name: string;
 

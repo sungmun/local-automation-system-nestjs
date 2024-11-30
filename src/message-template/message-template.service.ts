@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateMessageTemplateDto } from './dto/create-message-template.dto';
-import { UpdateMessageTemplateDto } from './dto/update-message-template.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessageTemplate } from './entities/message-template.entity';
 import { Repository } from 'typeorm';
 import * as stringTemplate from 'string-template';
+import {
+  CreateMessageTemplateRequestDto,
+  UpdateMessageTemplateRequestDto,
+} from './dto/request';
+
 @Injectable()
 export class MessageTemplateService {
   constructor(
@@ -12,7 +15,7 @@ export class MessageTemplateService {
     private readonly messageTemplateRepository: Repository<MessageTemplate>,
   ) {}
 
-  async create(createMessageTemplateDto: CreateMessageTemplateDto) {
+  async create(createMessageTemplateDto: CreateMessageTemplateRequestDto) {
     return this.messageTemplateRepository.save(createMessageTemplateDto);
   }
 
@@ -30,7 +33,10 @@ export class MessageTemplateService {
     return template;
   }
 
-  async update(id: string, updateMessageTemplateDto: UpdateMessageTemplateDto) {
+  async update(
+    id: string,
+    updateMessageTemplateDto: UpdateMessageTemplateRequestDto,
+  ) {
     return this.messageTemplateRepository.update(id, updateMessageTemplateDto);
   }
 
