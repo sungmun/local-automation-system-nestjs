@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
-import { UpdateRoomDto } from './dto/updateRoom.dto';
+
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -10,12 +10,6 @@ export class RoomCrudService {
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
   ) {}
-
-  async setRoomById(roomId: number, updateRoomDto: UpdateRoomDto) {
-    if (Object.keys(updateRoomDto).length === 0) return false;
-    const updated = await this.roomRepository.update(roomId, updateRoomDto);
-    return updated.affected === 1;
-  }
 
   async findRoomById(roomId: number) {
     const room = await this.roomRepository.findOneBy({ id: roomId });
