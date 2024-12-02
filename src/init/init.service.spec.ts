@@ -3,21 +3,24 @@ import { InitService } from './init.service';
 import { AuthService } from '../auth/auth.service';
 import { CloudDeviceService } from '../device/cloud-device.service';
 import { DataBaseDeviceService } from '../device/database-device.service';
-import { RoomService } from '../room/room.service';
 import { HejHomeRoomService } from '../room/hej-home-room.service';
+import { RoomService } from '../room/room.service';
 import { RoomSensorService } from '../room/room-sensor.service';
-import { CreateHejhomeDeviceDto } from '../device/dto/create-device.dto';
 import { DeviceCheckService } from '../task/device-check.service';
+import { Logger } from '@nestjs/common';
+import { RoomWithDeviceDto } from '../device/dto/room-with-device.dto';
+import { plainToInstance } from 'class-transformer';
+import { DeviceDto } from '../device/dto/device.dto';
 
 describe('InitService', () => {
   let service: InitService;
-  let authService: AuthService;
-  let cloudDeviceService: CloudDeviceService;
-  let databaseDeviceService: DataBaseDeviceService;
-  let deviceCheckService: DeviceCheckService;
-  let hejHomeRoomService: HejHomeRoomService;
-  let roomService: RoomService;
-  let roomSensorService: RoomSensorService;
+  let authService: jest.Mocked<AuthService>;
+  let cloudDeviceService: jest.Mocked<CloudDeviceService>;
+  let databaseDeviceService: jest.Mocked<DataBaseDeviceService>;
+  let hejHomeRoomService: jest.Mocked<HejHomeRoomService>;
+  let roomService: jest.Mocked<RoomService>;
+  let roomSensorService: jest.Mocked<RoomSensorService>;
+  let deviceCheckService: jest.Mocked<DeviceCheckService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,7 +28,9 @@ describe('InitService', () => {
         InitService,
         {
           provide: AuthService,
-          useValue: { setRefreshToken: jest.fn() },
+          useValue: {
+            setRefreshToken: jest.fn(),
+          },
         },
         {
           provide: CloudDeviceService,
@@ -37,126 +42,102 @@ describe('InitService', () => {
         },
         {
           provide: DataBaseDeviceService,
-          useValue: { bulkInsert: jest.fn() },
-        },
-        {
-          provide: DeviceCheckService,
-          useValue: { checkDevices: jest.fn() },
-        },
-        {
-          provide: RoomService,
-          useValue: { initRooms: jest.fn() },
+          useValue: {
+            bulkInsert: jest.fn(),
+          },
         },
         {
           provide: HejHomeRoomService,
-          useValue: { getHomesWithRooms: jest.fn() },
+          useValue: {
+            getHomesWithRooms: jest.fn(),
+          },
+        },
+        {
+          provide: RoomService,
+          useValue: {
+            initRooms: jest.fn(),
+          },
         },
         {
           provide: RoomSensorService,
-          useValue: { matchRoomWithSensor: jest.fn() },
+          useValue: {
+            matchRoomWithSensor: jest.fn(),
+          },
+        },
+        {
+          provide: DeviceCheckService,
+          useValue: {
+            checkDevices: jest.fn(),
+          },
         },
       ],
     }).compile();
 
     service = module.get<InitService>(InitService);
-    authService = module.get<AuthService>(AuthService);
-    cloudDeviceService = module.get<CloudDeviceService>(CloudDeviceService);
-    databaseDeviceService = module.get<DataBaseDeviceService>(
-      DataBaseDeviceService,
-    );
-    deviceCheckService = module.get<DeviceCheckService>(DeviceCheckService);
-    hejHomeRoomService = module.get<HejHomeRoomService>(HejHomeRoomService);
-    roomService = module.get<RoomService>(RoomService);
-    roomSensorService = module.get<RoomSensorService>(RoomSensorService);
+    authService = module.get(AuthService);
+    cloudDeviceService = module.get(CloudDeviceService);
+    databaseDeviceService = module.get(DataBaseDeviceService);
+    hejHomeRoomService = module.get(HejHomeRoomService);
+    roomService = module.get(RoomService);
+    roomSensorService = module.get(RoomSensorService);
+    deviceCheckService = module.get(DeviceCheckService);
   });
 
-  describe('onModuleInit', () => {
-    beforeEach(() => {
-      jest.spyOn(hejHomeRoomService, 'getHomesWithRooms').mockResolvedValue([]);
-    });
-
-    it('로그 메시지를 출력해야 한다', async () => {
-      const logSpy = jest.spyOn(service['logger'], 'log');
-      await service.onModuleInit();
-      expect(logSpy).toHaveBeenCalledWith('onModuleInit start');
-      expect(logSpy).toHaveBeenCalledWith('onModuleInit success');
-      expect(logSpy).toHaveBeenCalledWith('onModuleInit api check');
-    });
-
-    it('새로운 토큰을 설정해야 한다', async () => {
-      await service.onModuleInit();
-      expect(authService.setRefreshToken).toHaveBeenCalled();
-    });
-
-    it('방을 초기화해야 한다', async () => {
-      const rooms = [{ room_id: 1, name: 'Room 1', homeId: 1 }];
-      jest
-        .spyOn(hejHomeRoomService, 'getHomesWithRooms')
-        .mockResolvedValue(rooms);
-      await service.onModuleInit();
-      expect(roomService.initRooms).toHaveBeenCalledWith(
-        rooms.map((room) => ({ ...room, id: room.room_id })),
-      );
-    });
-
-    it('장치를 초기화해야 한다', async () => {
-      const rooms = [{ room_id: 1, name: 'Room 1', homeId: 1 }];
-      const devicesWithRoomId = [
+  describe('초기화 프로세스', () => {
+    it('모든 초기화 단계가 순서대로 실행되어야 한다', async () => {
+      const mockRooms = [{ room_id: 1, name: '거실', homeId: 1 }];
+      const mockDevices = [
         {
           id: 'device1',
-          name: 'Device 1',
+          name: '장치1',
           deviceType: 'SensorTh',
           hasSubDevices: false,
-          modelName: 'Model 1',
-          familyId: 'Family 1',
-          category: 'Category 1',
+          modelName: 'Model1',
+          familyId: 'Family1',
+          category: 'Category1',
           online: true,
-          roomId: 1,
-        },
-      ];
-      const devices = [
-        {
-          id: 'device2',
-          name: 'Device 2',
-          deviceType: 'SensorTh',
-          hasSubDevices: false,
-          modelName: 'Model 2',
-          familyId: 'Family 2',
-          category: 'Category 2',
-          online: true,
-          active: true,
           platform: 'hejhome',
-          activeMessageTemplate: false,
         },
       ];
-      jest
-        .spyOn(hejHomeRoomService, 'getHomesWithRooms')
-        .mockResolvedValue(rooms);
-      jest
-        .spyOn(cloudDeviceService, 'getDevicesWithRoomId')
-        .mockResolvedValue(devicesWithRoomId as CreateHejhomeDeviceDto[]);
-      jest.spyOn(cloudDeviceService, 'getDevices').mockResolvedValue(devices);
-      jest
-        .spyOn(cloudDeviceService, 'getUniqueDevices')
-        .mockResolvedValue(devices);
+
+      hejHomeRoomService.getHomesWithRooms.mockResolvedValue(mockRooms);
+      cloudDeviceService.getDevicesWithRoomId.mockResolvedValue([
+        new RoomWithDeviceDto(mockDevices[0], mockRooms[0].room_id),
+      ]);
+      cloudDeviceService.getDevices.mockResolvedValue(
+        plainToInstance(DeviceDto, mockDevices),
+      );
+      cloudDeviceService.getUniqueDevices.mockResolvedValue(mockDevices);
+
+      const logSpy = jest.spyOn(Logger.prototype, 'log');
 
       await service.onModuleInit();
 
-      expect(databaseDeviceService.bulkInsert).toHaveBeenCalledWith(devices);
-    });
-
-    it('방과 센서를 매칭해야 한다', async () => {
-      const rooms = [{ room_id: 1, name: 'Room 1', homeId: 1 }];
-      jest
-        .spyOn(hejHomeRoomService, 'getHomesWithRooms')
-        .mockResolvedValue(rooms);
-      await service.onModuleInit();
+      expect(logSpy).toHaveBeenNthCalledWith(1, 'onModuleInit start');
+      expect(authService.setRefreshToken).toHaveBeenCalled();
+      expect(hejHomeRoomService.getHomesWithRooms).toHaveBeenCalled();
+      expect(roomService.initRooms).toHaveBeenCalledWith([
+        { ...mockRooms[0], id: mockRooms[0].room_id },
+      ]);
+      expect(cloudDeviceService.getDevicesWithRoomId).toHaveBeenCalledWith(
+        mockRooms,
+      );
+      expect(cloudDeviceService.getDevices).toHaveBeenCalled();
+      expect(cloudDeviceService.getUniqueDevices).toHaveBeenCalled();
+      expect(databaseDeviceService.bulkInsert).toHaveBeenCalledWith(
+        mockDevices,
+      );
       expect(roomSensorService.matchRoomWithSensor).toHaveBeenCalledWith(1);
+      expect(deviceCheckService.checkDevices).toHaveBeenCalled();
+      expect(logSpy).toHaveBeenNthCalledWith(2, 'onModuleInit success');
+      expect(logSpy).toHaveBeenNthCalledWith(3, 'onModuleInit api check');
     });
 
-    it('API 체크를 수행해야 한다', async () => {
-      await service.onModuleInit();
-      expect(deviceCheckService.checkDevices).toHaveBeenCalled();
+    it('초기화 중 오류가 발생하면 예외를 던져야 한다', async () => {
+      const error = new Error('초기화 실패');
+      hejHomeRoomService.getHomesWithRooms.mockRejectedValue(error);
+
+      await expect(service.onModuleInit()).rejects.toThrow('초기화 실패');
     });
   });
 });

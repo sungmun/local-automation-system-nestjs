@@ -1,5 +1,9 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { DataBaseDeviceService } from './database-device.service';
+import { plainToInstance } from 'class-transformer';
+import { DetailDeviceResponseDto } from './dto/response/detail-device-response.dto';
+import { ListDeviceResponseDto } from './dto/response/list-device-response.dto';
+import { ConnectDeviceToMessageTemplateResponseDto } from './dto/response/connect-device-to-message-template-response.dto';
 
 @Controller('/devices')
 export class DeviceController {
@@ -7,10 +11,17 @@ export class DeviceController {
 
   @Get('/:id')
   async detailDevice(@Param('id') id: string) {
-    return this.databaseDeviceService.findOne(id, ['messageTemplates', 'room']);
+    const result = await this.databaseDeviceService.findOne(id, [
+      'messageTemplates',
+      'room',
+    ]);
+    return plainToInstance(DetailDeviceResponseDto, result);
   }
   @Patch('/:id/active')
-  async updateActive(@Param('id') id: string, @Body('active') active: boolean) {
+  async updateActive(
+    @Param('id') id: string,
+    @Body('active') active: boolean,
+  ): Promise<void> {
     await this.databaseDeviceService.updateActive(id, active);
   }
 
@@ -18,7 +29,7 @@ export class DeviceController {
   async updateActiveMessageTemplate(
     @Param('id') id: string,
     @Body('activeMessageTemplate') activeMessageTemplate: boolean,
-  ) {
+  ): Promise<void> {
     await this.databaseDeviceService.updateActiveMessageTemplate(
       id,
       activeMessageTemplate,
@@ -27,14 +38,19 @@ export class DeviceController {
 
   @Get('/')
   async getDevices() {
-    return this.databaseDeviceService.findAll();
+    const result = await this.databaseDeviceService.findAll();
+    return plainToInstance(ListDeviceResponseDto, { list: result });
   }
 
   @Post('/:id/message-template')
-  async createMessageTemplate(
+  async connectMessageTemplate(
     @Param('id') id: string,
     @Body('templateId') templateId: string,
-  ) {
-    return this.databaseDeviceService.connectMessageTemplate(id, templateId);
+  ): Promise<ConnectDeviceToMessageTemplateResponseDto> {
+    const result = await this.databaseDeviceService.connectMessageTemplate(
+      id,
+      templateId,
+    );
+    return plainToInstance(ConnectDeviceToMessageTemplateResponseDto, result);
   }
 }

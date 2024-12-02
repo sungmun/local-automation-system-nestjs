@@ -3,6 +3,9 @@ import { DeviceController } from './device.controller';
 import { DataBaseDeviceService } from './database-device.service';
 import { NotFoundException } from '@nestjs/common';
 import { Device } from './entities/device.entity';
+import { plainToInstance } from 'class-transformer';
+import { DetailDeviceResponseDto } from './dto/response/detail-device-response.dto';
+import { ListDeviceResponseDto } from './dto/response/list-device-response.dto';
 
 describe('DeviceController', () => {
   let controller: DeviceController;
@@ -76,7 +79,7 @@ describe('DeviceController', () => {
       jest.spyOn(service, 'findOne').mockResolvedValue(device);
 
       const result = await controller.detailDevice('1');
-      expect(result).toEqual(device);
+      expect(result).toEqual(plainToInstance(DetailDeviceResponseDto, device));
     });
 
     it('장치를 찾지 못하면 예외를 던져야 한다', async () => {
@@ -113,7 +116,9 @@ describe('DeviceController', () => {
       jest.spyOn(service, 'findAll').mockResolvedValue(devices);
 
       const result = await controller.getDevices();
-      expect(result).toEqual(devices);
+      expect(result).toEqual(
+        plainToInstance(ListDeviceResponseDto, { list: devices }),
+      );
     });
   });
 
@@ -134,9 +139,9 @@ describe('DeviceController', () => {
     });
   });
 
-  describe('createMessageTemplate', () => {
+  describe('connectMessageTemplate', () => {
     it('장치에 메시지 템플릿을 연결해야 한다', async () => {
-      await controller.createMessageTemplate('1', 'template1');
+      await controller.connectMessageTemplate('1', 'template1');
       expect(service.connectMessageTemplate).toHaveBeenCalledWith(
         '1',
         'template1',

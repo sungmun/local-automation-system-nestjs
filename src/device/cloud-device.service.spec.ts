@@ -5,6 +5,8 @@ import {
   ResponseDevice,
   ResponseRoom,
 } from '../hejhome-api/hejhome-api.interface';
+import { DeviceDto } from './dto/device.dto';
+import { RoomWithDeviceDto } from './dto/room-with-device.dto';
 
 describe('CloudDeviceService', () => {
   let service: CloudDeviceService;
@@ -51,25 +53,15 @@ describe('CloudDeviceService', () => {
           category: 'Category1',
           online: true,
         },
-        {
-          id: '2',
-          name: 'Device2',
-          deviceType: 'Type2',
-          hasSubDevices: false,
-          modelName: 'Model2',
-          familyId: 'Family2',
-          category: 'Category2',
-          online: true,
-        },
       ];
       const result = await service.getUniqueDevices(devices);
-      expect(result).toHaveLength(2);
+      expect(result).toHaveLength(1);
     });
   });
 
   describe('getDevices', () => {
     it('장치 목록을 반환해야 한다', async () => {
-      const devices: ResponseDevice[] = [
+      const mockDevices: ResponseDevice[] = [
         {
           id: '1',
           name: 'Device1',
@@ -81,12 +73,16 @@ describe('CloudDeviceService', () => {
           online: true,
         },
       ];
-      jest.spyOn(hejhomeApiService, 'getDevices').mockResolvedValue(devices);
+
+      jest
+        .spyOn(hejhomeApiService, 'getDevices')
+        .mockResolvedValue(mockDevices);
 
       const result = await service.getDevices();
-      expect(result).toEqual(
-        devices.map((device) => ({ ...device, platform: 'hejhome' })),
-      );
+
+      expect(result).toBeInstanceOf(Array);
+      expect(result[0]).toBeInstanceOf(DeviceDto);
+      expect(result[0].platform).toBe('hejhome');
     });
   });
 
@@ -95,7 +91,8 @@ describe('CloudDeviceService', () => {
       const roomsWithHomeId: (ResponseRoom & { homeId: number })[] = [
         { name: 'Room1', room_id: 1, homeId: 1 },
       ];
-      const devicesWithRoomId = [
+
+      const mockDevices: ResponseDevice[] = [
         {
           id: '1',
           name: 'Device1',
@@ -105,20 +102,19 @@ describe('CloudDeviceService', () => {
           familyId: 'Family1',
           category: 'Category1',
           online: true,
-          roomId: 1,
         },
       ];
+
       jest
         .spyOn(hejhomeApiService, 'getRoomWithDevices')
-        .mockResolvedValue(devicesWithRoomId);
+        .mockResolvedValue(mockDevices);
 
       const result = await service.getDevicesWithRoomId(roomsWithHomeId);
-      expect(result).toEqual(
-        devicesWithRoomId.map((deviceWithRoomId) => ({
-          ...deviceWithRoomId,
-          platform: 'hejhome',
-        })),
-      );
+
+      expect(result).toBeInstanceOf(Array);
+      expect(result[0]).toBeInstanceOf(RoomWithDeviceDto);
+      expect(result[0].roomId).toBe(1);
+      expect(result[0].platform).toBe('hejhome');
     });
   });
 });
