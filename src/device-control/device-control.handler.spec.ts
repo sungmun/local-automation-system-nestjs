@@ -1,18 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeviceControlController } from './device-control.controller';
+import { DeviceControlHandler } from './device-control.handler';
 import { DeviceControlService } from './device-control.service';
 import { TimerManagerService } from '../timer-manager/timer-manager.service';
 import { ResponseIrAirconditionerState } from '../hejhome-api/hejhome-api.interface';
 
-describe('DeviceControlController', () => {
-  let controller: DeviceControlController;
+describe('DeviceControlHandler', () => {
+  let handler: DeviceControlHandler;
   let deviceControlService: DeviceControlService;
   let timerManagerService: TimerManagerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [DeviceControlController],
       providers: [
+        DeviceControlHandler,
         {
           provide: DeviceControlService,
           useValue: {
@@ -29,14 +29,14 @@ describe('DeviceControlController', () => {
       ],
     }).compile();
 
-    controller = module.get<DeviceControlController>(DeviceControlController);
+    handler = module.get<DeviceControlHandler>(DeviceControlHandler);
     deviceControlService =
       module.get<DeviceControlService>(DeviceControlService);
     timerManagerService = module.get<TimerManagerService>(TimerManagerService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(handler).toBeDefined();
   });
 
   describe('hasIrAirConditioner', () => {
@@ -51,7 +51,7 @@ describe('DeviceControlController', () => {
         deviceState: { power: '켜짐', temperature: '24', mode: 1, fanSpeed: 2 },
       };
 
-      await controller.hasIrAirConditioner(state);
+      await handler.hasIrAirConditioner(state);
 
       expect(timerManagerService.setTimer).toHaveBeenCalledWith(
         'device1',
@@ -83,7 +83,7 @@ describe('DeviceControlController', () => {
         deviceState: { power: '꺼짐', temperature: '24', mode: 1, fanSpeed: 2 },
       };
 
-      await controller.hasIrAirConditioner(state);
+      await handler.hasIrAirConditioner(state);
 
       expect(timerManagerService.clearTimer).toHaveBeenCalledWith('device1');
     });

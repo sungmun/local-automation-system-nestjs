@@ -1,20 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeviceStateController } from './device-state.controller';
 import { DeviceStateService } from './device-state.service';
 import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
 import { DataBaseDeviceService } from '../device/database-device.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
+import { DeviceStateHandler } from './device-state.handler';
 
-describe('DeviceStateController', () => {
-  let controller: DeviceStateController;
+describe('DeviceStateHandler', () => {
+  let handler: DeviceStateHandler;
   let deviceStateService: DeviceStateService;
   let eventEmitter: EventEmitter2;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [DeviceStateController],
+      controllers: [],
       providers: [
+        DeviceStateHandler,
         DeviceStateService,
         {
           provide: HejhomeApiService,
@@ -33,13 +34,13 @@ describe('DeviceStateController', () => {
       ],
     }).compile();
 
-    controller = module.get<DeviceStateController>(DeviceStateController);
+    handler = module.get<DeviceStateHandler>(DeviceStateHandler);
     deviceStateService = module.get<DeviceStateService>(DeviceStateService);
     eventEmitter = module.get<EventEmitter2>(EventEmitter2);
   });
 
-  it('컨트롤러가 정의되어야 한다', () => {
-    expect(controller).toBeDefined();
+  it('헨들러가 정의되어야 한다', () => {
+    expect(handler).toBeDefined();
   });
 
   describe('hasChangedDevice', () => {
@@ -51,7 +52,7 @@ describe('DeviceStateController', () => {
       };
       jest.spyOn(deviceStateService, 'hasChanged').mockResolvedValue(true);
 
-      await controller.hasChangedDevice(state);
+      await handler.hasChangedDevice(state);
 
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         `changed.${state.deviceType}.${state.id}`,
@@ -67,7 +68,7 @@ describe('DeviceStateController', () => {
       };
       jest.spyOn(deviceStateService, 'hasChanged').mockResolvedValue(false);
 
-      await controller.hasChangedDevice(state);
+      await handler.hasChangedDevice(state);
 
       expect(eventEmitter.emit).not.toHaveBeenCalledWith(
         `changed.${state.deviceType}.${state.id}`,
@@ -84,7 +85,7 @@ describe('DeviceStateController', () => {
         deviceState: {},
       };
 
-      await controller.changeDeviceEvent(state);
+      await handler.changeDeviceEvent(state);
 
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         `finish.${state.deviceType}.${state.id}`,

@@ -1,11 +1,11 @@
-import { Controller, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DeviceStateService } from './device-state.service';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 
-@Controller()
-export class DeviceStateController {
-  private readonly logger = new Logger(DeviceStateController.name);
+@Injectable()
+export class DeviceStateHandler {
+  private readonly logger = new Logger(DeviceStateHandler.name);
 
   constructor(
     private readonly eventEmitter: EventEmitter2,

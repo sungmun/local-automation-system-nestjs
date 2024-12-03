@@ -33,6 +33,10 @@ describe('RoomHandler', () => {
     roomSensorService = module.get<RoomSensorService>(RoomSensorService);
   });
 
+  it('핸들러가 정의되어야 한다', () => {
+    expect(handler).toBeDefined();
+  });
+
   describe('handleTemperatureFinish', () => {
     it('센서 상태 완료시 레시피를 활성화해야 한다', async () => {
       const state: ResponseSensorTHState = {

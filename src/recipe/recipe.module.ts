@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { RecipeController } from './recipe.controller';
 import { Recipe } from './entities/recipe.entity';
 import { DeviceCommand } from './entities/device-command.entity';
+
+import { RecipeController } from './recipe.controller';
+import { RecipeHandler } from './recipe.handler';
+
 import { DeviceModule } from '../device/device.module';
 import { HejhomeApiModule } from '../hejhome-api/hejhome-api.module';
 import { TimerManagerModule } from '../timer-manager/timer-manager.module';
@@ -22,7 +25,12 @@ import { RecipeCommandService } from './recipe-command.service';
     RecipeConditionModule,
   ],
   controllers: [RecipeController],
-  providers: [RecipeService, RecipeCrudService, RecipeCommandService],
+  providers: [
+    RecipeService,
+    RecipeCrudService,
+    RecipeCommandService,
+    RecipeHandler,
+  ],
   exports: [RecipeService, RecipeCrudService],
 })
 export class RecipeModule {}

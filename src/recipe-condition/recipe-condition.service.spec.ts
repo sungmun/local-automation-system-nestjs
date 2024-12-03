@@ -46,6 +46,10 @@ describe('RecipeConditionService', () => {
     recipeConditionRepository = module.get(getRepositoryToken(RecipeCondition));
   });
 
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('findRecipeConditionsAndGroupByTypeIn', () => {
     it('지정된 타입의 레시피 조건을 조회해야 합니다', async () => {
       const types = [RecipeConditionType.RESERVE_TIME];

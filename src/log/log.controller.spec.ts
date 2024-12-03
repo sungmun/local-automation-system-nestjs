@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LogController } from './log.controller';
 import { LogService } from './log.service';
-import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 
 describe('LogController', () => {
   let controller: LogController;
@@ -26,14 +25,6 @@ describe('LogController', () => {
 
   it('컨트롤러가 정의되어야 한다', () => {
     expect(controller).toBeDefined();
-  });
-
-  describe('autoDeviceLog', () => {
-    it('autoDeviceLog 에서 autoDeviceChangeLog 를 호출해야 한다', async () => {
-      const state = {} as ResponseDeviceState;
-      await controller.autoDeviceLog(state);
-      expect(service.autoDeviceChangeLog).toHaveBeenCalledWith(state);
-    });
   });
 
   describe('findLogs', () => {
