@@ -48,6 +48,10 @@ describe('RoomCrudService', () => {
     repository = module.get<Repository<Room>>(getRepositoryToken(Room));
   });
 
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('findRoomById', () => {
     it('ID로 방을 찾아야 합니다', async () => {
       jest.spyOn(repository, 'findOneBy').mockResolvedValue(mockRoom);

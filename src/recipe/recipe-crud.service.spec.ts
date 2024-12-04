@@ -2,8 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { RecipeCrudService } from './recipe-crud.service';
 import { Recipe } from './entities/recipe.entity';
-import { CreateRecipeRequestDto } from './dto/request/create-recipe-request.dto';
-import { UpdateRecipeRequestDto } from './dto/request/update-recipe-request.dto';
+import { CreateRecipeRequestDto, UpdateRecipeRequestDto } from './dto/request';
 import { NotFoundException } from '@nestjs/common';
 import { DataBaseDeviceService } from '../device/database-device.service';
 import { DeviceCommand } from './entities/device-command.entity';
@@ -46,8 +45,11 @@ describe('RecipeCrudService', () => {
 
     service = module.get<RecipeCrudService>(RecipeCrudService);
     recipeRepository = module.get(getRepositoryToken(Recipe));
-    // deviceCommandRepository = module.get(getRepositoryToken(DeviceCommand));
     databaseDeviceService = module.get(DataBaseDeviceService);
+  });
+
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
   });
 
   describe('saveRecipe', () => {

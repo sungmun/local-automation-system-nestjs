@@ -55,6 +55,10 @@ describe('RecipeCommandService', () => {
     recipeConditionService = module.get(RecipeConditionService);
   });
 
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('runRecipe', () => {
     it('레시피가 존재하지 않으면 예외를 발생시켜야 합니다', async () => {
       recipeRepository.findOne.mockResolvedValue(null);

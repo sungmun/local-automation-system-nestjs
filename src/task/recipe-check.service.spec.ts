@@ -40,6 +40,10 @@ describe('RecipeCheckService', () => {
     loggerSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation();
   });
 
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('checkReserveTimeRecipes', () => {
     it('예약 시간 레시피 조건을 확인하고 이벤트를 발생시켜야 합니다', async () => {
       const mockRecipeConditions = [

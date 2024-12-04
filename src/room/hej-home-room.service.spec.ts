@@ -28,6 +28,10 @@ describe('HejHomeRoomService', () => {
     hejhomeApiService = module.get(HejhomeApiService);
   });
 
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('getRoomsWithHomeId', () => {
     it('홈 ID와 함께 방 목록을 반환해야 한다', async () => {
       const mockHomes: ResponseHome['result'] = [
