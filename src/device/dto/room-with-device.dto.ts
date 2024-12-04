@@ -14,6 +14,9 @@ export class RoomWithDeviceDto extends DeviceDto {
     this.deviceType = device.deviceType;
     this.modelName = device.modelName;
     this.familyId = device.familyId;
+    this.category = device.category;
+    this.hasSubDevices = device.hasSubDevices;
+    this.online = device.online;
     this.roomId = roomId;
   }
 }

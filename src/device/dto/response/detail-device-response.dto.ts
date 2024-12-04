@@ -11,8 +11,9 @@ export class DetailDeviceResponseDto extends DeviceDto {
   messageTemplates?: MessageTemplateResponseDto[];
 
   get state() {
-    if (this._state === '') return this._state;
-
+    if (this._state === '' || typeof this._state === 'object') {
+      return this._state;
+    }
     return JSON.parse(this._state);
   }
 }
