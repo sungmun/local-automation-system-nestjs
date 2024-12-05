@@ -41,7 +41,7 @@ describe('WeeklyRecurringScheduleValidator', () => {
 
   describe('validate', () => {
     it('현재 요일과 시간이 조건과 일치하면 true를 반환해야 합니다', async () => {
-      const now = new Date('2024-01-15T10:00:00.000Z'); // 월요일 10:00
+      const now = new Date('2024-01-15T10:00:00+09:00'); // 월요일 10:00
       jest.setSystemTime(now);
 
       const condition = {
@@ -57,7 +57,7 @@ describe('WeeklyRecurringScheduleValidator', () => {
     });
 
     it('현재 요일이 일치하지 않으면 false를 반환해야 합니다', async () => {
-      const now = new Date('2024-01-16T10:00:00.000Z'); // 화요일 10:00
+      const now = new Date('2024-01-16T10:00:00+09:00'); // 화요일 10:00
       jest.setSystemTime(now);
 
       const condition = {
@@ -73,7 +73,7 @@ describe('WeeklyRecurringScheduleValidator', () => {
     });
 
     it('현재 시간이 일치하지 않으면 false를 반환해야 합니다', async () => {
-      const now = new Date('2024-01-15T11:00:00.000Z'); // 월요일 11:00
+      const now = new Date('2024-01-15T11:00:00+09:00'); // 월요일 11:00
       jest.setSystemTime(now);
 
       const condition = {
@@ -89,7 +89,7 @@ describe('WeeklyRecurringScheduleValidator', () => {
     });
 
     it('여러 요일이 포함된 경우 현재 요일이 포함되어 있으면 true를 반환해야 합니다', async () => {
-      const now = new Date('2024-01-15T10:00:00.000Z'); // 월요일 10:00
+      const now = new Date('2024-01-15T10:00:00+09:00'); // 월요일 10:00
       jest.setSystemTime(now);
 
       const condition = {
@@ -105,7 +105,7 @@ describe('WeeklyRecurringScheduleValidator', () => {
     });
 
     it('밀리초와 초는 무시하고 비교해야 합니다', async () => {
-      const now = new Date('2024-01-15T10:00:45.123Z'); // 월요일 10:00:45.123
+      const now = new Date('2024-01-15T10:00:45+09:00'); // 월요일 10:00:45
       jest.setSystemTime(now);
 
       const condition = {

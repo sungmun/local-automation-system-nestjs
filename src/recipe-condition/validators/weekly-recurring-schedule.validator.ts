@@ -16,6 +16,8 @@ export class WeeklyRecurringScheduleValidator
   extends BaseValidator
   implements IConditionValidator
 {
+  private readonly KST_OFFSET = 9 * 60 * 60000; // 한국 시간 오프셋 (9시간)
+
   canHandle(condition: RecipeCondition): boolean {
     return condition.type === RecipeConditionType.WEEKLY_RECURRING_SCHEDULE;
   }
@@ -23,7 +25,7 @@ export class WeeklyRecurringScheduleValidator
   async validate(context: ValidationContext): Promise<boolean> {
     const condition =
       context.condition as RecipeConditionWeeklyRecurringSchedule;
-    const now = this.getCurrentTimeInKST();
+    const now = this.getCurrentTime();
 
     return (
       this.isDayOfWeekMatch(condition.dayOfWeeks, now) &&
@@ -31,31 +33,29 @@ export class WeeklyRecurringScheduleValidator
     );
   }
 
+  private getCurrentTime(): Date {
+    const kstTime = new Date(Date.now() + this.KST_OFFSET);
+    kstTime.setSeconds(0, 0);
+    return kstTime;
+  }
+
   private isDayOfWeekMatch(dayOfWeeks: string, date: Date): boolean {
-    const currentDayOfWeek = date.getDay().toString();
+    const currentDayOfWeek = date.getUTCDay().toString();
     const allowedDays = dayOfWeeks.split(',');
     return allowedDays.includes(currentDayOfWeek);
   }
 
   private isTimeMatch(scheduleTime: string, currentTime: Date): boolean {
-    const [hours, minutes] = this.parseTime(scheduleTime);
+    const [scheduleHours, scheduleMinutes] = this.parseTime(scheduleTime);
+
     return (
-      this.compareValues(currentTime.getHours(), hours, '=') &&
-      this.compareValues(currentTime.getMinutes(), minutes, '=')
+      this.compareValues(currentTime.getUTCHours(), scheduleHours, '=') &&
+      this.compareValues(currentTime.getUTCMinutes(), scheduleMinutes, '=')
     );
   }
 
   private parseTime(time: string): [number, number] {
     const [hours, minutes] = time.split(':').map(Number);
     return [hours, minutes];
-  }
-
-  private getCurrentTimeInKST(): Date {
-    const now = new Date();
-    now.setSeconds(0, 0);
-    const utc = now.getTime();
-    const kstOffset = 9 * 60 * 60000;
-    const kstTime = new Date(utc - kstOffset);
-    return kstTime;
   }
 }
