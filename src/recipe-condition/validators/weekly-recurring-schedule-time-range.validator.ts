@@ -18,6 +18,7 @@ export class WeeklyRecurringScheduleTimeRangeValidator
   private readonly MINUTES_PER_HOUR = 60;
   private readonly END_OF_DAY = '23:59';
   private readonly START_OF_DAY = '00:00';
+  private readonly KST_OFFSET = 9 * 60 * 60000; // 한국 시간 오프셋 (9시간)
 
   canHandle(condition: RecipeCondition): boolean {
     return (
@@ -35,9 +36,9 @@ export class WeeklyRecurringScheduleTimeRangeValidator
   }
 
   private getCurrentTime(): Date {
-    const now = new Date();
-    now.setSeconds(0, 0);
-    return now;
+    const kstTime = new Date(Date.now() + this.KST_OFFSET);
+    kstTime.setSeconds(0, 0);
+    return kstTime;
   }
 
   private isWithinTimeRange(
@@ -63,7 +64,6 @@ export class WeeklyRecurringScheduleTimeRangeValidator
       condition.dayOfWeeks,
       yesterday,
     );
-
     return (
       (todayMatch &&
         this.isTimeInRange(
@@ -94,7 +94,7 @@ export class WeeklyRecurringScheduleTimeRangeValidator
   }
 
   private isDayOfWeekMatch(dayOfWeeks: string, date: Date): boolean {
-    const currentDayOfWeek = date.getDay().toString();
+    const currentDayOfWeek = date.getUTCDay().toString();
     const allowedDays = dayOfWeeks.split(',');
     return allowedDays.includes(currentDayOfWeek);
   }
@@ -109,7 +109,6 @@ export class WeeklyRecurringScheduleTimeRangeValidator
     const currentTimeInMinutes = this.convertTimeToMinutes(
       this.formatTime(currentTime),
     );
-
     return (
       this.compareValues(currentTimeInMinutes, startTimeInMinutes, '>=') &&
       this.compareValues(currentTimeInMinutes, endTimeInMinutes, '<=')
@@ -117,8 +116,8 @@ export class WeeklyRecurringScheduleTimeRangeValidator
   }
 
   private formatTime(date: Date): string {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const hours = date.getUTCHours().toString().padStart(2, '0');
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
   }
 
