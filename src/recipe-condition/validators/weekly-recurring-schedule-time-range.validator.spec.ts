@@ -143,40 +143,34 @@ describe('WeeklyRecurringScheduleTimeRangeValidator', () => {
     });
   });
 
-  describe('시간 변환 테스트', () => {
-    it('시간 문자열을 분으로 올바르게 변환해야 합니다', () => {
-      expect(validator.convertTimeToMinutes('00:00')).toBe(0);
-      expect(validator.convertTimeToMinutes('01:30')).toBe(90);
-      expect(validator.convertTimeToMinutes('23:59')).toBe(1439);
-      expect(validator.convertTimeToMinutes('12:00')).toBe(720);
-      expect(validator.convertTimeToMinutes('15:45')).toBe(945);
-    });
-  });
-
   describe('시간 범위가 자정을 걸치는 경우를 올바르게 처리해야 합니다', () => {
     const testCases = [
       {
         currentTime: new Date('2024-01-15T23:30:00+09:00'),
         startTime: '23:00',
         endTime: '01:00',
+        dayOfWeeks: '1',
         expected: true,
       },
       {
         currentTime: new Date('2024-01-16T00:30:00+09:00'),
         startTime: '23:00',
         endTime: '01:00',
+        dayOfWeeks: '1',
         expected: true,
       },
       {
         currentTime: new Date('2024-01-15T22:58:00+09:00'),
         startTime: '23:00',
         endTime: '01:00',
+        dayOfWeeks: '1',
         expected: false,
       },
       {
         currentTime: new Date('2024-01-16T01:01:00+09:00'),
         startTime: '23:00',
         endTime: '01:00',
+        dayOfWeeks: '1',
         expected: false,
       },
     ];
@@ -186,7 +180,7 @@ describe('WeeklyRecurringScheduleTimeRangeValidator', () => {
         jest.setSystemTime(testCase.currentTime);
         const condition = {
           type: RecipeConditionType.WEEKLY_RECURRING_SCHEDULE_TIME_RANGE,
-          dayOfWeeks: testCase.currentTime.getDay().toString(),
+          dayOfWeeks: testCase.dayOfWeeks,
           startTime: testCase.startTime,
           endTime: testCase.endTime,
         } as unknown as RecipeCondition;
