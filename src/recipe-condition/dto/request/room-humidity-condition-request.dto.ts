@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber, IsIn } from 'class-validator';
-import { BaseRecipeConditionRequestDto } from './base-recipe-condition-request.dto';
+import { RoomHumidityConditionDto } from '../room-humidity-condition.dto';
 
-export class RoomHumidityConditionRequestDto extends BaseRecipeConditionRequestDto {
+export class RoomHumidityConditionRequestDto extends RoomHumidityConditionDto {
   @IsNotEmpty()
   @IsNumber()
   humidity: number;

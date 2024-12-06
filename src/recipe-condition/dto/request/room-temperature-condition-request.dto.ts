@@ -1,8 +1,8 @@
 import { IsNotEmpty, IsNumber, IsIn } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { BaseRecipeConditionRequestDto } from './base-recipe-condition-request.dto';
+import { RoomTemperatureConditionDto } from '../room-temperature-condition.dto';
 
-export class RoomTemperatureConditionRequestDto extends BaseRecipeConditionRequestDto {
+export class RoomTemperatureConditionRequestDto extends RoomTemperatureConditionDto {
   @IsNotEmpty()
   @IsNumber()
   @Transform(({ value }) => value * 100)

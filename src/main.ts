@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   const packageJson = await import(`${process.cwd()}/package.json`);
 
@@ -21,7 +22,5 @@ async function bootstrap() {
   );
 
   await app.listen(process.env.PORT ?? 3000);
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  await app.listen(3000);
 }
 bootstrap();

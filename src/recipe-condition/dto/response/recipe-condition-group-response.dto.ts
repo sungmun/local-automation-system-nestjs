@@ -1,13 +1,51 @@
-import { RoomTemperatureConditionResponseDto } from './room-temperature-condition-response.dto';
-import { RoomHumidityConditionResponseDto } from './room-humidity-condition-response.dto';
-import { ReserveTimeConditionResponseDto } from './reserve-time-condition-response.dto';
-import { RecipeConditionReserveTimeRangeResponseDto } from './recipe-condition-reserve-time-range-response.dto';
-import { WeeklyRecurringScheduleConditionResponseDto } from './weekly-recurring-schedule-condition-response.dto';
-import { WeeklyRecurringScheduleTimeRangeConditionResponseDto } from './weekly-recurring-schedule-time-range-condition-response.dto';
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import {
+  RoomTemperatureConditionResponseDto,
+  RoomHumidityConditionResponseDto,
+  ReserveTimeConditionResponseDto,
+  RecipeConditionReserveTimeRangeResponseDto,
+  WeeklyRecurringScheduleConditionResponseDto,
+  WeeklyRecurringScheduleTimeRangeConditionResponseDto,
+} from './';
 import { RecipeConditionGroupDto } from '../recipe-condition-group.dto';
 
+@ApiExtraModels(
+  RoomTemperatureConditionResponseDto,
+  RoomHumidityConditionResponseDto,
+  ReserveTimeConditionResponseDto,
+  RecipeConditionReserveTimeRangeResponseDto,
+  WeeklyRecurringScheduleConditionResponseDto,
+  WeeklyRecurringScheduleTimeRangeConditionResponseDto,
+)
 export class RecipeConditionGroupResponseDto extends RecipeConditionGroupDto {
+  @ApiProperty({
+    description: '그룹 아이디',
+    example: 1,
+  })
   id: number;
+
+  @ApiProperty({
+    description: '레시피 조건 목록',
+    type: 'array',
+    items: {
+      oneOf: [
+        { $ref: getSchemaPath(RoomTemperatureConditionResponseDto) },
+        { $ref: getSchemaPath(RoomHumidityConditionResponseDto) },
+        { $ref: getSchemaPath(ReserveTimeConditionResponseDto) },
+        {
+          $ref: getSchemaPath(RecipeConditionReserveTimeRangeResponseDto),
+        },
+        {
+          $ref: getSchemaPath(WeeklyRecurringScheduleConditionResponseDto),
+        },
+        {
+          $ref: getSchemaPath(
+            WeeklyRecurringScheduleTimeRangeConditionResponseDto,
+          ),
+        },
+      ],
+    },
+  })
   conditions: (
     | RoomTemperatureConditionResponseDto
     | RoomHumidityConditionResponseDto
