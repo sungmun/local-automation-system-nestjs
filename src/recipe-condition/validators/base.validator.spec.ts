@@ -1,8 +1,7 @@
-import { ValidationContext } from './validation-context';
 import { BaseValidator } from './base.validator';
 
 class TestValidator extends BaseValidator {
-  async validate(context: ValidationContext): Promise<boolean> {
+  async validate(): Promise<boolean> {
     return true;
   }
 
@@ -21,6 +20,10 @@ describe('BaseValidator', () => {
 
   beforeEach(() => {
     validator = new TestValidator();
+  });
+
+  it('검증 가능한 클래스가 정의되어야 한다', () => {
+    expect(validator).toBeDefined();
   });
 
   describe('compareValues', () => {

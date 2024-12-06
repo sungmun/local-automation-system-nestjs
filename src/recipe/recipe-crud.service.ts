@@ -1,13 +1,14 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { UpdateRecipeDto } from './dto/update-recipe.dto';
-import { CreateRecipeDto } from './dto/create-recipe.dto';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Recipe } from './entities/recipe.entity';
 import { DeviceCommand } from './entities/device-command.entity';
 import { DataBaseDeviceService } from '../device/database-device.service';
 import { instanceToPlain } from 'class-transformer';
-import { CreateDeviceCommandDto } from './dto/create-device-command.dto';
+import { CreateDeviceCommandRequestDto } from './dto/request/create-device-command-request.dto';
+import { CreateRecipeRequestDto } from './dto/request/create-recipe-request.dto';
+import { UpdateRecipeRequestDto } from './dto/request/update-recipe-request.dto';
 
 @Injectable()
 export class RecipeCrudService {
@@ -20,7 +21,9 @@ export class RecipeCrudService {
     private databaseDeviceService: DataBaseDeviceService,
   ) {}
 
-  private async createDeviceCommands(deviceCommands: CreateDeviceCommandDto[]) {
+  private async createDeviceCommands(
+    deviceCommands: CreateDeviceCommandRequestDto[],
+  ) {
     const devices = await this.databaseDeviceService.findInIds(
       deviceCommands.map((deviceCommand) => deviceCommand.deviceId),
     );
@@ -41,7 +44,7 @@ export class RecipeCrudService {
     });
   }
 
-  async saveRecipe(createRecipeDto: CreateRecipeDto) {
+  async saveRecipe(createRecipeDto: CreateRecipeRequestDto) {
     const deviceCommands = await this.createDeviceCommands(
       createRecipeDto.deviceCommands,
     );
@@ -69,7 +72,7 @@ export class RecipeCrudService {
     return recipe;
   }
 
-  async update(id: number, updateRecipeDto: UpdateRecipeDto) {
+  async update(id: number, updateRecipeDto: UpdateRecipeRequestDto) {
     const { deviceCommands, recipeGroups, ...updateRecipe } =
       instanceToPlain(updateRecipeDto);
 

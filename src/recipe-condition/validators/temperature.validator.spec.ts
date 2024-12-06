@@ -14,6 +14,10 @@ describe('TemperatureValidator', () => {
     validator = new TemperatureValidator();
   });
 
+  it('검증 가능한 클래스가 정의되어야 한다', () => {
+    expect(validator).toBeDefined();
+  });
+
   describe('canHandle', () => {
     it('온도 타입의 조건을 처리할 수 있어야 합니다', () => {
       const condition = {

@@ -24,6 +24,10 @@ describe('RoomSensorService', () => {
     roomRepository = module.get<Repository<Room>>(getRepositoryToken(Room));
   });
 
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('updateRoomBySensorId', () => {
     it('센서 ID로 방의 정보를 업데이트해야 한다', async () => {
       const sensorId = 'sensor1';

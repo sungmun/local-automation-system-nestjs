@@ -2,8 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { RecipeCrudService } from './recipe-crud.service';
 import { Recipe } from './entities/recipe.entity';
-import { CreateRecipeDto } from './dto/create-recipe.dto';
-import { UpdateRecipeDto } from './dto/update-recipe.dto';
+import { CreateRecipeRequestDto, UpdateRecipeRequestDto } from './dto/request';
 import { NotFoundException } from '@nestjs/common';
 import { DataBaseDeviceService } from '../device/database-device.service';
 import { DeviceCommand } from './entities/device-command.entity';
@@ -12,7 +11,6 @@ import { Device } from '../device/entities/device.entity';
 describe('RecipeCrudService', () => {
   let service: RecipeCrudService;
   let recipeRepository: jest.Mocked<any>;
-  let deviceCommandRepository: jest.Mocked<any>;
   let databaseDeviceService: jest.Mocked<DataBaseDeviceService>;
 
   beforeEach(async () => {
@@ -47,8 +45,11 @@ describe('RecipeCrudService', () => {
 
     service = module.get<RecipeCrudService>(RecipeCrudService);
     recipeRepository = module.get(getRepositoryToken(Recipe));
-    deviceCommandRepository = module.get(getRepositoryToken(DeviceCommand));
     databaseDeviceService = module.get(DataBaseDeviceService);
+  });
+
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
   });
 
   describe('saveRecipe', () => {
@@ -59,7 +60,7 @@ describe('RecipeCrudService', () => {
         name: '장치 명령',
       };
 
-      const createRecipeDto: CreateRecipeDto = {
+      const createRecipeDto: CreateRecipeRequestDto = {
         name: '테스트 레시피',
         description: '테스트 설명',
         type: '테스트 타입',
@@ -130,7 +131,7 @@ describe('RecipeCrudService', () => {
 
   describe('update', () => {
     describe('연관테이블 업데이트가 없는 경우', () => {
-      const updateRecipeDto: UpdateRecipeDto = {
+      const updateRecipeDto: UpdateRecipeRequestDto = {
         name: '업데이트된 레시피',
         description: '업데이트된 설명',
       };
@@ -160,7 +161,7 @@ describe('RecipeCrudService', () => {
         name: '장치 명령',
       };
 
-      const updateRecipeDto: UpdateRecipeDto = {
+      const updateRecipeDto: UpdateRecipeRequestDto = {
         name: '업데이트된 레시피',
         description: '업데이트된 설명',
         deviceCommands: [deviceCommand],
@@ -188,7 +189,7 @@ describe('RecipeCrudService', () => {
           ],
         });
 
-        const result = await service.update(1, updateRecipeDto);
+        await service.update(1, updateRecipeDto);
 
         expect(recipeRepository.findOne).toHaveBeenCalledWith({
           where: { id: 1 },

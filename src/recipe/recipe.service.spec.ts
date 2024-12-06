@@ -52,6 +52,10 @@ describe('RecipeService', () => {
     recipeConditionService = module.get(RecipeConditionService);
   });
 
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('runDeviceCommands', () => {
     it('장치 명령을 순차적으로 실행해야 합니다', async () => {
       const deviceCommands = [

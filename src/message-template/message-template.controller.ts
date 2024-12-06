@@ -1,7 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { MessageTemplateService } from './message-template.service';
-import { CreateMessageTemplateDto } from './dto/create-message-template.dto';
-import { UpdateMessageTemplateDto } from './dto/update-message-template.dto';
+import { plainToInstance } from 'class-transformer';
+import {
+  CreateMessageTemplateRequestDto,
+  UpdateMessageTemplateRequestDto,
+} from './dto/request';
+import {
+  DetailMessageTemplateResponseDto,
+  CreateMessageTemplateResponseDto,
+  ListMessageTemplateResponseDto,
+} from './dto/response';
 
 @Controller('message-templates')
 export class MessageTemplateController {
@@ -10,25 +27,37 @@ export class MessageTemplateController {
   ) {}
 
   @Post()
-  create(@Body() createMessageTemplateDto: CreateMessageTemplateDto) {
-    return this.messageTemplateService.create(createMessageTemplateDto);
+  @HttpCode(HttpStatus.CREATED)
+  async create(
+    @Body() createMessageTemplateDto: CreateMessageTemplateRequestDto,
+  ) {
+    const result = await this.messageTemplateService.create(
+      createMessageTemplateDto,
+    );
+    return plainToInstance(CreateMessageTemplateResponseDto, result);
   }
 
   @Get()
-  findAll() {
-    return this.messageTemplateService.findAll();
+  @HttpCode(HttpStatus.OK)
+  async findAll() {
+    const result = await this.messageTemplateService.findAll();
+    return plainToInstance(ListMessageTemplateResponseDto, { list: result });
   }
 
   @Get(':messageTemplateId')
-  findOne(@Param('messageTemplateId') id: string) {
-    return this.messageTemplateService.findOne(id);
+  @HttpCode(HttpStatus.OK)
+  async findOne(@Param('messageTemplateId') id: string) {
+    const result = await this.messageTemplateService.findOne(id);
+    return plainToInstance(DetailMessageTemplateResponseDto, result);
   }
 
   @Patch(':messageTemplateId')
-  update(
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async update(
     @Param('messageTemplateId') id: string,
-    @Body() updateMessageTemplateDto: UpdateMessageTemplateDto,
+    @Body() updateMessageTemplateDto: UpdateMessageTemplateRequestDto,
   ) {
-    return this.messageTemplateService.update(id, updateMessageTemplateDto);
+    await this.messageTemplateService.update(id, updateMessageTemplateDto);
+    return null;
   }
 }

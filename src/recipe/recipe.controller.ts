@@ -7,56 +7,58 @@ import {
   Param,
   Delete,
   Logger,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
-
-import { CreateRecipeDto } from './dto/create-recipe.dto';
-import { UpdateRecipeDto } from './dto/update-recipe.dto';
-import { OnEvent } from '@nestjs/event-emitter';
+import { plainToInstance } from 'class-transformer';
 import { RecipeCrudService } from './recipe-crud.service';
-import { RecipeCommandService } from './recipe-command.service';
+import { CreateRecipeRequestDto, UpdateRecipeRequestDto } from './dto/request';
+import {
+  RecipeListResponseDto,
+  CreateRecipeResponseDto,
+  DetailRecipeResponseDto,
+} from './dto/response';
 
-@Controller('recipe')
+@Controller('recipes')
 export class RecipeController {
   private readonly logger = new Logger(RecipeController.name);
-  constructor(
-    private readonly recipeCrudService: RecipeCrudService,
-    private readonly recipeCommandService: RecipeCommandService,
-  ) {}
+  constructor(private readonly recipeCrudService: RecipeCrudService) {}
 
   @Post()
-  create(@Body() createRecipeDto: CreateRecipeDto) {
-    return this.recipeCrudService.saveRecipe(createRecipeDto);
+  @HttpCode(HttpStatus.CREATED)
+  async create(
+    @Body() createRecipeDto: CreateRecipeRequestDto,
+  ): Promise<CreateRecipeResponseDto> {
+    const result = await this.recipeCrudService.saveRecipe(createRecipeDto);
+    return plainToInstance(CreateRecipeResponseDto, result);
   }
 
   @Get()
-  findAll() {
-    return this.recipeCrudService.findAll();
+  @HttpCode(HttpStatus.OK)
+  async findAll(): Promise<RecipeListResponseDto> {
+    const result = await this.recipeCrudService.findAll();
+    return plainToInstance(RecipeListResponseDto, { list: result });
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.recipeCrudService.findOne(+id);
+  @HttpCode(HttpStatus.OK)
+  async findOne(@Param('id') id: string): Promise<DetailRecipeResponseDto> {
+    const result = await this.recipeCrudService.findOne(+id);
+    return plainToInstance(DetailRecipeResponseDto, result);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRecipeDto: UpdateRecipeDto) {
-    return this.recipeCrudService.update(+id, updateRecipeDto);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async update(
+    @Param('id') id: string,
+    @Body() updateRecipeDto: UpdateRecipeRequestDto,
+  ): Promise<void> {
+    await this.recipeCrudService.update(+id, updateRecipeDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.recipeCrudService.remove(+id);
-  }
-
-  @OnEvent('recipe.condition.check', { async: true })
-  async recipeConditionCheck(data: any) {
-    this.logger.log('recipeConditionCheck', data);
-    const isRecipeCondition = await this.recipeCommandService.recipeCheck(
-      data.recipeId,
-    );
-    this.logger.log('recipeConditionCheck run', isRecipeCondition);
-    if (isRecipeCondition) {
-      await this.recipeCommandService.runRecipe(data.recipeId);
-    }
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id') id: string): Promise<void> {
+    await this.recipeCrudService.remove(+id);
   }
 }

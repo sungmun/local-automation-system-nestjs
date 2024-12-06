@@ -43,6 +43,10 @@ describe('RoomService', () => {
     eventEmitter = module.get<EventEmitter2>(EventEmitter2);
   });
 
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('initRooms', () => {
     it('방 목록을 초기화해야 한다', async () => {
       const createQueryBuilder: any = {

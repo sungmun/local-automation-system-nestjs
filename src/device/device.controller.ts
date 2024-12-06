@@ -1,22 +1,27 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { DataBaseDeviceService } from './database-device.service';
-import { OnEvent } from '@nestjs/event-emitter';
-import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
+import { plainToInstance } from 'class-transformer';
+import { DetailDeviceResponseDto } from './dto/response/detail-device-response.dto';
+import { ListDeviceResponseDto } from './dto/response/list-device-response.dto';
+import { ConnectDeviceToMessageTemplateResponseDto } from './dto/response/connect-device-to-message-template-response.dto';
 
 @Controller('/devices')
 export class DeviceController {
   constructor(private readonly databaseDeviceService: DataBaseDeviceService) {}
 
-  @OnEvent('finish.**', { async: true })
-  async finishEvent(state: ResponseDeviceState) {
-    await this.databaseDeviceService.updateState(state.id, state.deviceState);
-  }
   @Get('/:id')
   async detailDevice(@Param('id') id: string) {
-    return this.databaseDeviceService.findOne(id, ['messageTemplates', 'room']);
+    const result = await this.databaseDeviceService.findOne(id, [
+      'messageTemplates',
+      'room',
+    ]);
+    return plainToInstance(DetailDeviceResponseDto, result);
   }
   @Patch('/:id/active')
-  async updateActive(@Param('id') id: string, @Body('active') active: boolean) {
+  async updateActive(
+    @Param('id') id: string,
+    @Body('active') active: boolean,
+  ): Promise<void> {
     await this.databaseDeviceService.updateActive(id, active);
   }
 
@@ -24,7 +29,7 @@ export class DeviceController {
   async updateActiveMessageTemplate(
     @Param('id') id: string,
     @Body('activeMessageTemplate') activeMessageTemplate: boolean,
-  ) {
+  ): Promise<void> {
     await this.databaseDeviceService.updateActiveMessageTemplate(
       id,
       activeMessageTemplate,
@@ -33,19 +38,19 @@ export class DeviceController {
 
   @Get('/')
   async getDevices() {
-    return this.databaseDeviceService.findAll();
+    const result = await this.databaseDeviceService.findAll();
+    return plainToInstance(ListDeviceResponseDto, { list: result });
   }
 
   @Post('/:id/message-template')
-  async createMessageTemplate(
+  async connectMessageTemplate(
     @Param('id') id: string,
     @Body('templateId') templateId: string,
-  ) {
-    return this.databaseDeviceService.connectMessageTemplate(id, templateId);
-  }
-
-  @OnEvent('changed.**', { async: true })
-  async changedDeviceSendMessage(state: ResponseDeviceState) {
-    return this.databaseDeviceService.changedDeviceSendMessage(state);
+  ): Promise<ConnectDeviceToMessageTemplateResponseDto> {
+    const result = await this.databaseDeviceService.connectMessageTemplate(
+      id,
+      templateId,
+    );
+    return plainToInstance(ConnectDeviceToMessageTemplateResponseDto, result);
   }
 }

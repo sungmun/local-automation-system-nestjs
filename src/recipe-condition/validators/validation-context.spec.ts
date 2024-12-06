@@ -22,6 +22,10 @@ describe('ValidationContext', () => {
     context = new ValidationContext(condition, additionalData);
   });
 
+  it('검증 가능한 클래스가 정의되어야 한다', () => {
+    expect(context).toBeDefined();
+  });
+
   describe('생성자', () => {
     it('condition과 additionalData를 정상적으로 초기화해야 합니다', () => {
       expect(context.condition).toBe(condition);

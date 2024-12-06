@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RoomController } from './room.controller';
 import { RoomCrudService } from './room-crud.service';
-import { UpdateRoomDto } from './dto/updateRoom.dto';
 
 describe('RoomController', () => {
   let controller: RoomController;
@@ -59,35 +58,6 @@ describe('RoomController', () => {
       expect(roomCrudService.setRoomActiveById).toHaveBeenCalledWith(roomId);
       expect(roomCrudService.getRoomById).toHaveBeenCalledWith(roomId);
       expect(result).toBe(room);
-    });
-  });
-
-  describe('setRoom', () => {
-    it('방 정보를 업데이트하고 업데이트된 방 정보를 반환해야 한다', async () => {
-      const roomId = 1;
-      const updateRoomDto: UpdateRoomDto = {
-        name: '새로운 방 이름',
-        acStartTemperature: 22,
-        acStopTemperature: 26,
-      };
-      const updatedRoom = {
-        id: roomId,
-        name: '새로운 방 이름',
-        acStartTemperature: 22,
-        acStopTemperature: 26,
-      };
-
-      jest.spyOn(roomCrudService, 'setRoomById').mockResolvedValue(true);
-      jest.spyOn(roomCrudService, 'getRoomById').mockResolvedValue(updatedRoom);
-
-      const result = await controller.setRoom(roomId, updateRoomDto);
-
-      expect(roomCrudService.setRoomById).toHaveBeenCalledWith(
-        roomId,
-        updateRoomDto,
-      );
-      expect(roomCrudService.getRoomById).toHaveBeenCalledWith(roomId);
-      expect(result).toBe(updatedRoom);
     });
   });
 });

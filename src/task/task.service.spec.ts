@@ -35,6 +35,10 @@ describe('TaskService', () => {
     recipeCheckService = module.get(RecipeCheckService);
   });
 
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('checkRecipeEvery1Minute', () => {
     it('레시피 체크를 실행해야 한다', async () => {
       await service.checkRecipeEvery1Minute();

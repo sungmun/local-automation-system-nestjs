@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import _ from 'lodash';
 import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
 import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 import { DataBaseDeviceService } from '../device/database-device.service';

@@ -3,7 +3,6 @@ import { IConditionValidator } from './condition-validator.interface';
 
 describe('ValidatorRegistry', () => {
   beforeEach(() => {
-    // 각 테스트 전에 validators 배열 초기화
     ValidatorRegistry['validators'] = [];
   });
 

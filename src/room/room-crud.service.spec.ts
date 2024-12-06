@@ -1,10 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RoomCrudService } from './room-crud.service';
 import { Room } from './entities/room.entity';
-import { Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
-import { UpdateRoomDto } from './dto/updateRoom.dto';
 
 describe('RoomCrudService', () => {
   let service: RoomCrudService;
@@ -49,29 +48,8 @@ describe('RoomCrudService', () => {
     repository = module.get<Repository<Room>>(getRepositoryToken(Room));
   });
 
-  describe('setRoomById', () => {
-    it('방 정보를 성공적으로 업데이트해야 합니다', async () => {
-      const updateDto: UpdateRoomDto = {
-        name: '업데이트된 방',
-        acStartTemperature: 26,
-      };
-
-      jest
-        .spyOn(repository, 'update')
-        .mockResolvedValue({ affected: 1, raw: [] } as UpdateResult);
-
-      const result = await service.setRoomById(1, updateDto);
-
-      expect(result).toBe(true);
-      expect(repository.update).toHaveBeenCalledWith(1, updateDto);
-    });
-
-    it('빈 업데이트 데이터가 주어지면 false를 반환해야 합니다', async () => {
-      const result = await service.setRoomById(1, {});
-
-      expect(result).toBe(false);
-      expect(repository.update).not.toHaveBeenCalled();
-    });
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
   });
 
   describe('findRoomById', () => {

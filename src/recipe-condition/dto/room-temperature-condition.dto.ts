@@ -1,18 +1,12 @@
-import { IsNotEmpty, IsNumber, IsIn } from 'class-validator';
-import { Transform } from 'class-transformer';
 import { BaseRecipeConditionDto } from './base-recipe-condition.dto';
+import { RecipeConditionType } from '../entities/recipe-condition.entity';
 
 export class RoomTemperatureConditionDto extends BaseRecipeConditionDto {
-  @IsNotEmpty()
-  @IsNumber()
-  @Transform(({ value }) => value * 100)
+  type: RecipeConditionType.ROOM_TEMPERATURE;
+
   temperature: number;
 
-  @IsIn(['<', '>', '=', '>=', '<='])
-  @IsNotEmpty()
   unit: '<' | '>' | '=' | '>=' | '<=';
 
-  @IsNotEmpty()
-  @IsNumber()
   roomId: number;
 }

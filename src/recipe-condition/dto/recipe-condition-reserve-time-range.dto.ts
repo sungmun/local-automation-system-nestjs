@@ -1,21 +1,10 @@
-import { IsNotEmpty, IsDate, MinDate, Validate } from 'class-validator';
-import { Expose } from 'class-transformer';
 import { BaseRecipeConditionDto } from './base-recipe-condition.dto';
-import { TransformDate } from '../../common/decorators/transform-date.decorator';
-import { IsDateTimeRangeValid } from '../../common/validators/is-time-range-valid.validator';
+import { RecipeConditionType } from '../entities/recipe-condition.entity';
 
 export class RecipeConditionReserveTimeRangeDto extends BaseRecipeConditionDto {
-  @IsNotEmpty()
-  @IsDate()
-  @MinDate(new Date())
-  @TransformDate()
-  @Expose({ name: 'startTime' })
+  type: RecipeConditionType.RESERVE_TIME_RANGE;
+
   reserveStartTime: Date;
 
-  @IsNotEmpty()
-  @IsDate()
-  @Validate(IsDateTimeRangeValid, ['reserveStartTime'])
-  @TransformDate()
-  @Expose({ name: 'endTime' })
   reserveEndTime: Date;
 }

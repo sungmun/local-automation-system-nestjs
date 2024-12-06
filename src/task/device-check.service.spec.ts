@@ -45,6 +45,10 @@ describe('DeviceCheckService', () => {
     loggerSpy = jest.spyOn(service['logger'], 'error').mockImplementation();
   });
 
+  it('서비스가 정의되어야 한다', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('checkDevices', () => {
     it('모든 장치의 상태를 확인하고 이벤트를 발생시켜야 합니다', async () => {
       const mockDevices = [

@@ -1,5 +1,4 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import _ from 'lodash';
 import { AuthService } from '../auth/auth.service';
 
 import { CloudDeviceService } from '../device/cloud-device.service';
