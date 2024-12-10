@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RoomController } from './room.controller';
 import { RoomCrudService } from './room-crud.service';
+import { plainToInstance } from 'class-transformer';
+import { ListRoomResponseDto } from './dto/response/list-room-response.dto';
 
 describe('RoomController', () => {
   let controller: RoomController;
@@ -32,13 +34,16 @@ describe('RoomController', () => {
 
   describe('findAll', () => {
     it('모든 방 목록을 반환해야 한다', async () => {
-      const result = [
+      const findAllResult = [
         { id: 1, name: '거실' },
         { id: 2, name: '안방' },
       ];
-      jest.spyOn(roomCrudService, 'findAll').mockResolvedValue(result);
+      jest.spyOn(roomCrudService, 'findAll').mockResolvedValue(findAllResult);
+      const result = await controller.findAll();
 
-      expect(await controller.findAll()).toBe(result);
+      expect(result).toEqual(
+        plainToInstance(ListRoomResponseDto, { list: findAllResult }),
+      );
       expect(roomCrudService.findAll).toHaveBeenCalled();
     });
   });

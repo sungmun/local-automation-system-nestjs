@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateLogDto } from './dto/create-log.dto';
+
 import { Repository } from 'typeorm';
 import { Log } from './entities/log.entity';
 import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 import { InjectRepository } from '@nestjs/typeorm';
+import { LogDto } from './dto/log.dto';
 
 @Injectable()
 export class LogService {
@@ -11,11 +12,11 @@ export class LogService {
     @InjectRepository(Log)
     private readonly logRepository: Repository<Log>,
   ) {}
-  async log(message: string, createLogDto: CreateLogDto) {
+  async log(message: string, logDto: LogDto) {
     await this.logRepository.save({
-      deviceId: createLogDto.deviceId,
-      logMessage: `${createLogDto.type} - <${message}>`,
-      type: createLogDto.type,
+      deviceId: logDto.deviceId,
+      logMessage: `${logDto.type} - <${message}>`,
+      type: logDto.type,
     });
   }
 

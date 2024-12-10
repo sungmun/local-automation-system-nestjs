@@ -9,10 +9,11 @@ import {
   Min,
   Max,
 } from 'class-validator';
-import { BaseRecipeConditionRequestDto } from './base-recipe-condition-request.dto';
 import { Expose } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { WeeklyRecurringScheduleTimeRangeConditionDto } from '../weekly-recurring-schedule-time-range-condition.dto';
 
-export class WeeklyRecurringScheduleTimeRangeConditionRequestDto extends BaseRecipeConditionRequestDto {
+export class WeeklyRecurringScheduleTimeRangeConditionRequestDto extends WeeklyRecurringScheduleTimeRangeConditionDto {
   @IsNotEmpty()
   @IsString()
   @Matches(/^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/, {
@@ -27,6 +28,15 @@ export class WeeklyRecurringScheduleTimeRangeConditionRequestDto extends BaseRec
   })
   endTime: string;
 
+  @ApiProperty({
+    description: '요일',
+    example: [0, 1, 2, 3, 4, 5, 6],
+    type: 'array',
+    items: {
+      type: 'number',
+    },
+    name: 'dayOfWeeks',
+  })
   @Expose({ name: 'dayOfWeeks' })
   @IsArray()
   @ArrayMinSize(1)

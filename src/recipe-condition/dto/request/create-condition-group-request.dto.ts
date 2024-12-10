@@ -1,17 +1,53 @@
 import { IsNotEmpty, IsIn, ValidateNested, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
-import { BaseRecipeConditionRequestDto } from './base-recipe-condition-request.dto';
-import { RoomTemperatureConditionRequestDto } from './room-temperature-condition-request.dto';
-import { RoomHumidityConditionRequestDto } from './room-humidity-condition-request.dto';
-import { ReserveTimeConditionRequestDto } from './reserve-time-condition-request.dto';
-import { RecipeConditionReserveTimeRangeRequestDto } from './recipe-condition-reserve-time-range-request.dto';
-import { WeeklyRecurringScheduleConditionRequestDto } from './weekly-recurring-schedule-condition-request.dto';
+import {
+  BaseRecipeConditionRequestDto,
+  RoomHumidityConditionRequestDto,
+  RoomTemperatureConditionRequestDto,
+  ReserveTimeConditionRequestDto,
+  RecipeConditionReserveTimeRangeRequestDto,
+  WeeklyRecurringScheduleConditionRequestDto,
+} from './';
+import { RecipeConditionGroupDto } from '../recipe-condition-group.dto';
+import { ApiProperty, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
+import { WeeklyRecurringScheduleTimeRangeConditionRequestDto } from './weekly-recurring-schedule-time-range-condition-request.dto';
 
-export class CreateRecipeConditionGroupRequestDto {
+@ApiExtraModels(
+  BaseRecipeConditionRequestDto,
+  RoomTemperatureConditionRequestDto,
+  RoomHumidityConditionRequestDto,
+  ReserveTimeConditionRequestDto,
+  RecipeConditionReserveTimeRangeRequestDto,
+  WeeklyRecurringScheduleConditionRequestDto,
+  WeeklyRecurringScheduleTimeRangeConditionRequestDto,
+)
+export class CreateRecipeConditionGroupRequestDto extends RecipeConditionGroupDto {
   @IsIn(['AND', 'OR'])
   @IsNotEmpty()
   operator: 'AND' | 'OR';
 
+  @ApiProperty({
+    description: '레시피 조건 목록',
+    type: 'array',
+    items: {
+      oneOf: [
+        { $ref: getSchemaPath(RoomTemperatureConditionRequestDto) },
+        { $ref: getSchemaPath(RoomHumidityConditionRequestDto) },
+        { $ref: getSchemaPath(ReserveTimeConditionRequestDto) },
+        {
+          $ref: getSchemaPath(RecipeConditionReserveTimeRangeRequestDto),
+        },
+        {
+          $ref: getSchemaPath(WeeklyRecurringScheduleConditionRequestDto),
+        },
+        {
+          $ref: getSchemaPath(
+            WeeklyRecurringScheduleTimeRangeConditionRequestDto,
+          ),
+        },
+      ],
+    },
+  })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => BaseRecipeConditionRequestDto, {
@@ -30,6 +66,10 @@ export class CreateRecipeConditionGroupRequestDto {
           value: WeeklyRecurringScheduleConditionRequestDto,
           name: 'WEEKLY_RECURRING_SCHEDULE',
         },
+        {
+          value: WeeklyRecurringScheduleTimeRangeConditionRequestDto,
+          name: 'WEEKLY_RECURRING_SCHEDULE_TIME_RANGE',
+        },
       ],
     },
   })
@@ -39,5 +79,6 @@ export class CreateRecipeConditionGroupRequestDto {
     | ReserveTimeConditionRequestDto
     | RecipeConditionReserveTimeRangeRequestDto
     | WeeklyRecurringScheduleConditionRequestDto
+    | WeeklyRecurringScheduleTimeRangeConditionRequestDto
   )[];
 }

@@ -18,12 +18,22 @@ import {
   CreateRecipeResponseDto,
   DetailRecipeResponseDto,
 } from './dto/response';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('레시피')
 @Controller('recipes')
 export class RecipeController {
   private readonly logger = new Logger(RecipeController.name);
   constructor(private readonly recipeCrudService: RecipeCrudService) {}
 
+  @ApiOperation({ summary: '레시피 생성' })
+  @ApiCreatedResponse({ type: CreateRecipeResponseDto })
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(
@@ -33,6 +43,8 @@ export class RecipeController {
     return plainToInstance(CreateRecipeResponseDto, result);
   }
 
+  @ApiOperation({ summary: '레시피 목록 조회' })
+  @ApiOkResponse({ type: RecipeListResponseDto })
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(): Promise<RecipeListResponseDto> {
@@ -40,6 +52,8 @@ export class RecipeController {
     return plainToInstance(RecipeListResponseDto, { list: result });
   }
 
+  @ApiOperation({ summary: '레시피 상세 조회' })
+  @ApiOkResponse({ type: DetailRecipeResponseDto })
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async findOne(@Param('id') id: string): Promise<DetailRecipeResponseDto> {
@@ -47,6 +61,8 @@ export class RecipeController {
     return plainToInstance(DetailRecipeResponseDto, result);
   }
 
+  @ApiOperation({ summary: '레시피 수정' })
+  @ApiNoContentResponse()
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async update(
@@ -56,6 +72,8 @@ export class RecipeController {
     await this.recipeCrudService.update(+id, updateRecipeDto);
   }
 
+  @ApiOperation({ summary: '레시피 삭제' })
+  @ApiNoContentResponse()
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string): Promise<void> {
