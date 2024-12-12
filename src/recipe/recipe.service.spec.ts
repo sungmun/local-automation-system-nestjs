@@ -62,7 +62,7 @@ describe('RecipeService', () => {
         {
           id: 1,
           deviceId: 'device1',
-          command: '{"action":"on"}',
+          command: { action: 'on' },
           name: '명령1',
           platform: 'platform1',
           order: 0,
@@ -70,7 +70,7 @@ describe('RecipeService', () => {
         {
           id: 2,
           deviceId: 'device2',
-          command: '{"action":"off"}',
+          command: { action: 'off' },
           name: '명령2',
           platform: 'platform2',
           order: 1,
@@ -89,27 +89,6 @@ describe('RecipeService', () => {
         2,
         'device2',
         { requirments: { action: 'off' } },
-      );
-    });
-
-    it('잘못된 JSON 명령어는 예외를 발생시켜야 합니다', async () => {
-      const deviceCommands: DeviceCommand[] = [
-        {
-          deviceId: 'device1',
-          command: 'invalid-json',
-          name: '잘못된 명령',
-          platform: 'platform1',
-          order: 0,
-        },
-      ] as DeviceCommand[];
-
-      const loggerSpy = jest
-        .spyOn(service['logger'], 'error')
-        .mockImplementation();
-
-      await expect(service.runDeviceCommands(deviceCommands)).rejects.toThrow();
-      expect(loggerSpy).toHaveBeenCalledWith(
-        'Failed to parse command: invalid-json',
       );
     });
   });

@@ -22,24 +22,14 @@ export class RecipeService {
   async runDeviceCommands(deviceCommands: DeviceCommand[]) {
     return deviceCommands.reduce((acc, deviceCommand) => {
       return acc.then(async () => {
-        const parsedCommand = this.parseCommand(deviceCommand.command);
         this.logger.debug(
-          `Running command for device ${deviceCommand.deviceId}: ${JSON.stringify(parsedCommand)}`,
+          `Running command for device ${deviceCommand.deviceId}: ${JSON.stringify(deviceCommand.command)}`,
         );
         await this.hejhomeApiService.setDeviceControl(deviceCommand.deviceId, {
-          requirments: parsedCommand,
+          requirments: deviceCommand.command,
         });
       });
     }, Promise.resolve());
-  }
-
-  private parseCommand(command: string): unknown {
-    try {
-      return JSON.parse(command);
-    } catch (error) {
-      this.logger.error(`Failed to parse command: ${command}`);
-      throw error;
-    }
   }
 
   async runRecipe(id: number) {

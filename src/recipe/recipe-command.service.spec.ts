@@ -139,19 +139,4 @@ describe('RecipeCommandService', () => {
       expect(result).toBeTruthy();
     });
   });
-
-  describe('명령어 파싱 실패', () => {
-    it('잘못된 JSON 명령어는 예외를 발생시켜야 합니다', async () => {
-      const recipe = {
-        id: 1,
-        active: true,
-        timer: -1,
-        deviceCommands: [{ deviceId: 'device1', command: 'invalid-json' }],
-      };
-      recipeRepository.findOne.mockResolvedValue(recipe);
-      jest.spyOn(service['logger'], 'error').mockImplementation();
-
-      await expect(service.runRecipe(1)).rejects.toThrow();
-    });
-  });
 });

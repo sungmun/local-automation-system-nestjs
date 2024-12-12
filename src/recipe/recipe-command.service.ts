@@ -72,12 +72,11 @@ export class RecipeCommandService {
     deviceCommand: DeviceCommand,
   ): Promise<void> {
     try {
-      const parsedCommand = this.parseCommand(deviceCommand.command);
       this.logger.debug(
-        `장치 ${deviceCommand.deviceId} 명령 실행: ${JSON.stringify(parsedCommand)}`,
+        `장치 ${deviceCommand.deviceId} 명령 실행: ${JSON.stringify(deviceCommand.command)}`,
       );
       await this.hejhomeApiService.setDeviceControl(deviceCommand.deviceId, {
-        requirments: parsedCommand,
+        requirments: deviceCommand.command,
       });
     } catch (error) {
       this.logger.error(
