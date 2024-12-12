@@ -10,8 +10,18 @@ export class DeviceCommand {
   @Column()
   name: string;
 
-  @Column()
-  command: string;
+  @Column({
+    type: 'text',
+    transformer: {
+      to: (value: object): string => {
+        return JSON.stringify(value);
+      },
+      from: (value: string): object => {
+        return JSON.parse(value);
+      },
+    },
+  })
+  command: object;
 
   @Column()
   deviceId: string;

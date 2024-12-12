@@ -19,4 +19,6 @@ export class DeviceCommandResponseDto extends DeviceCommandDto {
     example: 1,
   })
   order: number;
+
+  command: object;
 }
