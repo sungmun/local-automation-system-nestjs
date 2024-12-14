@@ -155,6 +155,32 @@ describe('RecipeService', () => {
 
       expect(runDeviceCommandsSpy).toHaveBeenCalledWith(recipe.deviceCommands);
     });
+
+    it('타이머 콜백이 정상적으로 실행되어야 합니다', async () => {
+      const recipe = {
+        id: 1,
+        active: true,
+        timer: 60,
+        deviceCommands: [{ deviceId: 'device1', command: { action: 'on' } }],
+      };
+
+      recipeRepository.findOne.mockResolvedValue(recipe);
+      timerManagerService.setTimer.mockImplementation((key, callback) => {
+        callback();
+        return true;
+      });
+
+      const runDeviceCommandsSpy = jest.spyOn(service, 'runDeviceCommands');
+
+      await service.runRecipe(1);
+
+      expect(timerManagerService.setTimer).toHaveBeenCalledWith(
+        'recipe-1',
+        expect.any(Function),
+        60,
+      );
+      expect(runDeviceCommandsSpy).toHaveBeenCalledWith(recipe.deviceCommands);
+    });
   });
 
   describe('recipeCheck', () => {

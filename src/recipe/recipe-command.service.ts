@@ -9,7 +9,6 @@ import { RecipeConditionService } from './../recipe-condition/recipe-condition.s
 
 import { DeviceCommand } from './entities/device-command.entity';
 import {
-  DeviceCommandParseException,
   RecipeInactiveException,
   RecipeNotFoundException,
 } from './recipe.exception';
@@ -84,15 +83,6 @@ export class RecipeCommandService {
         error,
       );
       throw error;
-    }
-  }
-
-  private parseCommand(command: string): unknown {
-    try {
-      return JSON.parse(command);
-    } catch (error) {
-      this.logger.error(`명령어 파싱 실패: ${command}`);
-      throw new DeviceCommandParseException(command);
     }
   }
 
