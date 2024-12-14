@@ -4,11 +4,12 @@ import { RecipeCrudService } from './recipe-crud.service';
 import { CreateRecipeRequestDto } from './dto/request/create-recipe-request.dto';
 import { UpdateRecipeRequestDto } from './dto/request/update-recipe-request.dto';
 import { CreateRecipeConditionGroupRequestDto } from '../recipe-condition/dto/request/create-condition-group-request.dto';
+import { RecipeCommandService } from './recipe-command.service';
 
 describe('RecipeController', () => {
   let controller: RecipeController;
   let recipeCrudService: jest.Mocked<RecipeCrudService>;
-
+  let recipeCommandService: jest.Mocked<RecipeCommandService>;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RecipeController],
@@ -23,11 +24,18 @@ describe('RecipeController', () => {
             remove: jest.fn(),
           },
         },
+        {
+          provide: RecipeCommandService,
+          useValue: {
+            runRecipe: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     controller = module.get<RecipeController>(RecipeController);
     recipeCrudService = module.get(RecipeCrudService);
+    recipeCommandService = module.get(RecipeCommandService);
   });
 
   it('컨트롤러가 정의되어야 한다', () => {
@@ -115,5 +123,11 @@ describe('RecipeController', () => {
         expect(recipeCrudService.remove).toHaveBeenCalledWith(1);
       });
     });
+  });
+
+  it('레시피 실행', async () => {
+    await controller.execute('1');
+
+    expect(recipeCommandService.runRecipe).toHaveBeenCalledWith(1);
   });
 });

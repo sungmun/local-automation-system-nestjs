@@ -25,12 +25,16 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { RecipeCommandService } from './recipe-command.service';
 
 @ApiTags('레시피')
 @Controller('recipes')
 export class RecipeController {
   private readonly logger = new Logger(RecipeController.name);
-  constructor(private readonly recipeCrudService: RecipeCrudService) {}
+  constructor(
+    private readonly recipeCrudService: RecipeCrudService,
+    private readonly recipeCommandService: RecipeCommandService,
+  ) {}
 
   @ApiOperation({ summary: '레시피 생성' })
   @ApiCreatedResponse({ type: CreateRecipeResponseDto })
@@ -59,6 +63,14 @@ export class RecipeController {
   async findOne(@Param('id') id: string): Promise<DetailRecipeResponseDto> {
     const result = await this.recipeCrudService.findOne(+id);
     return plainToInstance(DetailRecipeResponseDto, result);
+  }
+
+  @ApiOperation({ summary: '레시피 실행' })
+  @ApiNoContentResponse()
+  @Post(':id/execute')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async execute(@Param('id') id: string): Promise<void> {
+    await this.recipeCommandService.runRecipe(+id);
   }
 
   @ApiOperation({ summary: '레시피 수정' })
