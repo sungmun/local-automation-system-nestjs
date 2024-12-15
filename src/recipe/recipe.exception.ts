@@ -11,9 +11,3 @@ export class RecipeInactiveException extends BadRequestException {
     super(`레시피 ID ${id}가 비활성화 상태입니다`);
   }
 }
-
-export class DeviceCommandParseException extends BadRequestException {
-  constructor(command: string) {
-    super(`command [${command}] 파싱에 실패했습니다`);
-  }
-}
