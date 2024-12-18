@@ -7,6 +7,7 @@ import {
   ReserveTimeConditionRequestDto,
   RecipeConditionReserveTimeRangeRequestDto,
   WeeklyRecurringScheduleConditionRequestDto,
+  DailyRecurringScheduleConditionRequestDto,
 } from './';
 import { RecipeConditionGroupDto } from '../recipe-condition-group.dto';
 import { ApiProperty, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
@@ -20,6 +21,7 @@ import { WeeklyRecurringScheduleTimeRangeConditionRequestDto } from './weekly-re
   RecipeConditionReserveTimeRangeRequestDto,
   WeeklyRecurringScheduleConditionRequestDto,
   WeeklyRecurringScheduleTimeRangeConditionRequestDto,
+  DailyRecurringScheduleConditionRequestDto,
 )
 export class CreateRecipeConditionGroupRequestDto extends RecipeConditionGroupDto {
   @IsIn(['AND', 'OR'])
@@ -44,6 +46,9 @@ export class CreateRecipeConditionGroupRequestDto extends RecipeConditionGroupDt
           $ref: getSchemaPath(
             WeeklyRecurringScheduleTimeRangeConditionRequestDto,
           ),
+        },
+        {
+          $ref: getSchemaPath(DailyRecurringScheduleConditionRequestDto),
         },
       ],
     },
@@ -70,6 +75,10 @@ export class CreateRecipeConditionGroupRequestDto extends RecipeConditionGroupDt
           value: WeeklyRecurringScheduleTimeRangeConditionRequestDto,
           name: 'WEEKLY_RECURRING_SCHEDULE_TIME_RANGE',
         },
+        {
+          value: DailyRecurringScheduleConditionRequestDto,
+          name: 'DAILY_RECURRING_SCHEDULE',
+        },
       ],
     },
   })
@@ -80,5 +89,6 @@ export class CreateRecipeConditionGroupRequestDto extends RecipeConditionGroupDt
     | RecipeConditionReserveTimeRangeRequestDto
     | WeeklyRecurringScheduleConditionRequestDto
     | WeeklyRecurringScheduleTimeRangeConditionRequestDto
+    | DailyRecurringScheduleConditionRequestDto
   )[];
 }

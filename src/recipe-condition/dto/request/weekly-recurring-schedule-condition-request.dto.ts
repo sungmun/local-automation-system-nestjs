@@ -12,9 +12,7 @@ import {
 
 import { Expose } from 'class-transformer';
 import { WeeklyRecurringScheduleConditionDto } from '../weekly-recurring-schedule-condition.dto';
-import { ApiExtraModels } from '@nestjs/swagger';
 
-@ApiExtraModels(WeeklyRecurringScheduleConditionDto)
 export class WeeklyRecurringScheduleConditionRequestDto extends WeeklyRecurringScheduleConditionDto {
   @IsNotEmpty()
   @IsString()
