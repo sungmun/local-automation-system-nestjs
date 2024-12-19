@@ -75,8 +75,7 @@ export class RecipeCrudService {
   async update(id: number, updateRecipeDto: UpdateRecipeRequestDto) {
     const { deviceCommands, recipeGroups, ...updateRecipe } =
       instanceToPlain(updateRecipeDto);
-    console.log('-=-=-=-=-=-=-=');
-    console.log(updateRecipeDto);
+
     if (!deviceCommands && !recipeGroups) {
       const result = await this.recipeRepository.update(id, updateRecipe);
       if (result.affected < 1) {
@@ -88,7 +87,7 @@ export class RecipeCrudService {
       where: { id },
       relations: ['deviceCommands', 'recipeGroups', 'recipeGroups.conditions'],
     });
-    console.log(recipe);
+
     if (recipe === null) {
       throw new NotFoundException(`Recipe with ID ${id} not found`);
     }
@@ -100,7 +99,7 @@ export class RecipeCrudService {
     if (recipeGroups) {
       recipe.recipeGroups = recipeGroups;
     }
-    console.log(recipe);
+
     await this.recipeRepository.save({ ...recipe, ...updateRecipe });
   }
 

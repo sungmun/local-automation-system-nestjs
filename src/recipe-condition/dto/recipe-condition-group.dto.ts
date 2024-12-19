@@ -5,6 +5,7 @@ import { ReserveTimeConditionDto } from './reserve-time-condition.dto';
 import { RecipeConditionReserveTimeRangeDto } from './recipe-condition-reserve-time-range.dto';
 import { WeeklyRecurringScheduleConditionDto } from './weekly-recurring-schedule-condition.dto';
 import { WeeklyRecurringScheduleTimeRangeConditionDto } from './weekly-recurring-schedule-time-range-condition.dto';
+import { DailyRecurringScheduleConditionDto } from './daily-recurring-schedule-condition.dto';
 
 @ApiExtraModels(
   RoomTemperatureConditionDto,
@@ -13,6 +14,7 @@ import { WeeklyRecurringScheduleTimeRangeConditionDto } from './weekly-recurring
   RecipeConditionReserveTimeRangeDto,
   WeeklyRecurringScheduleConditionDto,
   WeeklyRecurringScheduleTimeRangeConditionDto,
+  DailyRecurringScheduleConditionDto,
 )
 export class RecipeConditionGroupDto {
   @ApiProperty({
@@ -35,6 +37,7 @@ export class RecipeConditionGroupDto {
         {
           $ref: getSchemaPath(WeeklyRecurringScheduleTimeRangeConditionDto),
         },
+        { $ref: getSchemaPath(DailyRecurringScheduleConditionDto) },
       ],
     },
   })
@@ -45,5 +48,6 @@ export class RecipeConditionGroupDto {
     | RecipeConditionReserveTimeRangeDto
     | WeeklyRecurringScheduleConditionDto
     | WeeklyRecurringScheduleTimeRangeConditionDto
+    | DailyRecurringScheduleConditionDto
   )[];
 }

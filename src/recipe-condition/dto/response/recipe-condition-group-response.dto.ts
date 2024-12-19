@@ -6,6 +6,7 @@ import {
   RecipeConditionReserveTimeRangeResponseDto,
   WeeklyRecurringScheduleConditionResponseDto,
   WeeklyRecurringScheduleTimeRangeConditionResponseDto,
+  DailyRecurringScheduleConditionResponseDto,
 } from './';
 import { RecipeConditionGroupDto } from '../recipe-condition-group.dto';
 
@@ -16,6 +17,7 @@ import { RecipeConditionGroupDto } from '../recipe-condition-group.dto';
   RecipeConditionReserveTimeRangeResponseDto,
   WeeklyRecurringScheduleConditionResponseDto,
   WeeklyRecurringScheduleTimeRangeConditionResponseDto,
+  DailyRecurringScheduleConditionResponseDto,
 )
 export class RecipeConditionGroupResponseDto extends RecipeConditionGroupDto {
   @ApiProperty({
@@ -43,6 +45,9 @@ export class RecipeConditionGroupResponseDto extends RecipeConditionGroupDto {
             WeeklyRecurringScheduleTimeRangeConditionResponseDto,
           ),
         },
+        {
+          $ref: getSchemaPath(DailyRecurringScheduleConditionResponseDto),
+        },
       ],
     },
   })
@@ -53,5 +58,6 @@ export class RecipeConditionGroupResponseDto extends RecipeConditionGroupDto {
     | RecipeConditionReserveTimeRangeResponseDto
     | WeeklyRecurringScheduleConditionResponseDto
     | WeeklyRecurringScheduleTimeRangeConditionResponseDto
+    | DailyRecurringScheduleConditionResponseDto
   )[];
 }
