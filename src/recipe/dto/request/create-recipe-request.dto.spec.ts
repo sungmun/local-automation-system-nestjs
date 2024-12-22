@@ -3,13 +3,13 @@ import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { CreateRecipeRequestDto } from './create-recipe-request.dto';
 
-describe('RecipeRequestDto', () => {
+describe('CreateRecipeRequestDto', () => {
   it('유효한 CreateRecipeRequestDto를 검증해야 합니다', async () => {
-    const deviceCommand = {
+    const recipeCommand = {
       command: { test: 'test' },
       deviceId: 'device123',
       name: '장치 명령',
-      platform: 'platform',
+      platform: 'hejhome',
     };
 
     const recipeGroup = {
@@ -22,7 +22,7 @@ describe('RecipeRequestDto', () => {
       description: '레시피 설명',
       type: '유형',
       active: true,
-      deviceCommands: [deviceCommand],
+      recipeCommands: [recipeCommand],
       recipeGroups: [recipeGroup],
     };
 
