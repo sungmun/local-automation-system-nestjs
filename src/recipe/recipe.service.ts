@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Recipe } from './entities/recipe.entity';
+import { Not, Repository } from 'typeorm';
+import { Recipe, RecipeStatus } from './entities/recipe.entity';
 import { DeviceCommand } from './entities/device-command.entity';
 
 import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
 import { TimerManagerService } from '../timer-manager/timer-manager.service';
 import { RecipeConditionService } from '../recipe-condition/recipe-condition.service';
+import { RecipeCrudService } from './recipe-crud.service';
 
 @Injectable()
 export class RecipeService {
@@ -17,31 +18,26 @@ export class RecipeService {
     private hejhomeApiService: HejhomeApiService,
     private timerManagerService: TimerManagerService,
     private recipeConditionService: RecipeConditionService,
+    private recipeCrudService: RecipeCrudService,
   ) {}
 
   async runDeviceCommands(deviceCommands: DeviceCommand[]) {
-    return deviceCommands.reduce((acc, deviceCommand) => {
-      return acc.then(async () => {
-        this.logger.debug(
-          `Running command for device ${deviceCommand.deviceId}: ${JSON.stringify(deviceCommand.command)}`,
-        );
-        await this.hejhomeApiService.setDeviceControl(deviceCommand.deviceId, {
-          requirments: deviceCommand.command,
-        });
+    for (const deviceCommand of deviceCommands) {
+      this.logger.debug(
+        `Running command for device ${deviceCommand.deviceId}: ${JSON.stringify(deviceCommand.command)}`,
+      );
+      await this.hejhomeApiService.setDeviceControl(deviceCommand.deviceId, {
+        requirments: deviceCommand.command,
       });
-    }, Promise.resolve());
+    }
   }
 
-  async runRecipe(id: number) {
-    const recipe = await this.recipeRepository.findOne({
-      where: { id, active: true },
-      relations: ['deviceCommands'],
-    });
-
-    if (!recipe) {
-      this.logger.warn(`Recipe ${id} not found or inactive`);
-      return;
-    }
+  async runRecipe(id: number): Promise<void> {
+    const recipe = await this.recipeCrudService.findOneAndUpdate(
+      { id, status: Not(RecipeStatus.RUNNING), active: true },
+      { deviceCommands: true },
+      { status: RecipeStatus.RUNNING },
+    );
 
     const { deviceCommands, timer } = recipe;
 

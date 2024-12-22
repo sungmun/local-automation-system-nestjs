@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import type { FindOptionsRelations, FindOptionsWhere } from 'typeorm';
 import { Recipe } from './entities/recipe.entity';
 import { DeviceCommand } from './entities/device-command.entity';
 import { DataBaseDeviceService } from '../device/database-device.service';
@@ -105,5 +106,23 @@ export class RecipeCrudService {
 
   async remove(id: number) {
     return this.recipeRepository.delete(id);
+  }
+
+  async findOneAndUpdate(
+    where: FindOptionsWhere<Recipe>,
+    findOptionsRelation: FindOptionsRelations<Recipe>,
+    updateSet: Partial<Recipe>,
+  ) {
+    const updateResult = await this.recipeRepository.update(where, updateSet);
+    if (updateResult.affected < 1) {
+      throw new NotFoundException(
+        `Recipe with where ${JSON.stringify(where)} not found`,
+      );
+    }
+
+    return this.recipeRepository.findOne({
+      where,
+      relations: findOptionsRelation,
+    });
   }
 }

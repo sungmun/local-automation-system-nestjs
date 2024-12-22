@@ -93,7 +93,7 @@ export class RecipeConditionService {
   async checkReserveTimeRecipeConditions(
     conditions: RecipeCondition[],
   ): Promise<number[]> {
-    let passedRecipeIds = new Set<number>();
+    const passedRecipeIds = new Set<number>();
     for (const condition of conditions) {
       if (!condition.group) continue;
 
