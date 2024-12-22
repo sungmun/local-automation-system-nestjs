@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { DeviceCommand } from './device-command.entity';
+
 import { RecipeConditionGroup } from '../../recipe-condition/entities/recipe-condition-group.entity';
+import { RecipeCommand } from '../../recipe-command/entities/recipe-command.entity';
 
 export enum RecipeStatus {
   STOPPED = 'stopped',
@@ -25,13 +26,10 @@ export class Recipe {
   @Column()
   type: string;
 
-  @OneToMany(() => DeviceCommand, (deviceCommand) => deviceCommand.recipe, {
+  @OneToMany(() => RecipeCommand, (recipeCommand) => recipeCommand.recipe, {
     cascade: true,
   })
-  deviceCommands: DeviceCommand[];
-
-  @Column({ nullable: true, default: -1 })
-  timer: number;
+  recipeCommands: RecipeCommand[];
 
   @OneToMany(() => RecipeConditionGroup, (group) => group.recipe, {
     cascade: true,
