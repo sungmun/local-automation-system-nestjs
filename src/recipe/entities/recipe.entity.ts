@@ -2,6 +2,12 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { DeviceCommand } from './device-command.entity';
 import { RecipeConditionGroup } from '../../recipe-condition/entities/recipe-condition-group.entity';
 
+export enum RecipeStatus {
+  STOPPED = 'stopped',
+  RUNNING = 'running',
+  PENDING = 'pending',
+}
+
 @Entity()
 export class Recipe {
   @PrimaryGeneratedColumn()
@@ -31,4 +37,6 @@ export class Recipe {
     cascade: true,
   })
   recipeGroups: RecipeConditionGroup[];
+
+  status: RecipeStatus;
 }

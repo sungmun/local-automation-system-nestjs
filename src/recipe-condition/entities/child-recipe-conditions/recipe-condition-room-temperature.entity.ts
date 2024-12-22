@@ -10,7 +10,7 @@ export class RecipeConditionRoomTemperature extends RecipeCondition {
   @Column()
   roomId: number;
 
-  @ManyToOne(() => Room, (room) => room.id, {
+  @ManyToOne(() => Room, (room) => room.recipeConditionsTemperature, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     orphanedRowAction: 'delete',

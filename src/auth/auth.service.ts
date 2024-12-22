@@ -16,7 +16,7 @@ export class AuthService {
   async setRefreshToken() {
     const hejCodePath = path.join(process.env.PWD, 'hej-code.json');
     const hejCodeContent = await fs.readFile(hejCodePath, 'utf-8');
-    const hejCode: FileHeJCode = JSON.parse(hejCodeContent);
+    const hejCode: FileHejCode = JSON.parse(hejCodeContent);
 
     const refreshToken = hejCode.refresh_token;
 

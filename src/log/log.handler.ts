@@ -1,5 +1,5 @@
 import { OnEvent } from '@nestjs/event-emitter';
-import { ResponseDeviceState } from 'src/hejhome-api/hejhome-api.interface';
+import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 import { LogService } from './log.service';
 import { Injectable } from '@nestjs/common';
 
