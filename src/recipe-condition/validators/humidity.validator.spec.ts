@@ -5,12 +5,28 @@ import {
   RecipeConditionType,
 } from '../entities/recipe-condition.entity';
 import { Room } from '../../room/entities/room.entity';
+import { RoomCrudService } from '../../room/room-crud.service';
+import { Test, TestingModule } from '@nestjs/testing';
 
 describe('HumidityValidator', () => {
   let validator: HumidityValidator;
+  let roomCrudService: jest.Mocked<RoomCrudService>;
 
-  beforeEach(() => {
-    validator = new HumidityValidator();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        HumidityValidator,
+        {
+          provide: RoomCrudService,
+          useValue: {
+            findRoomById: jest.fn(),
+          },
+        },
+      ],
+    }).compile();
+
+    validator = module.get<HumidityValidator>(HumidityValidator);
+    roomCrudService = module.get(RoomCrudService);
   });
 
   it('검증 가능한 클래스가 정의되어야 한다', () => {
@@ -46,7 +62,7 @@ describe('HumidityValidator', () => {
       const room = {
         humidity: 70,
       } as Room;
-
+      roomCrudService.findRoomById.mockResolvedValue(room);
       const context = new ValidationContext(condition, { room });
 
       const result = await validator.validate(context);
@@ -63,25 +79,11 @@ describe('HumidityValidator', () => {
       const room = {
         humidity: 50,
       } as Room;
-
+      roomCrudService.findRoomById.mockResolvedValue(room);
       const context = new ValidationContext(condition, { room });
 
       const result = await validator.validate(context);
       expect(result).toBe(false);
-    });
-
-    it('room 데이터가 없으면 예외를 발생시켜야 합니다', async () => {
-      const condition = {
-        type: RecipeConditionType.ROOM_HUMIDITY,
-        humidity: 60,
-        unit: '>',
-      } as unknown as RecipeCondition;
-
-      const context = new ValidationContext(condition);
-
-      await expect(validator.validate(context)).rejects.toThrow(
-        'Room data is required for humidity validation',
-      );
     });
   });
 });
