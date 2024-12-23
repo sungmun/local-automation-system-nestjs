@@ -1,7 +1,7 @@
 import { RecipeConditionGroupResponseDto } from './recipe-condition-group-response.dto';
 import { RecipeConditionType } from '../../entities/recipe-condition.entity';
 import { plainToInstance } from 'class-transformer';
-import { RoomTemperatureConditionResponseDto } from './room-temperature-condition-response.dto';
+import { RoomTemperatureConditionResponseDto } from './recipe-condition-responses/room-temperature-condition-response.dto';
 
 describe('RecipeConditionGroupResponseDto', () => {
   describe('생성자 테스트', () => {

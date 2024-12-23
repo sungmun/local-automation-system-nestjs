@@ -9,6 +9,7 @@ class SimpleRecipeResponseDto extends RecipeDto {
   })
   id: number;
 }
+
 export class RecipeListResponseDto {
   @ApiProperty({
     description: '레시피 목록',

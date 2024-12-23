@@ -9,7 +9,7 @@ describe('CreateRecipeRequestDto', () => {
       command: { test: 'test' },
       deviceId: 'device123',
       name: '장치 명령',
-      platform: 'hejhome',
+      platform: 'device-hejhome',
     };
 
     const recipeGroup = {

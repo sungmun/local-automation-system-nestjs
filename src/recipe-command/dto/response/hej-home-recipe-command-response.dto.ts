@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-
 import { HejHomeRecipeCommandDto } from '../hej-home-recipe-command.dto';
 
 export class HejHomeRecipeCommandResponseDto extends HejHomeRecipeCommandDto {

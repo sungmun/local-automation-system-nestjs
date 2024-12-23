@@ -10,11 +10,12 @@ import {
 
 import { CreateRecipeConditionGroupRequestDto } from '../../../recipe-condition/dto/request/create-condition-group-request.dto';
 import { RecipeDto } from '../recipe.dto';
-import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { RecipeCommandRequestDto } from '../../../recipe-command/dto/request/recipe-command-request.dto';
 import { HejHomeRecipeCommandRequestDto } from '../../../recipe-command/dto/request/hej-home-recipe-command-request.dto';
 import { RecipeCommandPlatform } from '../../../recipe-command/entities/recipe-command.entity';
 
+@ApiExtraModels(HejHomeRecipeCommandRequestDto)
 export class CreateRecipeRequestDto extends RecipeDto {
   @IsString()
   @IsNotEmpty()
@@ -46,12 +47,12 @@ export class CreateRecipeRequestDto extends RecipeDto {
       subTypes: [
         {
           value: HejHomeRecipeCommandRequestDto,
-          name: RecipeCommandPlatform.HEJ_HOME.toString(),
+          name: RecipeCommandPlatform.HEJ_HOME,
         },
       ],
     },
   })
-  recipeCommands: HejHomeRecipeCommandRequestDto[];
+  recipeCommands: RecipeCommandRequestDto[];
 
   @ApiProperty({
     description: '레시피 조건 그룹 목록',
