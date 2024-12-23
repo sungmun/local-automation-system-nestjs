@@ -1,18 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { RecipeService } from './recipe.service';
-import { Recipe } from './entities/recipe.entity';
-import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
-import { TimerManagerService } from '../timer-manager/timer-manager.service';
 import { RecipeConditionService } from '../recipe-condition/recipe-condition.service';
-import { DeviceCommand } from './entities/device-command.entity';
+import { RecipeCrudService } from './recipe-crud.service';
+import { RecipeCommandService } from '../recipe-command/recipe-command.service';
+import { NotFoundException } from '@nestjs/common';
+import { Recipe, RecipeStatus } from './entities/recipe.entity';
+import { Repository, UpdateResult } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('RecipeService', () => {
   let service: RecipeService;
-  let recipeRepository: jest.Mocked<any>;
-  let hejhomeApiService: jest.Mocked<HejhomeApiService>;
-  let timerManagerService: jest.Mocked<TimerManagerService>;
+  let recipeRepository: jest.Mocked<Repository<Recipe>>;
+  let recipeCrudService: jest.Mocked<RecipeCrudService>;
   let recipeConditionService: jest.Mocked<RecipeConditionService>;
+  let recipeCommandService: jest.Mocked<RecipeCommandService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,18 +23,14 @@ describe('RecipeService', () => {
           provide: getRepositoryToken(Recipe),
           useValue: {
             findOne: jest.fn(),
+            update: jest.fn(),
           },
         },
         {
-          provide: HejhomeApiService,
+          provide: RecipeCrudService,
           useValue: {
-            setDeviceControl: jest.fn(),
-          },
-        },
-        {
-          provide: TimerManagerService,
-          useValue: {
-            setTimer: jest.fn(),
+            findOne: jest.fn(),
+            findOneAndUpdate: jest.fn(),
           },
         },
         {
@@ -42,172 +39,137 @@ describe('RecipeService', () => {
             checkRecipeConditions: jest.fn(),
           },
         },
+        {
+          provide: RecipeCommandService,
+          useValue: {
+            runCommands: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<RecipeService>(RecipeService);
     recipeRepository = module.get(getRepositoryToken(Recipe));
-    hejhomeApiService = module.get(HejhomeApiService);
-    timerManagerService = module.get(TimerManagerService);
+    recipeCrudService = module.get(RecipeCrudService);
     recipeConditionService = module.get(RecipeConditionService);
+    recipeCommandService = module.get(RecipeCommandService);
   });
 
   it('서비스가 정의되어야 한다', () => {
     expect(service).toBeDefined();
   });
 
-  describe('runDeviceCommands', () => {
-    it('장치 명령을 순차적으로 실행해야 합니다', async () => {
-      const deviceCommands = [
-        {
-          id: 1,
-          deviceId: 'device1',
-          command: { action: 'on' },
-          name: '명령1',
-          platform: 'platform1',
-          order: 0,
-        },
-        {
-          id: 2,
-          deviceId: 'device2',
-          command: { action: 'off' },
-          name: '명령2',
-          platform: 'platform2',
-          order: 1,
-        },
-      ] as DeviceCommand[];
-
-      await service.runDeviceCommands(deviceCommands);
-
-      expect(hejhomeApiService.setDeviceControl).toHaveBeenCalledTimes(2);
-      expect(hejhomeApiService.setDeviceControl).toHaveBeenNthCalledWith(
-        1,
-        'device1',
-        { requirments: { action: 'on' } },
-      );
-      expect(hejhomeApiService.setDeviceControl).toHaveBeenNthCalledWith(
-        2,
-        'device2',
-        { requirments: { action: 'off' } },
-      );
-    });
-  });
-
   describe('runRecipe', () => {
-    it('존재하지 않는 레시피는 경고 로그를 남겨야 합니다', async () => {
-      recipeRepository.findOne.mockResolvedValue(null);
-      const loggerSpy = jest.spyOn(service['logger'], 'warn');
-
-      await service.runRecipe(1);
-
-      expect(loggerSpy).toHaveBeenCalledWith('Recipe 1 not found or inactive');
-    });
-
-    it('타이머가 없는 레시피는 즉시 실행되어야 합니다', async () => {
+    it('레시피를 실행하고 상태를 업데이트해야 합니다', async () => {
       const recipe = {
         id: 1,
+        name: '테스트 레시피',
+        recipeCommands: [{ id: 1, order: 0 }],
         active: true,
-        timer: -1,
-        deviceCommands: [{ deviceId: 'device1', command: '{"action":"on"}' }],
-      };
+        status: RecipeStatus.STOPPED,
+      } as Recipe;
 
-      recipeRepository.findOne.mockResolvedValue(recipe);
-      const runDeviceCommandsSpy = jest.spyOn(service, 'runDeviceCommands');
+      recipeCrudService.findOneAndUpdate.mockResolvedValue(recipe);
+      recipeCommandService.runCommands.mockResolvedValue(undefined);
+      recipeRepository.update.mockResolvedValue({
+        affected: 1,
+      } as UpdateResult);
 
       await service.runRecipe(1);
 
-      expect(runDeviceCommandsSpy).toHaveBeenCalledWith(recipe.deviceCommands);
-    });
-
-    it('타이머가 있는 레시피는 타이머를 설정해야 합니다', async () => {
-      const recipe = {
-        id: 1,
-        active: true,
-        timer: 60,
-        deviceCommands: [{ deviceId: 'device1', command: '{"action":"on"}' }],
-      };
-
-      recipeRepository.findOne.mockResolvedValue(recipe);
-      timerManagerService.setTimer.mockReturnValue(true);
-
-      await service.runRecipe(1);
-
-      expect(timerManagerService.setTimer).toHaveBeenCalledWith(
-        'recipe-1',
-        expect.any(Function),
-        60,
+      expect(recipeCrudService.findOneAndUpdate).toHaveBeenCalledWith(
+        { id: 1, status: expect.not.stringMatching('RUNNING'), active: true },
+        { recipeCommands: true },
+        { status: RecipeStatus.RUNNING },
       );
-    });
-
-    it('타이머 설정에 실패하면 즉시 실행되어야 합니다', async () => {
-      const recipe = {
-        id: 1,
-        active: true,
-        timer: 60,
-        deviceCommands: [{ deviceId: 'device1', command: '{"action":"on"}' }],
-      };
-
-      recipeRepository.findOne.mockResolvedValue(recipe);
-      timerManagerService.setTimer.mockReturnValue(false);
-      const runDeviceCommandsSpy = jest.spyOn(service, 'runDeviceCommands');
-
-      await service.runRecipe(1);
-
-      expect(runDeviceCommandsSpy).toHaveBeenCalledWith(recipe.deviceCommands);
-    });
-
-    it('타이머 콜백이 정상적으로 실행되어야 합니다', async () => {
-      const recipe = {
-        id: 1,
-        active: true,
-        timer: 60,
-        deviceCommands: [{ deviceId: 'device1', command: { action: 'on' } }],
-      };
-
-      recipeRepository.findOne.mockResolvedValue(recipe);
-      timerManagerService.setTimer.mockImplementation((key, callback) => {
-        callback();
-        return true;
+      expect(recipeCommandService.runCommands).toHaveBeenCalledWith(
+        recipe.recipeCommands,
+      );
+      expect(recipeRepository.update).toHaveBeenCalledWith(1, {
+        status: RecipeStatus.STOPPED,
       });
+    });
 
-      const runDeviceCommandsSpy = jest.spyOn(service, 'runDeviceCommands');
-
-      await service.runRecipe(1);
-
-      expect(timerManagerService.setTimer).toHaveBeenCalledWith(
-        'recipe-1',
-        expect.any(Function),
-        60,
+    it('실행 중인 레시피는 다시 실행할 수 없어야 합니다', async () => {
+      recipeCrudService.findOneAndUpdate.mockRejectedValue(
+        new Error('이미 실행 중인 레시피'),
       );
-      expect(runDeviceCommandsSpy).toHaveBeenCalledWith(recipe.deviceCommands);
+
+      await expect(service.runRecipe(1)).rejects.toThrow(
+        '이미 실행 중인 레시피',
+      );
+      expect(recipeCommandService.runCommands).not.toHaveBeenCalled();
+    });
+
+    it('명령 실행 중 에러가 발생하면 상태를 STOPPED로 변경해야 합니다', async () => {
+      const recipe = {
+        id: 1,
+        recipeCommands: [{ id: 1 }],
+        active: true,
+        status: RecipeStatus.STOPPED,
+      } as Recipe;
+
+      recipeCrudService.findOneAndUpdate.mockResolvedValue(recipe);
+      recipeCommandService.runCommands.mockRejectedValue(
+        new Error('명령 실행 실패'),
+      );
+
+      await expect(service.runRecipe(1)).rejects.toThrow('명령 실행 실패');
+      expect(recipeRepository.update).toHaveBeenCalledWith(1, {
+        status: RecipeStatus.STOPPED,
+      });
     });
   });
 
   describe('recipeCheck', () => {
-    it('레시피가 없으면 undefined를 반환해야 합니다', async () => {
-      recipeRepository.findOne.mockResolvedValue(null);
-
-      const result = await service.recipeCheck(1);
-
-      expect(result).toBeUndefined();
-    });
-
     it('레시피 조건을 확인해야 합니다', async () => {
       const recipe = {
         id: 1,
-        active: true,
+        name: '테스트 레시피',
         recipeGroups: [{ conditions: [] }],
-      };
+        active: true,
+        status: RecipeStatus.STOPPED,
+      } as Recipe;
 
       recipeRepository.findOne.mockResolvedValue(recipe);
       recipeConditionService.checkRecipeConditions.mockResolvedValue(true);
 
       const result = await service.recipeCheck(1);
 
+      expect(result).toBe(true);
+      expect(recipeRepository.findOne).toHaveBeenCalledWith({
+        where: { active: true, id: 1 },
+        relations: { recipeGroups: { conditions: true } },
+      });
       expect(recipeConditionService.checkRecipeConditions).toHaveBeenCalledWith(
         recipe.recipeGroups,
       );
-      expect(result).toBeTruthy();
+    });
+
+    it('실행 중인 레시피는 false를 반환해야 합니다', async () => {
+      const recipe = {
+        id: 1,
+        active: true,
+        status: RecipeStatus.RUNNING,
+      } as Recipe;
+
+      recipeRepository.findOne.mockResolvedValue(recipe);
+
+      const result = await service.recipeCheck(1);
+
+      expect(result).toBe(false);
+      expect(
+        recipeConditionService.checkRecipeConditions,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('비활성화된 레시피는 조회되지 않아야 합니다', async () => {
+      recipeRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.recipeCheck(1)).rejects.toThrow(NotFoundException);
+      expect(
+        recipeConditionService.checkRecipeConditions,
+      ).not.toHaveBeenCalled();
     });
   });
 });

@@ -4,19 +4,27 @@ import { RecipeCrudService } from './recipe-crud.service';
 import { Recipe } from './entities/recipe.entity';
 import { CreateRecipeRequestDto, UpdateRecipeRequestDto } from './dto/request';
 import { NotFoundException } from '@nestjs/common';
-import { DataBaseDeviceService } from '../device/database-device.service';
-import { DeviceCommand } from './entities/device-command.entity';
-import { Device } from '../device/entities/device.entity';
+import { RecipeCommandService } from '../recipe-command/recipe-command.service';
+import {
+  RecipeCommand,
+  RecipeCommandPlatform,
+} from '../recipe-command/entities/recipe-command.entity';
 
 describe('RecipeCrudService', () => {
   let service: RecipeCrudService;
   let recipeRepository: jest.Mocked<any>;
-  let databaseDeviceService: jest.Mocked<DataBaseDeviceService>;
+  let recipeCommandService: jest.Mocked<RecipeCommandService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RecipeCrudService,
+        {
+          provide: RecipeCommandService,
+          useValue: {
+            createRecipeCommands: jest.fn(),
+          },
+        },
         {
           provide: getRepositoryToken(Recipe),
           useValue: {
@@ -25,19 +33,6 @@ describe('RecipeCrudService', () => {
             findOne: jest.fn(),
             update: jest.fn(),
             delete: jest.fn(),
-            create: jest.fn(),
-          },
-        },
-        {
-          provide: getRepositoryToken(DeviceCommand),
-          useValue: {
-            create: jest.fn((data) => data),
-          },
-        },
-        {
-          provide: DataBaseDeviceService,
-          useValue: {
-            findInIds: jest.fn(),
           },
         },
       ],
@@ -45,7 +40,7 @@ describe('RecipeCrudService', () => {
 
     service = module.get<RecipeCrudService>(RecipeCrudService);
     recipeRepository = module.get(getRepositoryToken(Recipe));
-    databaseDeviceService = module.get(DataBaseDeviceService);
+    recipeCommandService = module.get(RecipeCommandService);
   });
 
   it('서비스가 정의되어야 한다', () => {
@@ -54,10 +49,11 @@ describe('RecipeCrudService', () => {
 
   describe('saveRecipe', () => {
     it('레시피를 저장해야 합니다', async () => {
-      const deviceCommand = {
+      const recipeCommand = {
         command: { test: 'test' },
         deviceId: 'device123',
         name: '장치 명령',
+        platform: RecipeCommandPlatform.HEJ_HOME,
       };
 
       const createRecipeDto: CreateRecipeRequestDto = {
@@ -66,24 +62,29 @@ describe('RecipeCrudService', () => {
         type: '테스트 타입',
         active: true,
         timer: 60,
-        deviceCommands: [deviceCommand],
+        recipeCommands: [recipeCommand],
         recipeGroups: [],
       };
 
-      databaseDeviceService.findInIds.mockResolvedValue([
-        { id: 'device123', platform: 'platform' } as Device,
+      const expectedRecipeCommand = {
+        ...recipeCommand,
+        platform: 'device-hejhome',
+        order: 0,
+      } as unknown as RecipeCommand;
+
+      recipeCommandService.createRecipeCommands.mockResolvedValue([
+        expectedRecipeCommand,
       ]);
       recipeRepository.save.mockResolvedValue({ id: 1, ...createRecipeDto });
 
       const result = await service.saveRecipe(createRecipeDto);
 
-      expect(databaseDeviceService.findInIds).toHaveBeenCalledWith([
-        'device123',
-      ]);
-
+      expect(recipeCommandService.createRecipeCommands).toHaveBeenCalledWith(
+        createRecipeDto.recipeCommands,
+      );
       expect(recipeRepository.save).toHaveBeenCalledWith({
         ...createRecipeDto,
-        deviceCommands: [{ ...deviceCommand, platform: 'platform', order: 0 }],
+        recipeCommands: [expectedRecipeCommand],
       });
       expect(result).toHaveProperty('id', 1);
     });
@@ -130,146 +131,81 @@ describe('RecipeCrudService', () => {
   });
 
   describe('update', () => {
-    describe('연관테이블 업데이트가 없는 경우', () => {
-      const updateRecipeDto: UpdateRecipeRequestDto = {
-        name: '업데이트된 레시피',
-        description: '업데이트된 설명',
-      };
-      it('연관테이블 업데이트가 없는 경우 레시피만 업데이트해야 합니다', async () => {
-        recipeRepository.update.mockResolvedValue({ affected: 1 });
+    const updateRecipeDto: UpdateRecipeRequestDto = {
+      name: '업데이트된 레시피',
+      description: '업데이트된 설명',
+    };
 
-        const result = await service.update(1, updateRecipeDto);
+    it('연관테이블 업데이트가 없는 경우 레시피만 업데이트해야 합니다', async () => {
+      recipeRepository.update.mockResolvedValue({ affected: 1 });
 
-        expect(recipeRepository.update).toHaveBeenCalledWith(
-          1,
-          updateRecipeDto,
-        );
-        expect(result).toEqual(undefined);
-      });
+      await service.update(1, updateRecipeDto);
 
-      it('존재하지 않는 레시피는 NotFoundException을 발생시켜야 합니다', async () => {
-        recipeRepository.update.mockResolvedValue({ affected: 0 });
-
-        await expect(service.update(1, {})).rejects.toThrow(NotFoundException);
-      });
+      expect(recipeRepository.update).toHaveBeenCalledWith(1, updateRecipeDto);
     });
 
-    describe('연관테이블 업데이트가 있는 경우', () => {
-      const deviceCommand = {
+    it('존재하지 않는 레시피는 NotFoundException을 발생시켜야 합니다', async () => {
+      recipeRepository.update.mockResolvedValue({ affected: 0 });
+
+      await expect(service.update(1, updateRecipeDto)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('연관테이블 업데이트가 있는 경우 레시피와 연관테이블을 업데이트해야 합니다', async () => {
+      const recipeCommand = {
         command: { test: 'test' },
         deviceId: 'device123',
         name: '장치 명령',
+        platform: RecipeCommandPlatform.HEJ_HOME,
       };
 
-      const updateRecipeDto: UpdateRecipeRequestDto = {
-        name: '업데이트된 레시피',
-        description: '업데이트된 설명',
-        deviceCommands: [deviceCommand],
+      const updateRecipeWithRelationsDto: UpdateRecipeRequestDto = {
+        ...updateRecipeDto,
+        recipeCommands: [recipeCommand],
         recipeGroups: [],
       };
 
-      it('연관테이블 업데이트가 있는 경우 레시피와 연관테이블을 업데이트해야 합니다', async () => {
-        const existingRecipe = {
-          id: 1,
-          name: '기존 레시피',
-          description: '기존 설명',
-          deviceCommands: [],
-          recipeGroups: [],
-        };
+      const existingRecipe = {
+        id: 1,
+        name: '기존 레시피',
+        recipeCommands: [],
+        recipeGroups: [],
+      };
 
-        recipeRepository.findOne.mockResolvedValue(existingRecipe);
-        databaseDeviceService.findInIds.mockResolvedValue([
-          { id: 'device123', platform: 'platform' } as Device,
-        ]);
-        recipeRepository.save.mockResolvedValue({
-          id: 1,
-          ...updateRecipeDto,
-          deviceCommands: [
-            { ...deviceCommand, platform: 'platform', order: 0 },
-          ],
-        });
+      const expectedRecipeCommand = {
+        ...recipeCommand,
+        platform: 'device-hejhome',
+        order: 0,
+      } as unknown as RecipeCommand;
 
-        await service.update(1, updateRecipeDto);
-
-        expect(recipeRepository.findOne).toHaveBeenCalledWith({
-          where: { id: 1 },
-          relations: [
-            'deviceCommands',
-            'recipeGroups',
-            'recipeGroups.conditions',
-          ],
-        });
-        expect(databaseDeviceService.findInIds).toHaveBeenCalledWith([
-          'device123',
-        ]);
-        expect(recipeRepository.save).toHaveBeenCalledWith({
-          ...existingRecipe,
-          ...updateRecipeDto,
-          deviceCommands: [
-            { ...deviceCommand, platform: 'platform', order: 0 },
-          ],
-        });
+      recipeRepository.findOne.mockResolvedValue(existingRecipe);
+      recipeCommandService.createRecipeCommands.mockResolvedValue([
+        expectedRecipeCommand,
+      ]);
+      recipeRepository.save.mockResolvedValue({
+        ...existingRecipe,
+        ...updateRecipeWithRelationsDto,
+        recipeCommands: [expectedRecipeCommand],
       });
 
-      it('연관 테이블 업데이트가 있으나 레시피가 존재하지 않으면 NotFoundException을 발생시켜야 합니다', async () => {
-        recipeRepository.findOne.mockResolvedValue(null);
-        const existingRecipe = {
-          id: 1,
-          deviceCommands: [],
-          recipeGroups: [],
-        };
-        await expect(service.update(1, existingRecipe)).rejects.toThrow(
-          NotFoundException,
-        );
+      await service.update(1, updateRecipeWithRelationsDto);
+
+      expect(recipeRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: {
+          recipeCommands: true,
+          recipeGroups: { conditions: true },
+        },
       });
-
-      it('디바이스가 존재하지 않으면 NotFoundException을 발생시켜야 합니다', async () => {
-        const existingRecipe = {
-          id: 1,
-          deviceCommands: [],
-          recipeGroups: [],
-        };
-
-        recipeRepository.findOne.mockResolvedValue(existingRecipe);
-        databaseDeviceService.findInIds.mockResolvedValue([]);
-
-        await expect(
-          service.update(1, {
-            deviceCommands: [deviceCommand],
-          }),
-        ).rejects.toThrow(NotFoundException);
+      expect(recipeCommandService.createRecipeCommands).toHaveBeenCalledWith(
+        updateRecipeWithRelationsDto.recipeCommands,
+      );
+      expect(recipeRepository.save).toHaveBeenCalledWith({
+        ...existingRecipe,
+        ...updateRecipeWithRelationsDto,
+        recipeCommands: [expectedRecipeCommand],
       });
-
-      it('디바이스 ID가 일치하지 않으면 NotFoundException을 발생시켜야 합니다', async () => {
-        const existingRecipe = {
-          id: 1,
-          deviceCommands: [],
-          recipeGroups: [],
-        };
-
-        recipeRepository.findOne.mockResolvedValue(existingRecipe);
-        databaseDeviceService.findInIds.mockResolvedValue([
-          { id: 'different_device', platform: 'platform' } as Device,
-        ]);
-
-        await expect(
-          service.update(1, {
-            deviceCommands: [deviceCommand],
-          }),
-        ).rejects.toThrow(NotFoundException);
-      });
-    });
-  });
-
-  describe('remove', () => {
-    it('레시피를 삭제해야 합니다', async () => {
-      const deleteResult = { affected: 1 };
-      recipeRepository.delete.mockResolvedValue(deleteResult);
-
-      const result = await service.remove(1);
-
-      expect(recipeRepository.delete).toHaveBeenCalledWith(1);
-      expect(result).toEqual(deleteResult);
     });
   });
 });

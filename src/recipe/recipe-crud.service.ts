@@ -4,12 +4,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import type { FindOptionsRelations, FindOptionsWhere } from 'typeorm';
 import { Recipe } from './entities/recipe.entity';
-import { DeviceCommand } from './entities/device-command.entity';
-import { DataBaseDeviceService } from '../device/database-device.service';
+
 import { instanceToPlain } from 'class-transformer';
-import { CreateDeviceCommandRequestDto } from './dto/request/create-device-command-request.dto';
 import { CreateRecipeRequestDto } from './dto/request/create-recipe-request.dto';
 import { UpdateRecipeRequestDto } from './dto/request/update-recipe-request.dto';
+import { RecipeCommandService } from '../recipe-command/recipe-command.service';
 
 @Injectable()
 export class RecipeCrudService {
@@ -17,42 +16,17 @@ export class RecipeCrudService {
   constructor(
     @InjectRepository(Recipe)
     private recipeRepository: Repository<Recipe>,
-    @InjectRepository(DeviceCommand)
-    private deviceCommandRepository: Repository<DeviceCommand>,
-    private databaseDeviceService: DataBaseDeviceService,
+    private recipeCommandService: RecipeCommandService,
   ) {}
 
-  private async createDeviceCommands(
-    deviceCommands: CreateDeviceCommandRequestDto[],
-  ) {
-    const devices = await this.databaseDeviceService.findInIds(
-      deviceCommands.map((deviceCommand) => deviceCommand.deviceId),
-    );
-    const deviceSet = new Map(devices.map((device) => [device.id, device]));
-
-    return deviceCommands.map((deviceCommand, order) => {
-      if (!deviceSet.has(deviceCommand.deviceId)) {
-        throw new NotFoundException(
-          `Device with ID ${deviceCommand.deviceId} not found`,
-        );
-      }
-
-      return this.deviceCommandRepository.create({
-        ...instanceToPlain(deviceCommand),
-        order,
-        platform: deviceSet.get(deviceCommand.deviceId).platform,
-      });
-    });
-  }
-
   async saveRecipe(createRecipeDto: CreateRecipeRequestDto) {
-    const deviceCommands = await this.createDeviceCommands(
-      createRecipeDto.deviceCommands,
+    const recipeCommands = await this.recipeCommandService.createRecipeCommands(
+      createRecipeDto.recipeCommands,
     );
 
     return this.recipeRepository.save({
       ...createRecipeDto,
-      deviceCommands,
+      recipeCommands,
     });
   }
 
@@ -74,10 +48,10 @@ export class RecipeCrudService {
   }
 
   async update(id: number, updateRecipeDto: UpdateRecipeRequestDto) {
-    const { deviceCommands, recipeGroups, ...updateRecipe } =
+    const { recipeCommands, recipeGroups, ...updateRecipe } =
       instanceToPlain(updateRecipeDto);
 
-    if (!deviceCommands && !recipeGroups) {
+    if (!recipeCommands && !recipeGroups) {
       const result = await this.recipeRepository.update(id, updateRecipe);
       if (result.affected < 1) {
         throw new NotFoundException(`Recipe with ID ${id} not found`);
@@ -86,15 +60,19 @@ export class RecipeCrudService {
     }
     const recipe = await this.recipeRepository.findOne({
       where: { id },
-      relations: ['deviceCommands', 'recipeGroups', 'recipeGroups.conditions'],
+      relations: {
+        recipeCommands: true,
+        recipeGroups: { conditions: true },
+      },
     });
 
     if (recipe === null) {
       throw new NotFoundException(`Recipe with ID ${id} not found`);
     }
 
-    if (deviceCommands) {
-      recipe.deviceCommands = await this.createDeviceCommands(deviceCommands);
+    if (recipeCommands) {
+      recipe.recipeCommands =
+        await this.recipeCommandService.createRecipeCommands(recipeCommands);
     }
 
     if (recipeGroups) {
