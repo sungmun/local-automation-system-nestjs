@@ -1,26 +1,8 @@
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import {
-  RoomTemperatureConditionResponseDto,
-  RoomHumidityConditionResponseDto,
-  ReserveTimeConditionResponseDto,
-  RecipeConditionReserveTimeRangeResponseDto,
-  WeeklyRecurringScheduleConditionResponseDto,
-  WeeklyRecurringScheduleTimeRangeConditionResponseDto,
-  DailyRecurringScheduleConditionResponseDto,
-  DailyRecurringScheduleTimeRangeConditionResponseDto,
-} from './';
+import * as ResponseDtos from './recipe-condition-responses';
 import { RecipeConditionGroupDto } from '../recipe-condition-group.dto';
 
-@ApiExtraModels(
-  RoomTemperatureConditionResponseDto,
-  RoomHumidityConditionResponseDto,
-  ReserveTimeConditionResponseDto,
-  RecipeConditionReserveTimeRangeResponseDto,
-  WeeklyRecurringScheduleConditionResponseDto,
-  WeeklyRecurringScheduleTimeRangeConditionResponseDto,
-  DailyRecurringScheduleConditionResponseDto,
-  DailyRecurringScheduleTimeRangeConditionResponseDto,
-)
+@ApiExtraModels(...Object.values(ResponseDtos))
 export class RecipeConditionGroupResponseDto extends RecipeConditionGroupDto {
   @ApiProperty({
     description: '그룹 아이디',
@@ -32,40 +14,10 @@ export class RecipeConditionGroupResponseDto extends RecipeConditionGroupDto {
     description: '레시피 조건 목록',
     type: 'array',
     items: {
-      oneOf: [
-        { $ref: getSchemaPath(RoomTemperatureConditionResponseDto) },
-        { $ref: getSchemaPath(RoomHumidityConditionResponseDto) },
-        { $ref: getSchemaPath(ReserveTimeConditionResponseDto) },
-        {
-          $ref: getSchemaPath(RecipeConditionReserveTimeRangeResponseDto),
-        },
-        {
-          $ref: getSchemaPath(WeeklyRecurringScheduleConditionResponseDto),
-        },
-        {
-          $ref: getSchemaPath(
-            WeeklyRecurringScheduleTimeRangeConditionResponseDto,
-          ),
-        },
-        {
-          $ref: getSchemaPath(DailyRecurringScheduleConditionResponseDto),
-        },
-        {
-          $ref: getSchemaPath(
-            DailyRecurringScheduleTimeRangeConditionResponseDto,
-          ),
-        },
-      ],
+      oneOf: Object.values(ResponseDtos).map((dto) => ({
+        $ref: getSchemaPath(dto),
+      })),
     },
   })
-  conditions: (
-    | RoomTemperatureConditionResponseDto
-    | RoomHumidityConditionResponseDto
-    | ReserveTimeConditionResponseDto
-    | RecipeConditionReserveTimeRangeResponseDto
-    | WeeklyRecurringScheduleConditionResponseDto
-    | WeeklyRecurringScheduleTimeRangeConditionResponseDto
-    | DailyRecurringScheduleConditionResponseDto
-    | DailyRecurringScheduleTimeRangeConditionResponseDto
-  )[];
+  conditions: InstanceType<(typeof ResponseDtos)[keyof typeof ResponseDtos]>[];
 }

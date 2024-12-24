@@ -18,6 +18,7 @@ import { PushMessagingModule } from './push-messaging/push-messaging.module';
 import { DeviceSubscriber } from './device/entities/device.entity.subscriber';
 import { LogModule } from './log/log.module';
 import { RecipeModule } from './recipe/recipe.module';
+import { RecipeCommandModule } from './recipe-command/recipe-command.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { RecipeModule } from './recipe/recipe.module';
     PushMessagingModule,
     LogModule,
     RecipeModule,
+    RecipeCommandModule,
   ],
 })
 export class AppModule {}

@@ -13,11 +13,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { RecipeCrudService } from './recipe-crud.service';
 import { CreateRecipeRequestDto, UpdateRecipeRequestDto } from './dto/request';
-import {
-  RecipeListResponseDto,
-  CreateRecipeResponseDto,
-  DetailRecipeResponseDto,
-} from './dto/response';
+import { RecipeListResponseDto, DetailRecipeResponseDto } from './dto/response';
 import {
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -25,7 +21,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { RecipeCommandService } from './recipe-command.service';
+import { RecipeService } from './recipe.service';
 
 @ApiTags('레시피')
 @Controller('recipes')
@@ -33,18 +29,18 @@ export class RecipeController {
   private readonly logger = new Logger(RecipeController.name);
   constructor(
     private readonly recipeCrudService: RecipeCrudService,
-    private readonly recipeCommandService: RecipeCommandService,
+    private readonly recipeService: RecipeService,
   ) {}
 
   @ApiOperation({ summary: '레시피 생성' })
-  @ApiCreatedResponse({ type: CreateRecipeResponseDto })
+  @ApiCreatedResponse({ type: DetailRecipeResponseDto })
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() createRecipeDto: CreateRecipeRequestDto,
-  ): Promise<CreateRecipeResponseDto> {
+  ): Promise<DetailRecipeResponseDto> {
     const result = await this.recipeCrudService.saveRecipe(createRecipeDto);
-    return plainToInstance(CreateRecipeResponseDto, result);
+    return plainToInstance(DetailRecipeResponseDto, result);
   }
 
   @ApiOperation({ summary: '레시피 목록 조회' })
@@ -70,7 +66,7 @@ export class RecipeController {
   @Post(':id/execute')
   @HttpCode(HttpStatus.NO_CONTENT)
   async execute(@Param('id') id: string): Promise<void> {
-    await this.recipeCommandService.runRecipe(+id);
+    await this.recipeService.runRecipe(+id);
   }
 
   @ApiOperation({ summary: '레시피 수정' })

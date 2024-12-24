@@ -2,14 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RecipeController } from './recipe.controller';
 import { RecipeCrudService } from './recipe-crud.service';
 import { CreateRecipeRequestDto } from './dto/request/create-recipe-request.dto';
-import { UpdateRecipeRequestDto } from './dto/request/update-recipe-request.dto';
 import { CreateRecipeConditionGroupRequestDto } from '../recipe-condition/dto/request/create-condition-group-request.dto';
-import { RecipeCommandService } from './recipe-command.service';
+import { RecipeCommandPlatform } from '../recipe-command/entities/recipe-command.entity';
+import { RecipeService } from './recipe.service';
 
 describe('RecipeController', () => {
   let controller: RecipeController;
   let recipeCrudService: jest.Mocked<RecipeCrudService>;
-  let recipeCommandService: jest.Mocked<RecipeCommandService>;
+  let recipeService: jest.Mocked<RecipeService>;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RecipeController],
@@ -25,7 +25,7 @@ describe('RecipeController', () => {
           },
         },
         {
-          provide: RecipeCommandService,
+          provide: RecipeService,
           useValue: {
             runRecipe: jest.fn(),
           },
@@ -35,7 +35,7 @@ describe('RecipeController', () => {
 
     controller = module.get<RecipeController>(RecipeController);
     recipeCrudService = module.get(RecipeCrudService);
-    recipeCommandService = module.get(RecipeCommandService);
+    recipeService = module.get(RecipeService);
   });
 
   it('컨트롤러가 정의되어야 한다', () => {
@@ -45,11 +45,11 @@ describe('RecipeController', () => {
   describe('CRUD 작업', () => {
     describe('create', () => {
       it('완전한 레시피를 생성해야 합니다', async () => {
-        const deviceCommand = {
+        const recipeCommand = {
           command: { test: 'test' },
           deviceId: 'device123',
           name: '장치 명령',
-          platform: 'platform',
+          platform: RecipeCommandPlatform.HEJ_HOME,
           order: 0,
         };
 
@@ -64,7 +64,7 @@ describe('RecipeController', () => {
           type: '테스트 타입',
           active: true,
           timer: 60,
-          deviceCommands: [deviceCommand],
+          recipeCommands: [recipeCommand],
           recipeGroups: [recipeGroup],
         };
 
@@ -95,13 +95,14 @@ describe('RecipeController', () => {
 
     describe('update', () => {
       it('레시피를 업데이트해야 합니다', async () => {
-        const updateRecipeDto: UpdateRecipeRequestDto = {
+        const updateRecipeDto = {
           name: '업데이트된 레시피',
           description: '업데이트된 설명',
-          deviceCommands: [
+          recipeCommands: [
             {
               command: { power: 'off' },
               deviceId: 'device1',
+              platform: RecipeCommandPlatform.HEJ_HOME,
               name: '업데이트된 명령',
             },
           ],
@@ -128,6 +129,6 @@ describe('RecipeController', () => {
   it('레시피 실행', async () => {
     await controller.execute('1');
 
-    expect(recipeCommandService.runRecipe).toHaveBeenCalledWith(1);
+    expect(recipeService.runRecipe).toHaveBeenCalledWith(1);
   });
 });

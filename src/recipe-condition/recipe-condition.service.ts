@@ -53,12 +53,7 @@ export class RecipeConditionService {
   ): Promise<boolean[]> {
     return Promise.all(
       group.conditions.map(async (condition) => {
-        let room: Room;
-        if ('room' in condition) {
-          room = condition.room as Room;
-        }
-
-        return this.validate(condition, new ValidationContext(condition, room));
+        return this.validate(condition, new ValidationContext(condition));
       }),
     );
   }

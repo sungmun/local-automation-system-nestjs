@@ -1,28 +1,31 @@
 import { IsNotEmpty, IsIn, ValidateNested, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  BaseRecipeConditionRequestDto,
-  RoomHumidityConditionRequestDto,
-  RoomTemperatureConditionRequestDto,
-  ReserveTimeConditionRequestDto,
-  RecipeConditionReserveTimeRangeRequestDto,
-  WeeklyRecurringScheduleConditionRequestDto,
-  DailyRecurringScheduleConditionRequestDto,
-} from './';
+import * as RequestDtos from './recipe-condition-requests';
 import { RecipeConditionGroupDto } from '../recipe-condition-group.dto';
-import { ApiProperty, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
-import { WeeklyRecurringScheduleTimeRangeConditionRequestDto } from './weekly-recurring-schedule-time-range-condition-request.dto';
+import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { BaseRecipeConditionRequestDto } from './base-recipe-condition-request.dto';
+import { RecipeConditionType } from '../../entities/recipe-condition.entity';
 
-@ApiExtraModels(
-  BaseRecipeConditionRequestDto,
-  RoomTemperatureConditionRequestDto,
-  RoomHumidityConditionRequestDto,
-  ReserveTimeConditionRequestDto,
-  RecipeConditionReserveTimeRangeRequestDto,
-  WeeklyRecurringScheduleConditionRequestDto,
-  WeeklyRecurringScheduleTimeRangeConditionRequestDto,
-  DailyRecurringScheduleConditionRequestDto,
-)
+const CONDITION_TYPE_MAPPING = {
+  [RecipeConditionType.ROOM_TEMPERATURE]:
+    RequestDtos.RoomTemperatureConditionRequestDto,
+  [RecipeConditionType.ROOM_HUMIDITY]:
+    RequestDtos.RoomHumidityConditionRequestDto,
+  [RecipeConditionType.RESERVE_TIME]:
+    RequestDtos.ReserveTimeConditionRequestDto,
+  [RecipeConditionType.RESERVE_TIME_RANGE]:
+    RequestDtos.ReserveTimeRangeConditionRequestDto,
+  [RecipeConditionType.WEEKLY_RECURRING_SCHEDULE]:
+    RequestDtos.WeeklyRecurringScheduleConditionRequestDto,
+  [RecipeConditionType.WEEKLY_RECURRING_SCHEDULE_TIME_RANGE]:
+    RequestDtos.WeeklyRecurringScheduleTimeRangeConditionRequestDto,
+  [RecipeConditionType.DAILY_RECURRING_SCHEDULE]:
+    RequestDtos.DailyRecurringScheduleConditionRequestDto,
+  [RecipeConditionType.DAILY_RECURRING_SCHEDULE_TIME_RANGE]:
+    RequestDtos.DailyRecurringScheduleTimeRangeConditionRequestDto,
+} as const;
+
+@ApiExtraModels(...Object.values(RequestDtos))
 export class CreateRecipeConditionGroupRequestDto extends RecipeConditionGroupDto {
   @IsIn(['AND', 'OR'])
   @IsNotEmpty()
@@ -32,25 +35,10 @@ export class CreateRecipeConditionGroupRequestDto extends RecipeConditionGroupDt
     description: '레시피 조건 목록',
     type: 'array',
     items: {
-      oneOf: [
-        { $ref: getSchemaPath(RoomTemperatureConditionRequestDto) },
-        { $ref: getSchemaPath(RoomHumidityConditionRequestDto) },
-        { $ref: getSchemaPath(ReserveTimeConditionRequestDto) },
-        {
-          $ref: getSchemaPath(RecipeConditionReserveTimeRangeRequestDto),
-        },
-        {
-          $ref: getSchemaPath(WeeklyRecurringScheduleConditionRequestDto),
-        },
-        {
-          $ref: getSchemaPath(
-            WeeklyRecurringScheduleTimeRangeConditionRequestDto,
-          ),
-        },
-        {
-          $ref: getSchemaPath(DailyRecurringScheduleConditionRequestDto),
-        },
-      ],
+      oneOf: Object.entries(CONDITION_TYPE_MAPPING).map(([, dto]) => ({
+        type: 'object',
+        $ref: getSchemaPath(dto),
+      })),
     },
   })
   @IsArray()
@@ -59,36 +47,13 @@ export class CreateRecipeConditionGroupRequestDto extends RecipeConditionGroupDt
     keepDiscriminatorProperty: true,
     discriminator: {
       property: 'type',
-      subTypes: [
-        { value: RoomTemperatureConditionRequestDto, name: 'ROOM_TEMPERATURE' },
-        { value: RoomHumidityConditionRequestDto, name: 'ROOM_HUMIDITY' },
-        { value: ReserveTimeConditionRequestDto, name: 'RESERVE_TIME' },
-        {
-          value: RecipeConditionReserveTimeRangeRequestDto,
-          name: 'RESERVE_TIME_RANGE',
-        },
-        {
-          value: WeeklyRecurringScheduleConditionRequestDto,
-          name: 'WEEKLY_RECURRING_SCHEDULE',
-        },
-        {
-          value: WeeklyRecurringScheduleTimeRangeConditionRequestDto,
-          name: 'WEEKLY_RECURRING_SCHEDULE_TIME_RANGE',
-        },
-        {
-          value: DailyRecurringScheduleConditionRequestDto,
-          name: 'DAILY_RECURRING_SCHEDULE',
-        },
-      ],
+      subTypes: Object.entries(CONDITION_TYPE_MAPPING).map(([type, dto]) => ({
+        value: dto,
+        name: type,
+      })),
     },
   })
-  conditions: (
-    | RoomTemperatureConditionRequestDto
-    | RoomHumidityConditionRequestDto
-    | ReserveTimeConditionRequestDto
-    | RecipeConditionReserveTimeRangeRequestDto
-    | WeeklyRecurringScheduleConditionRequestDto
-    | WeeklyRecurringScheduleTimeRangeConditionRequestDto
-    | DailyRecurringScheduleConditionRequestDto
-  )[];
+  conditions: InstanceType<
+    (typeof CONDITION_TYPE_MAPPING)[keyof typeof CONDITION_TYPE_MAPPING]
+  >[];
 }

@@ -1,4 +1,4 @@
-import { DeviceCommand } from '../../recipe/entities/device-command.entity';
+import { HejHomeRecipeCommand } from '../../recipe-command/entities/child-recipe-command';
 import { MessageTemplate } from '../../message-template/entities/message-template.entity';
 import { Room } from '../../room/entities/room.entity';
 import {
@@ -67,6 +67,9 @@ export class Device {
   @JoinTable({ name: 'DeviceMessageTemplates' })
   messageTemplates?: MessageTemplate[];
 
-  @OneToMany(() => DeviceCommand, (deviceCommand) => deviceCommand.device)
-  deviceCommands?: DeviceCommand[];
+  @OneToMany(
+    () => HejHomeRecipeCommand,
+    (hejHomeRecipeCommand) => hejHomeRecipeCommand.device,
+  )
+  deviceCommands?: HejHomeRecipeCommand[];
 }
