@@ -14,8 +14,12 @@ import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { RecipeCommandRequestDto } from '../../../recipe-command/dto/request/recipe-command-request.dto';
 import { HejHomeRecipeCommandRequestDto } from '../../../recipe-command/dto/request/hej-home-recipe-command-request.dto';
 import { RecipeCommandPlatform } from '../../../recipe-command/entities/recipe-command.entity';
+import { LocalTimerRecipeCommandRequestDto } from '../../../recipe-command/dto/request/local-timer-recipe-command-request.dto';
 
-@ApiExtraModels(HejHomeRecipeCommandRequestDto)
+@ApiExtraModels(
+  HejHomeRecipeCommandRequestDto,
+  LocalTimerRecipeCommandRequestDto,
+)
 export class CreateRecipeRequestDto extends RecipeDto {
   @IsString()
   @IsNotEmpty()
@@ -35,7 +39,10 @@ export class CreateRecipeRequestDto extends RecipeDto {
     description: '장치 명령 목록',
     type: 'array',
     items: {
-      oneOf: [{ $ref: getSchemaPath(HejHomeRecipeCommandRequestDto) }],
+      oneOf: [
+        { $ref: getSchemaPath(HejHomeRecipeCommandRequestDto) },
+        { $ref: getSchemaPath(LocalTimerRecipeCommandRequestDto) },
+      ],
     },
   })
   @IsArray()
@@ -48,6 +55,10 @@ export class CreateRecipeRequestDto extends RecipeDto {
         {
           value: HejHomeRecipeCommandRequestDto,
           name: RecipeCommandPlatform.HEJ_HOME,
+        },
+        {
+          value: LocalTimerRecipeCommandRequestDto,
+          name: RecipeCommandPlatform.LOCAL_TIMER,
         },
       ],
     },

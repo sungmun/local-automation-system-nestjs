@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { RecipeCommand } from './entities/recipe-command.entity';
 import { CommandRunnerFactory } from './runners/command-runner.factory';
 import { RunnerContext } from './runners/runner-context';
@@ -9,6 +9,7 @@ import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class RecipeCommandService {
+  private readonly logger = new Logger(RecipeCommandService.name);
   constructor(
     @InjectRepository(RecipeCommand)
     private readonly recipeCommandRepository: Repository<RecipeCommand>,
@@ -29,7 +30,11 @@ export class RecipeCommandService {
       await this.executeDeviceCommand(
         recipeCommand,
         new RunnerContext(recipeCommand),
-      );
+      ).then(() => {
+        this.logger.log(
+          `Recipe command ${recipeCommand.recipeId}/${recipeCommand.name} executed`,
+        );
+      });
     }
   }
 
