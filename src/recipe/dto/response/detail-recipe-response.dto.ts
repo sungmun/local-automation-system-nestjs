@@ -1,10 +1,15 @@
+import { LocalTimerRecipeCommandResponseDto } from '../../../recipe-command/dto/response/local-timer-recipe-command-response.dto';
 import { HejHomeRecipeCommandResponseDto } from '../../../recipe-command/dto/response';
 import { RecipeCommandResponseDto } from '../../../recipe-command/dto/response/recipe-command-response.dto';
 import { RecipeConditionGroupResponseDto } from '../../../recipe-condition/dto/response/recipe-condition-group-response.dto';
 import { RecipeDto } from '../recipe.dto';
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
-@ApiExtraModels(RecipeCommandResponseDto, HejHomeRecipeCommandResponseDto)
+@ApiExtraModels(RecipeCommandResponseDto)
+@ApiExtraModels(
+  HejHomeRecipeCommandResponseDto,
+  LocalTimerRecipeCommandResponseDto,
+)
 export class DetailRecipeResponseDto extends RecipeDto {
   @ApiProperty({
     description: '레시피 ID',
@@ -16,7 +21,10 @@ export class DetailRecipeResponseDto extends RecipeDto {
     description: '명령 목록',
     type: 'array',
     items: {
-      oneOf: [{ $ref: getSchemaPath(HejHomeRecipeCommandResponseDto) }],
+      oneOf: [
+        { $ref: getSchemaPath(HejHomeRecipeCommandResponseDto) },
+        { $ref: getSchemaPath(LocalTimerRecipeCommandResponseDto) },
+      ],
     },
   })
   recipeCommands: RecipeCommandResponseDto[];
