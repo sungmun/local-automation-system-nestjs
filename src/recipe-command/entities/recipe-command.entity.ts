@@ -11,6 +11,7 @@ import {
 export enum RecipeCommandPlatform {
   HEJ_HOME = 'device-hejhome',
   LOCAL_TIMER = 'local-timer',
+  LOCAL_PUSH_MESSAGE = 'local-push-message',
 }
 
 @Entity()
