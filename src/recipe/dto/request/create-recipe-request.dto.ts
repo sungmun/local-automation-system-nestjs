@@ -15,10 +15,12 @@ import { RecipeCommandRequestDto } from '../../../recipe-command/dto/request/rec
 import { HejHomeRecipeCommandRequestDto } from '../../../recipe-command/dto/request/hej-home-recipe-command-request.dto';
 import { RecipeCommandPlatform } from '../../../recipe-command/entities/recipe-command.entity';
 import { LocalTimerRecipeCommandRequestDto } from '../../../recipe-command/dto/request/local-timer-recipe-command-request.dto';
+import { LocalPushMessageRecipeCommandRequestDto } from '../../../recipe-command/dto/request/local-push-message-recipe-command-request.dto';
 
 @ApiExtraModels(
   HejHomeRecipeCommandRequestDto,
   LocalTimerRecipeCommandRequestDto,
+  LocalPushMessageRecipeCommandRequestDto,
 )
 export class CreateRecipeRequestDto extends RecipeDto {
   @IsString()
@@ -42,6 +44,7 @@ export class CreateRecipeRequestDto extends RecipeDto {
       oneOf: [
         { $ref: getSchemaPath(HejHomeRecipeCommandRequestDto) },
         { $ref: getSchemaPath(LocalTimerRecipeCommandRequestDto) },
+        { $ref: getSchemaPath(LocalPushMessageRecipeCommandRequestDto) },
       ],
     },
   })
@@ -59,6 +62,10 @@ export class CreateRecipeRequestDto extends RecipeDto {
         {
           value: LocalTimerRecipeCommandRequestDto,
           name: RecipeCommandPlatform.LOCAL_TIMER,
+        },
+        {
+          value: LocalPushMessageRecipeCommandRequestDto,
+          name: RecipeCommandPlatform.LOCAL_PUSH_MESSAGE,
         },
       ],
     },

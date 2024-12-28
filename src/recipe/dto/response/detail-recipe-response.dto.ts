@@ -1,5 +1,8 @@
 import { LocalTimerRecipeCommandResponseDto } from '../../../recipe-command/dto/response/local-timer-recipe-command-response.dto';
-import { HejHomeRecipeCommandResponseDto } from '../../../recipe-command/dto/response';
+import {
+  HejHomeRecipeCommandResponseDto,
+  LocalPushMessageRecipeCommandResponseDto,
+} from '../../../recipe-command/dto/response';
 import { RecipeCommandResponseDto } from '../../../recipe-command/dto/response/recipe-command-response.dto';
 import { RecipeConditionGroupResponseDto } from '../../../recipe-condition/dto/response/recipe-condition-group-response.dto';
 import { RecipeDto } from '../recipe.dto';
@@ -9,6 +12,7 @@ import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 @ApiExtraModels(
   HejHomeRecipeCommandResponseDto,
   LocalTimerRecipeCommandResponseDto,
+  LocalPushMessageRecipeCommandResponseDto,
 )
 export class DetailRecipeResponseDto extends RecipeDto {
   @ApiProperty({
@@ -24,6 +28,7 @@ export class DetailRecipeResponseDto extends RecipeDto {
       oneOf: [
         { $ref: getSchemaPath(HejHomeRecipeCommandResponseDto) },
         { $ref: getSchemaPath(LocalTimerRecipeCommandResponseDto) },
+        { $ref: getSchemaPath(LocalPushMessageRecipeCommandResponseDto) },
       ],
     },
   })
