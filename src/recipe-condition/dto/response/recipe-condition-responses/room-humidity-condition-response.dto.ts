@@ -7,4 +7,10 @@ export class RoomHumidityConditionResponseDto extends RoomHumidityConditionDto {
     example: 1,
   })
   id: number;
+
+  @ApiProperty({
+    description: '순서',
+    example: 0,
+  })
+  order: number = 0;
 }

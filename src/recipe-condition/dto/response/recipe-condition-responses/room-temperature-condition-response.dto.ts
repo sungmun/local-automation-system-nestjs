@@ -7,4 +7,10 @@ export class RoomTemperatureConditionResponseDto extends RoomTemperatureConditio
     example: 1,
   })
   id: number;
+
+  @ApiProperty({
+    description: '순서',
+    example: 0,
+  })
+  order: number = 0;
 }

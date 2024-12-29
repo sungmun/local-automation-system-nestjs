@@ -17,6 +17,7 @@ export enum RecipeConditionType {
   WEEKLY_RECURRING_SCHEDULE_TIME_RANGE = 'WEEKLY_RECURRING_SCHEDULE_TIME_RANGE',
   DAILY_RECURRING_SCHEDULE = 'DAILY_RECURRING_SCHEDULE',
   DAILY_RECURRING_SCHEDULE_TIME_RANGE = 'DAILY_RECURRING_SCHEDULE_TIME_RANGE',
+  STATUS_DELAY_MAINTAIN = 'STATUS_DELAY_MAINTAIN',
 }
 
 @Entity()
@@ -44,4 +45,7 @@ export class RecipeCondition {
 
   @Column({ type: 'text', enum: RecipeConditionType })
   type: RecipeConditionType;
+
+  @Column({ default: 0 })
+  order: number;
 }

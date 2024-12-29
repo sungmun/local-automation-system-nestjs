@@ -6,3 +6,4 @@ export * from './room-humidity-condition.dto';
 export * from './room-temperature-condition.dto';
 export * from './weekly-recurring-schedule-condition.dto';
 export * from './weekly-recurring-schedule-time-range-condition.dto';
+export * from './status-delay-maintain-condition.dto';
