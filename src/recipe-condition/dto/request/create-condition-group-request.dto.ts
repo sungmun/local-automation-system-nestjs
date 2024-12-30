@@ -1,10 +1,17 @@
-import { IsNotEmpty, IsIn, ValidateNested, IsArray } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsIn,
+  ValidateNested,
+  IsArray,
+  Validate,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import * as RequestDtos from './recipe-condition-requests';
 import { RecipeConditionGroupDto } from '../recipe-condition-group.dto';
 import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { BaseRecipeConditionRequestDto } from './base-recipe-condition-request.dto';
 import { RecipeConditionType } from '../../entities/recipe-condition.entity';
+import { IsArrayUniqTypeValid } from '../../../common/validators/is-array-uniq-type-valid-validator';
 
 const CONDITION_TYPE_MAPPING = {
   [RecipeConditionType.ROOM_TEMPERATURE]:
@@ -23,6 +30,8 @@ const CONDITION_TYPE_MAPPING = {
     RequestDtos.DailyRecurringScheduleConditionRequestDto,
   [RecipeConditionType.DAILY_RECURRING_SCHEDULE_TIME_RANGE]:
     RequestDtos.DailyRecurringScheduleTimeRangeConditionRequestDto,
+  [RecipeConditionType.STATUS_DELAY_MAINTAIN]:
+    RequestDtos.StatusDelayMaintainConditionRequestDto,
 } as const;
 
 @ApiExtraModels(...Object.values(RequestDtos))
@@ -43,6 +52,9 @@ export class CreateRecipeConditionGroupRequestDto extends RecipeConditionGroupDt
   })
   @IsArray()
   @ValidateNested({ each: true })
+  @Validate(IsArrayUniqTypeValid, [
+    CONDITION_TYPE_MAPPING[RecipeConditionType.STATUS_DELAY_MAINTAIN],
+  ])
   @Type(() => BaseRecipeConditionRequestDto, {
     keepDiscriminatorProperty: true,
     discriminator: {
