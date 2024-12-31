@@ -19,6 +19,7 @@ describe('RecipeConditionGroupResponseDto', () => {
       const childCondition = {
         type: RecipeConditionType.ROOM_TEMPERATURE,
         temperature: 25,
+        order: 0,
       };
 
       const dto = plainToInstance(RecipeConditionGroupResponseDto, {
@@ -27,6 +28,7 @@ describe('RecipeConditionGroupResponseDto', () => {
           {
             type: RecipeConditionType.ROOM_TEMPERATURE,
             temperature: 25,
+            order: 0,
           },
         ],
       });

@@ -39,6 +39,7 @@ export class RecipeService {
     const recipe = await this.recipeRepository.findOne({
       where: { active: true, id: recipeId },
       relations: { recipeGroups: { conditions: true } },
+      order: { recipeGroups: { conditions: { order: 'ASC' } } },
     });
 
     if (!recipe) {

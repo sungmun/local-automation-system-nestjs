@@ -74,6 +74,7 @@ describe('RecipeCheckService', () => {
         RecipeConditionType.WEEKLY_RECURRING_SCHEDULE_TIME_RANGE,
         RecipeConditionType.DAILY_RECURRING_SCHEDULE,
         RecipeConditionType.DAILY_RECURRING_SCHEDULE_TIME_RANGE,
+        RecipeConditionType.STATUS_DELAY_MAINTAIN,
       ]);
       expect(
         recipeConditionService.checkReserveTimeRecipeConditions,

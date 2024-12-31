@@ -9,6 +9,12 @@ export class WeeklyRecurringScheduleTimeRangeConditionResponseDto extends Weekly
   })
   id: number;
 
+  @ApiProperty({
+    description: '순서',
+    example: 0,
+  })
+  order: number = 0;
+
   @Expose({ name: 'dayOfWeeks' })
   _dayOfWeeks: string;
 

@@ -140,6 +140,7 @@ describe('RecipeService', () => {
       expect(recipeRepository.findOne).toHaveBeenCalledWith({
         where: { active: true, id: 1 },
         relations: { recipeGroups: { conditions: true } },
+        order: { recipeGroups: { conditions: { order: 'ASC' } } },
       });
       expect(recipeConditionService.checkRecipeConditions).toHaveBeenCalledWith(
         recipe.recipeGroups,
