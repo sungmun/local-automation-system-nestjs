@@ -4,6 +4,7 @@ import {
   RecipeConditionType,
 } from '../recipe-condition.entity';
 import { Device } from '../../../device/entities/device.entity';
+import { ComparisonOperator } from '../../validators/base.validator';
 
 @ChildEntity(RecipeConditionType.HEJ_HOME_DEVICE_STATE)
 export class RecipeConditionHejHomeDeviceState extends RecipeCondition {
@@ -14,7 +15,12 @@ export class RecipeConditionHejHomeDeviceState extends RecipeCondition {
       from: (value: string): object => JSON.parse(value),
     },
   })
-  deviceState: object;
+  deviceState: {
+    [key: string]: {
+      unit: ComparisonOperator;
+      value: string | number;
+    };
+  };
 
   @Column()
   deviceId: string;
