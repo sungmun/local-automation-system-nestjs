@@ -1,6 +1,6 @@
 import { ValidationContext } from './validation-context';
 
-type ComparisonOperator = '<' | '>' | '=' | '>=' | '<=';
+export type ComparisonOperator = '<' | '>' | '=' | '>=' | '<=';
 
 export abstract class BaseValidator {
   abstract validate(context: ValidationContext): Promise<boolean>;
