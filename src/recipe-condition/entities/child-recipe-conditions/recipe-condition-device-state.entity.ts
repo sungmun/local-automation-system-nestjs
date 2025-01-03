@@ -15,12 +15,13 @@ export class RecipeConditionHejHomeDeviceState extends RecipeCondition {
       from: (value: string): object => JSON.parse(value),
     },
   })
-  deviceState: {
-    [key: string]: {
+  deviceState: Record<
+    string,
+    {
       unit: ComparisonOperator;
       value: string | number;
-    };
-  };
+    }
+  >;
 
   @Column()
   deviceId: string;
