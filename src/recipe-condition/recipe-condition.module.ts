@@ -7,9 +7,13 @@ import { ConditionValidatorFactory } from './validators/condition-validator.fact
 import { ValidatorRegistry } from './validators/validator.registry';
 import { IConditionValidator } from './validators/condition-validator.interface';
 import * as RecipeConditionChild from './entities/child-recipe-conditions';
+import { DeviceModule } from '../device/device.module';
+import { RoomModule } from '../room/room.module';
 
 @Module({
   imports: [
+    DeviceModule,
+    RoomModule,
     TypeOrmModule.forFeature([
       RecipeCondition,
       RecipeConditionGroup,
