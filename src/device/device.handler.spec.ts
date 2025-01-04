@@ -25,28 +25,6 @@ describe('DeviceHandler', () => {
     databaseDeviceService = module.get(DataBaseDeviceService);
   });
 
-  describe('finishEvent', () => {
-    it('장치 상태를 업데이트해야 한다', async () => {
-      const state: ResponseDeviceState = {
-        id: 'device1',
-        deviceType: 'IrAirconditioner',
-        deviceState: {
-          power: '켜짐',
-          temperature: '24',
-          mode: 1,
-          fanSpeed: 2,
-        },
-      };
-
-      await handler.finishEvent(state);
-
-      expect(databaseDeviceService.updateState).toHaveBeenCalledWith(
-        state.id,
-        state.deviceState,
-      );
-    });
-  });
-
   describe('changedDeviceSendMessage', () => {
     it('장치 상태가 변경되었을 때 메시지를 전송해야 한다', async () => {
       const state: ResponseDeviceState = {
@@ -61,7 +39,10 @@ describe('DeviceHandler', () => {
       };
 
       await handler.changedDeviceSendMessage(state);
-
+      expect(databaseDeviceService.updateState).toHaveBeenCalledWith(
+        state.id,
+        state.deviceState,
+      );
       expect(
         databaseDeviceService.changedDeviceSendMessage,
       ).toHaveBeenCalledWith(state);
