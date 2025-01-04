@@ -9,6 +9,8 @@ import { ConditionValidatorFactory } from './validators/condition-validator.fact
 import { ValidationContext } from './validators/validation-context';
 import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RecipeConditionHejHomeDeviceState } from './entities/child-recipe-conditions';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class RecipeConditionService {
@@ -17,8 +19,30 @@ export class RecipeConditionService {
   constructor(
     @InjectRepository(RecipeCondition)
     private readonly recipeConditionRepository: Repository<RecipeCondition>,
+    @InjectRepository(RecipeConditionHejHomeDeviceState)
+    private readonly recipeConditionHejHomeDeviceStateRepository: Repository<RecipeConditionHejHomeDeviceState>,
     private readonly conditionValidatorFactory: ConditionValidatorFactory,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
+
+  async validateHejHomeDeviceStateByDeviceId(
+    deviceId: string,
+  ): Promise<boolean> {
+    const condition =
+      await this.recipeConditionHejHomeDeviceStateRepository.findOne({
+        where: { deviceId },
+        relations: { group: true },
+      });
+    const isValid = await this.validate(
+      condition,
+      new ValidationContext(condition),
+    );
+    if (isValid) {
+      this.eventEmitter.emit('recipe.condition.check', condition.group);
+      return true;
+    }
+    return false;
+  }
 
   async findRecipeConditionsAndGroupByTypeIn(types: RecipeConditionType[]) {
     return this.recipeConditionRepository.find({
@@ -49,7 +73,7 @@ export class RecipeConditionService {
   }
 
   private async validateGroupConditions(
-    group: RecipeConditionGroup,
+    group: Pick<RecipeConditionGroup, 'conditions'>,
   ): Promise<boolean[]> {
     return Promise.all(
       group.conditions.map(async (condition) => {
@@ -143,7 +167,7 @@ export class RecipeConditionService {
   }
 
   private async validate(
-    condition: RecipeCondition,
+    condition: Pick<RecipeCondition, 'type'>,
     context: ValidationContext,
   ): Promise<boolean> {
     const validator = this.conditionValidatorFactory.getValidator(condition);

@@ -11,12 +11,16 @@ import { Room } from '../room/entities/room.entity';
 import { NotAcceptableException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { RecipeConditionHejHomeDeviceState } from './entities/child-recipe-conditions';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 describe('RecipeConditionService', () => {
   let service: RecipeConditionService;
   let mockValidator: jest.Mocked<IConditionValidator>;
   let recipeConditionRepository: jest.Mocked<Repository<RecipeCondition>>;
-
+  let recipeConditionHejHomeDeviceStateRepository: jest.Mocked<
+    Repository<RecipeConditionHejHomeDeviceState>
+  >;
   beforeEach(async () => {
     mockValidator = {
       canHandle: jest.fn().mockReturnValue(true),
@@ -38,16 +42,86 @@ describe('RecipeConditionService', () => {
             find: jest.fn(),
           },
         },
+        {
+          provide: getRepositoryToken(RecipeConditionHejHomeDeviceState),
+          useValue: {
+            findOne: jest.fn(),
+          },
+        },
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<RecipeConditionService>(RecipeConditionService);
 
     recipeConditionRepository = module.get(getRepositoryToken(RecipeCondition));
+    recipeConditionHejHomeDeviceStateRepository = module.get(
+      getRepositoryToken(RecipeConditionHejHomeDeviceState),
+    );
   });
 
   it('서비스가 정의되어야 한다', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('validateHejHomeDeviceStateByDeviceId', () => {
+    it('장치 ID로 조건을 검증하고 이벤트를 발생시켜야 합니다', async () => {
+      const deviceId = 'device123';
+      const condition = {
+        deviceId,
+        type: RecipeConditionType.HEJ_HOME_DEVICE_STATE,
+        group: { recipeId: 1 },
+      } as RecipeConditionHejHomeDeviceState;
+
+      recipeConditionHejHomeDeviceStateRepository.findOne.mockResolvedValue(
+        condition,
+      );
+      mockValidator.validate.mockResolvedValue(true);
+      const eventEmitterSpy = jest.spyOn(service['eventEmitter'], 'emit');
+      const result =
+        await service.validateHejHomeDeviceStateByDeviceId(deviceId);
+
+      expect(
+        recipeConditionHejHomeDeviceStateRepository.findOne,
+      ).toHaveBeenCalledWith({
+        where: { deviceId },
+        relations: { group: true },
+      });
+      expect(mockValidator.validate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          condition,
+        }),
+      );
+      expect(result).toBe(true);
+      expect(eventEmitterSpy).toHaveBeenCalledWith(
+        'recipe.condition.check',
+        condition.group,
+      );
+    });
+
+    it('조건이 유효하지 않으면 false를 반환해야 합니다', async () => {
+      const deviceId = 'device123';
+      const condition = {
+        deviceId,
+        type: RecipeConditionType.HEJ_HOME_DEVICE_STATE,
+      } as RecipeConditionHejHomeDeviceState;
+      const eventEmitterSpy = jest.spyOn(service['eventEmitter'], 'emit');
+      recipeConditionHejHomeDeviceStateRepository.findOne.mockResolvedValue(
+        condition,
+      );
+      mockValidator.validate.mockResolvedValue(false);
+
+      const result =
+        await service.validateHejHomeDeviceStateByDeviceId(deviceId);
+
+      expect(eventEmitterSpy).not.toHaveBeenCalled();
+      expect(result).toBe(false);
+    });
   });
 
   describe('findRecipeConditionsAndGroupByTypeIn', () => {
