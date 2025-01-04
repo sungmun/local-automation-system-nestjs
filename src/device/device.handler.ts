@@ -7,13 +7,9 @@ import { Injectable } from '@nestjs/common';
 export class DeviceHandler {
   constructor(private readonly databaseDeviceService: DataBaseDeviceService) {}
 
-  @OnEvent('finish.**', { async: true })
-  async finishEvent(state: ResponseDeviceState) {
-    await this.databaseDeviceService.updateState(state.id, state.deviceState);
-  }
-
   @OnEvent('changed.**', { async: true })
   async changedDeviceSendMessage(state: ResponseDeviceState) {
+    await this.databaseDeviceService.updateState(state.id, state.deviceState);
     return this.databaseDeviceService.changedDeviceSendMessage(state);
   }
 }
