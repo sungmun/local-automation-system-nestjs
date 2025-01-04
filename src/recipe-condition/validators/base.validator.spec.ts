@@ -1,6 +1,10 @@
 import { BaseValidator } from './base.validator';
 
 class TestValidator extends BaseValidator {
+  canHandle(): boolean {
+    return true;
+  }
+
   async validate(): Promise<boolean> {
     return true;
   }

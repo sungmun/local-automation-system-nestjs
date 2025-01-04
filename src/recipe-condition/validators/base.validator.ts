@@ -1,8 +1,11 @@
+import { RecipeCondition } from '../entities/recipe-condition.entity';
+import { IConditionValidator } from './condition-validator.interface';
 import { ValidationContext } from './validation-context';
 
 export type ComparisonOperator = '<' | '>' | '=' | '>=' | '<=';
 
-export abstract class BaseValidator {
+export abstract class BaseValidator implements IConditionValidator {
+  abstract canHandle(condition: Pick<RecipeCondition, 'type'>): boolean;
   abstract validate(context: ValidationContext): Promise<boolean>;
 
   protected compareValues(

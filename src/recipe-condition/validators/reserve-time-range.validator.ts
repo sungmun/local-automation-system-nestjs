@@ -16,7 +16,7 @@ export class ReserveTimeRangeValidator
   extends BaseValidator
   implements IConditionValidator
 {
-  canHandle(condition: RecipeCondition): boolean {
+  canHandle(condition: Pick<RecipeCondition, 'type'>): boolean {
     return condition.type === RecipeConditionType.RESERVE_TIME_RANGE;
   }
 

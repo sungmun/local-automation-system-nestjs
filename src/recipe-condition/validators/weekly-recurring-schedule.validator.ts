@@ -18,7 +18,7 @@ export class WeeklyRecurringScheduleValidator
 {
   private readonly KST_OFFSET = 9 * 60 * 60000; // 한국 시간 오프셋 (9시간)
 
-  canHandle(condition: RecipeCondition): boolean {
+  canHandle(condition: Pick<RecipeCondition, 'type'>): boolean {
     return condition.type === RecipeConditionType.WEEKLY_RECURRING_SCHEDULE;
   }
 

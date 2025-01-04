@@ -19,7 +19,8 @@ export class TemperatureValidator
   constructor(private readonly roomCrudService: RoomCrudService) {
     super();
   }
-  canHandle(condition: RecipeCondition): boolean {
+
+  canHandle(condition: Pick<RecipeCondition, 'type'>): boolean {
     return condition.type === RecipeConditionType.ROOM_TEMPERATURE;
   }
 

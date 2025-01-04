@@ -4,7 +4,6 @@ import {
   RecipeConditionType,
 } from '../entities/recipe-condition.entity';
 import { IConditionValidator } from './condition-validator.interface';
-
 import { BaseValidator } from './base.validator';
 import { RecipeValidator } from './validator.registry';
 import { ValidationContext } from './validation-context';
@@ -21,7 +20,7 @@ export class HejHomeDeviceStateValidator
     super();
   }
 
-  canHandle(condition: RecipeCondition): boolean {
+  canHandle(condition: Pick<RecipeCondition, 'type'>): boolean {
     return condition.type === RecipeConditionType.HEJ_HOME_DEVICE_STATE;
   }
 
@@ -32,10 +31,13 @@ export class HejHomeDeviceStateValidator
       if (Object.prototype.hasOwnProperty.call(device.state, key) === false) {
         return false;
       }
+
       const deviceState = device.state[key];
+
       if (typeof checkState.value === 'string') {
         return deviceState === checkState.value;
       }
+
       return this.compareValues(deviceState, checkState.value, checkState.unit);
     });
   }
