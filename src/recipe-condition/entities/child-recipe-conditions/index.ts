@@ -7,4 +7,4 @@ export * from './recipe-condition-weekly-recurring-schedule-time-range.entity';
 export * from './recipe-condition-daily-recurring-schedule.entity';
 export * from './recipe-condition-daily-recurring-schedule-time-range.entity';
 export * from './recipe-condition-status-delay-maintain.entity';
-export * from './recipe-condition-device-state.entity';
+export * from './recipe-condition-hej-home-device-state.entity';
