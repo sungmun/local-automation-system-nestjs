@@ -1,10 +1,4 @@
-import {
-  IsNotEmpty,
-  IsString,
-  IsObject,
-  Validate,
-  isNotEmptyObject,
-} from 'class-validator';
+import { IsNotEmpty, IsString, IsObject, Validate } from 'class-validator';
 import { plainToInstance, Transform } from 'class-transformer';
 import { HejHomeDeviceStateConditionDto } from '../../recipe-conditions/hej-home-device-state-condition.dto';
 import type { ComparisonOperator } from '../../../../recipe-condition/validators/base.validator';
