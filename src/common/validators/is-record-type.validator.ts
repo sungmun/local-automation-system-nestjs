@@ -2,22 +2,19 @@ import { ValidationError } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import type { ClassConstructor } from 'class-transformer';
 import type {
-  ValidatorConstraintInterface,
   ValidationArguments,
+  ValidationOptions,
+  ValidatorConstraintInterface,
 } from 'class-validator';
-import { isEmpty, validate, ValidatorConstraint } from 'class-validator';
+import { isEmpty, registerDecorator, validate } from 'class-validator';
 
-@ValidatorConstraint({ name: 'isRecordTypeValid', async: true })
-export class IsRecordTypeValid<T extends Record<string, unknown>>
-  implements ValidatorConstraintInterface
-{
+class IsRecordTypeValidatorConstraint implements ValidatorConstraintInterface {
   validationErrors: ValidationError[][] = [];
   async validate(
-    record: Record<string, T>,
+    record: Record<string, unknown>,
     validationArguments: ValidationArguments,
   ): Promise<boolean> {
-    const ClassTransformer = validationArguments
-      .constraints?.[0] as ClassConstructor<T>;
+    const ClassTransformer = validationArguments.constraints?.[0];
     if (isEmpty(record)) {
       return false;
     }
@@ -37,7 +34,7 @@ export class IsRecordTypeValid<T extends Record<string, unknown>>
   }
 
   defaultMessage() {
-    return this.validationErrors
+    const message = this.validationErrors
       .map((errors) =>
         errors
           .reduce(
@@ -50,5 +47,27 @@ export class IsRecordTypeValid<T extends Record<string, unknown>>
           .join(', '),
       )
       .join(', ');
+    return message;
   }
 }
+
+export const IsRecordType = <T>(
+  recordClassType: ClassConstructor<T>,
+  validationOptions?: ValidationOptions,
+) => {
+  return (object: unknown, propertyName: string) => {
+    const cls = new IsRecordTypeValidatorConstraint();
+    registerDecorator({
+      name: 'IsRecordType',
+      target: object.constructor,
+      constraints: [recordClassType],
+      propertyName: propertyName,
+      options: validationOptions,
+      async: true,
+      validator: {
+        validate: cls.validate,
+        defaultMessage: cls.defaultMessage,
+      },
+    });
+  };
+};
