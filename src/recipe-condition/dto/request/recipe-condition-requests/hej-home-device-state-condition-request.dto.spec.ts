@@ -40,7 +40,7 @@ describe('HejHomeDeviceStateConditionRequestDto', () => {
       const errors = await createAndValidateDto(dto);
       expect(errors.length).toBeGreaterThan(0);
 
-      expect(errors[0].constraints).toHaveProperty('isRecordTypeValid');
+      expect(errors[0].constraints).toHaveProperty('IsRecordType');
     });
 
     it('디바이스 상태의 value 값이 누락이 되면 검증에 실패해야 합니다', async () => {
@@ -54,7 +54,7 @@ describe('HejHomeDeviceStateConditionRequestDto', () => {
 
       const errors = await createAndValidateDto(dto);
       expect(errors.length).toBeGreaterThan(0);
-      expect(errors[0].constraints).toHaveProperty('isRecordTypeValid');
+      expect(errors[0].constraints).toHaveProperty('IsRecordType');
     });
 
     it('디바이스 상태가 누락되면 검증에 실패해야 합니다', async () => {

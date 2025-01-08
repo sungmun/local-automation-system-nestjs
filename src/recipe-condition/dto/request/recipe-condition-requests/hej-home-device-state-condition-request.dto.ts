@@ -1,8 +1,8 @@
-import { IsNotEmpty, IsString, IsObject, Validate } from 'class-validator';
+import { IsNotEmpty, IsString, IsObject } from 'class-validator';
 import { plainToInstance, Transform } from 'class-transformer';
 import { HejHomeDeviceStateConditionDto } from '../../recipe-conditions/hej-home-device-state-condition.dto';
 import type { ComparisonOperator } from '../../../../recipe-condition/validators/base.validator';
-import { IsRecordTypeValid } from '../../../../common/validators/is-record-type-valid-validator';
+import { IsRecordType } from '../../../../common/validators';
 
 class DeviceStateValue {
   @IsNotEmpty()
@@ -15,7 +15,6 @@ class DeviceStateValue {
 export class HejHomeDeviceStateConditionRequestDto extends HejHomeDeviceStateConditionDto {
   @IsObject()
   @IsNotEmpty()
-  @Validate(IsRecordTypeValid, [DeviceStateValue])
   @Transform(({ value }) =>
     Object.fromEntries(
       Object.entries(value).map(([key, value]) => [
@@ -24,6 +23,7 @@ export class HejHomeDeviceStateConditionRequestDto extends HejHomeDeviceStateCon
       ]),
     ),
   )
+  @IsRecordType(DeviceStateValue)
   deviceState: Record<string, DeviceStateValue>;
 
   @IsNotEmpty()

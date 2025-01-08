@@ -144,8 +144,9 @@ describe('CreateRecipeConditionGroupRequestDto', () => {
           dto,
         );
         const errors = await validate(dtoInstance);
+
         expect(errors.length).toBeGreaterThan(0);
-        expect(errors[0].constraints).toHaveProperty('isArrayUniqTypeValid');
+        expect(errors[0].constraints).toHaveProperty('IsArrayUniqType');
       });
 
       it('STATUS_DELAY_MAINTAIN 조건과 다른 조건을 함께 사용할 수 있어야 합니다', async () => {
