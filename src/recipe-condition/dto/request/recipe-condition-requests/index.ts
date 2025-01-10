@@ -7,3 +7,4 @@ export * from './room-temperature-condition-request.dto';
 export * from './weekly-recurring-schedule-condition-request.dto';
 export * from './weekly-recurring-schedule-time-range-condition-request.dto';
 export * from './status-delay-maintain-condition-request.dto';
+export * from './hej-home-device-state-condition-request.dto';

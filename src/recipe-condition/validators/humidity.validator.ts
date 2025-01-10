@@ -20,7 +20,7 @@ export class HumidityValidator
     super();
   }
 
-  canHandle(condition: RecipeCondition): boolean {
+  canHandle(condition: Pick<RecipeCondition, 'type'>): boolean {
     return condition.type === RecipeConditionType.ROOM_HUMIDITY;
   }
 

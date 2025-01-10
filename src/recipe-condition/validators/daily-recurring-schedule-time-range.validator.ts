@@ -20,7 +20,7 @@ export class DailyRecurringScheduleTimeRangeValidator
   private readonly START_OF_DAY = '00:00';
   private readonly KST_OFFSET = 9 * 60 * 60000; // 한국 시간 오프셋 (9시간)
 
-  canHandle(condition: RecipeCondition): boolean {
+  canHandle(condition: Pick<RecipeCondition, 'type'>): boolean {
     return (
       condition.type === RecipeConditionType.DAILY_RECURRING_SCHEDULE_TIME_RANGE
     );

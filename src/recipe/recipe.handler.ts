@@ -9,7 +9,7 @@ export class RecipeHandler {
   constructor(private readonly recipeService: RecipeService) {}
 
   @OnEvent('recipe.condition.check', { async: true })
-  async recipeConditionCheck(data: any): Promise<void> {
+  async recipeConditionCheck(data: { recipeId: number }): Promise<void> {
     this.logger.log('recipeConditionCheck', data);
     const isRecipeCondition = await this.recipeService.recipeCheck(
       data.recipeId,

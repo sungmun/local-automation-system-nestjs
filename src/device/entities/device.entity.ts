@@ -11,6 +11,7 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
+import { RecipeConditionHejHomeDeviceState } from '../../recipe-condition/entities/child-recipe-conditions';
 
 @Entity('Devices')
 export class Device {
@@ -72,4 +73,11 @@ export class Device {
     (hejHomeRecipeCommand) => hejHomeRecipeCommand.device,
   )
   deviceCommands?: HejHomeRecipeCommand[];
+
+  @OneToMany(
+    () => RecipeConditionHejHomeDeviceState,
+    (recipeConditionHejHomeDeviceState) =>
+      recipeConditionHejHomeDeviceState.device,
+  )
+  hejHomeRecipeConditions?: RecipeConditionHejHomeDeviceState[];
 }

@@ -10,7 +10,7 @@ export class ConditionValidatorFactory {
     private readonly validators: IConditionValidator[],
   ) {}
 
-  getValidator(condition: RecipeCondition): IConditionValidator {
+  getValidator(condition: Pick<RecipeCondition, 'type'>): IConditionValidator {
     const validator = this.validators.find((v) => v.canHandle(condition));
     if (!validator) {
       throw new Error(
