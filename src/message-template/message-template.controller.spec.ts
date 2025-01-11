@@ -59,9 +59,7 @@ describe('MessageTemplateController', () => {
       const result = await controller.findAll();
       expect(result).toBeInstanceOf(ListMessageTemplateResponseDto);
       expect(result).toHaveProperty('list');
-      // console.log(result.list);
       expect(result.list).toBeInstanceOf(MessageTemplateResponseDto);
-      // expect(result.list[0]).toBeInstanceOf(MessageTemplateResponseDto);
       expect(service.findAll).toHaveBeenCalled();
     });
   });

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
 import { RecipeService } from './recipe.service';
+import { OnSafeEvent } from '../common/decorators/safe-event.decoratot';
 
 @Injectable()
 export class RecipeHandler {
@@ -8,7 +8,7 @@ export class RecipeHandler {
 
   constructor(private readonly recipeService: RecipeService) {}
 
-  @OnEvent('recipe.condition.check', { async: true })
+  @OnSafeEvent('recipe.condition.check', { async: true })
   async recipeConditionCheck(data: { recipeId: number }): Promise<void> {
     this.logger.log('recipeConditionCheck', data);
     const isRecipeCondition = await this.recipeService.recipeCheck(

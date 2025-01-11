@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { OnSafeEvent } from '../common/decorators/safe-event.decoratot';
 import { RoomService } from './room.service';
 import { ResponseSensorTHState } from '../hejhome-api/hejhome-api.interface';
 import { RoomSensorService } from './room-sensor.service';
@@ -13,13 +13,13 @@ export class RoomHandler {
     private readonly roomSensorService: RoomSensorService,
   ) {}
 
-  @OnEvent('finish.SensorTh.*')
+  @OnSafeEvent('finish.SensorTh.*')
   async handleTemperatureFinish(state: ResponseSensorTHState) {
     this.logger.debug('handleTemperatureFinish', state);
     await this.roomService.activeRoomRecipe(state.id);
   }
 
-  @OnEvent('changed.SensorTh.*')
+  @OnSafeEvent('changed.SensorTh.*')
   async handleTemperatureOrHumidityChange(state: ResponseSensorTHState) {
     const { id, deviceState } = state;
     await this.roomSensorService.updateRoomBySensorId(id, {

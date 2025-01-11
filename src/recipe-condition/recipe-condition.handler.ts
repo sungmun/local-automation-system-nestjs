@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { RecipeConditionService } from './recipe-condition.service';
-import { OnEvent } from '@nestjs/event-emitter';
+import { OnSafeEvent } from '../common/decorators/safe-event.decoratot';
 
 @Injectable()
 export class RecipeConditionHandler {
@@ -8,7 +8,7 @@ export class RecipeConditionHandler {
     private readonly recipeConditionService: RecipeConditionService,
   ) {}
 
-  @OnEvent('finish.**')
+  @OnSafeEvent('finish.**')
   async deviceRecipeConditionCheck(deviceId: string) {
     await this.recipeConditionService.validateHejHomeDeviceStateByDeviceId(
       deviceId,
