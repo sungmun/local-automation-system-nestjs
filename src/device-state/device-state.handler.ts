@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DeviceStateService } from './device-state.service';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
+import { OnSafeEvent } from '../common/decorators/safe-event.decoratot';
 
 @Injectable()
 export class DeviceStateHandler {
@@ -12,7 +13,7 @@ export class DeviceStateHandler {
     private readonly deviceStateService: DeviceStateService,
   ) {}
 
-  @OnEvent('set.**', { async: true })
+  @OnSafeEvent('set.**', { async: true })
   async hasChangedDevice(state: ResponseDeviceState) {
     const changed = await this.deviceStateService.hasChanged(state.id, state);
     if (changed) {
@@ -23,7 +24,7 @@ export class DeviceStateHandler {
     }
   }
 
-  @OnEvent('changed.**', { async: true })
+  @OnSafeEvent('changed.**', { async: true })
   async changeDeviceEvent(state: ResponseDeviceState) {
     this.eventEmitter.emit(`finish.${state.deviceType}.${state.id}`, state);
   }

@@ -33,6 +33,7 @@ export class RecipeConditionService {
         where: { deviceId },
         relations: { group: true },
       });
+    if (!condition) return false;
     const isValid = await this.validate(
       condition,
       new ValidationContext(condition),

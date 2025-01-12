@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RecipeConditionService } from './recipe-condition.service';
 import { RecipeConditionGroup } from './entities/recipe-condition-group.entity';
@@ -13,8 +13,8 @@ import { RecipeConditionHandler } from './recipe-condition.handler';
 
 @Module({
   imports: [
-    DeviceModule,
-    RoomModule,
+    forwardRef(() => DeviceModule),
+    forwardRef(() => RoomModule),
     TypeOrmModule.forFeature([
       RecipeCondition,
       RecipeConditionGroup,
