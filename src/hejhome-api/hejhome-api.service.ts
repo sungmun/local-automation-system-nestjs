@@ -13,7 +13,8 @@ import {
   ResponseHomeWithRooms,
   ResponseSensorTHState,
 } from './hejhome-api.interface';
-import Axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
+import { default as Axios } from 'axios';
+import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 
 @Injectable()
 export class HejhomeApiService {
@@ -24,6 +25,7 @@ export class HejhomeApiService {
   constructor(private readonly configService: ConfigService) {
     const clientId = configService.get('CLIENT_ID');
     const clientSecret = configService.get('CLIENT_SECRET');
+
     this.authInstance = Axios.create({
       baseURL: 'https://goqual.io/oauth',
       httpAgent: new http.Agent({ keepAlive: true }),
@@ -111,6 +113,16 @@ export class HejhomeApiService {
       .get<T>(`/device/${deviceId}`)
       .then(this.hejhomeApiErrorHandler('getDeviceState'))
       .catch(this.axiosErrorHandler('getDeviceState'));
+    return response.data;
+  }
+
+  async getDeviceStateAll<
+    T extends ResponseDeviceState[] | ResponseDeviceStateError,
+  >() {
+    const response = await this.instance
+      .get<T>(`/devices/state`)
+      .then(this.hejhomeApiErrorHandler('getDeviceStateAll'))
+      .catch(this.axiosErrorHandler('getDeviceStateAll'));
     return response.data;
   }
 

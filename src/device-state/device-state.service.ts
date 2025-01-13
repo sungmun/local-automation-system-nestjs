@@ -11,6 +11,16 @@ export class DeviceStateService {
     private readonly databaseDeviceService: DataBaseDeviceService,
   ) {}
 
+  async getDeviceStateAll() {
+    const data = await this.hejhomeApiService.getDeviceStateAll();
+    if ('message' in data) {
+      this.logger.error(`장치 상태 조회 실패: ${data.message}`);
+      return;
+    }
+
+    return data;
+  }
+
   async getDeviceState<T extends ResponseDeviceState>(
     deviceId: string,
     deviceType: string,
