@@ -17,6 +17,9 @@ import { MessageTemplateModule } from './message-template/message-template.modul
 import { PushMessagingModule } from './push-messaging/push-messaging.module';
 import { DeviceSubscriber } from './device/entities/device.entity.subscriber';
 import { LogModule } from './log/log.module';
+import { RecipeModule } from './recipe/recipe.module';
+import { RecipeCommandModule } from './recipe-command/recipe-command.module';
+import { RecipeConditionModule } from './recipe-condition/recipe-condition.module';
 
 @Module({
   imports: [
@@ -49,6 +52,9 @@ import { LogModule } from './log/log.module';
     MessageTemplateModule,
     PushMessagingModule,
     LogModule,
+    RecipeModule,
+    RecipeCommandModule,
+    RecipeConditionModule,
   ],
 })
 export class AppModule {}

@@ -11,8 +11,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         uri: `amqps://${configService.get('CLIENT_ID')}:${configService.get('CLIENT_SECRET')}@goqual.io:55001/`,
         connectionInitOptions: { wait: false },
         connectionManagerOptions: {
-          heartbeatIntervalInSeconds: 360,
-          reconnectTimeInSeconds: 360,
+          heartbeatIntervalInSeconds: 60 * 30,
+          reconnectTimeInSeconds: 60 * 30,
         },
       }),
       inject: [ConfigService],

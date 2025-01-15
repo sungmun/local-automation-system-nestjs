@@ -1,3 +1,4 @@
+import { HejHomeRecipeCommand } from '../../recipe-command/entities/child-recipe-command';
 import { MessageTemplate } from '../../message-template/entities/message-template.entity';
 import { Room } from '../../room/entities/room.entity';
 import {
@@ -7,8 +8,10 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
 } from 'typeorm';
+import { RecipeConditionHejHomeDeviceState } from '../../recipe-condition/entities/child-recipe-conditions';
 
 @Entity('Devices')
 export class Device {
@@ -64,4 +67,17 @@ export class Device {
   )
   @JoinTable({ name: 'DeviceMessageTemplates' })
   messageTemplates?: MessageTemplate[];
+
+  @OneToMany(
+    () => HejHomeRecipeCommand,
+    (hejHomeRecipeCommand) => hejHomeRecipeCommand.device,
+  )
+  deviceCommands?: HejHomeRecipeCommand[];
+
+  @OneToMany(
+    () => RecipeConditionHejHomeDeviceState,
+    (recipeConditionHejHomeDeviceState) =>
+      recipeConditionHejHomeDeviceState.device,
+  )
+  hejHomeRecipeConditions?: RecipeConditionHejHomeDeviceState[];
 }

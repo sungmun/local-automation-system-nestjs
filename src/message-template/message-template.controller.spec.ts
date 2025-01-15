@@ -3,6 +3,9 @@ import { MessageTemplateController } from './message-template.controller';
 import { MessageTemplateService } from './message-template.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MessageTemplate } from './entities/message-template.entity';
+import { plainToInstance } from 'class-transformer';
+import { MessageTemplateResponseDto } from './dto/response/message-template-response.dto';
+import { ListMessageTemplateResponseDto } from './dto/response';
 
 describe('MessageTemplateController', () => {
   let controller: MessageTemplateController;
@@ -43,11 +46,20 @@ describe('MessageTemplateController', () => {
 
   describe('findAll', () => {
     it('모든 메시지 템플릿을 반환해야 한다', async () => {
-      const templates = [{ id: '1', name: '테스트' }];
+      const templates = {
+        list: [
+          plainToInstance(MessageTemplateResponseDto, {
+            id: '1',
+            name: '테스트',
+          }),
+        ],
+      };
       jest.spyOn(service, 'findAll').mockResolvedValue(templates as any);
 
       const result = await controller.findAll();
-      expect(result).toEqual(templates);
+      expect(result).toBeInstanceOf(ListMessageTemplateResponseDto);
+      expect(result).toHaveProperty('list');
+      expect(result.list).toBeInstanceOf(MessageTemplateResponseDto);
       expect(service.findAll).toHaveBeenCalled();
     });
   });
@@ -69,7 +81,7 @@ describe('MessageTemplateController', () => {
       jest.spyOn(service, 'update').mockResolvedValue({ affected: 1 } as any);
 
       const result = await controller.update('1', dto);
-      expect(result).toEqual({ affected: 1 });
+      expect(result).toEqual(null);
       expect(service.update).toHaveBeenCalledWith('1', dto);
     });
   });

@@ -1,12 +1,13 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import _ from 'lodash';
 import { AuthService } from '../auth/auth.service';
 
 import { CloudDeviceService } from '../device/cloud-device.service';
 import { DataBaseDeviceService } from '../device/database-device.service';
 
-import { TaskService } from '../task/task.service';
 import { RoomService } from '../room/room.service';
+import { HejHomeRoomService } from '../room/hej-home-room.service';
+import { RoomSensorService } from '../room/room-sensor.service';
+import { DeviceCheckService } from '../task/device-check.service';
 
 @Injectable()
 export class InitService implements OnModuleInit {
@@ -15,12 +16,14 @@ export class InitService implements OnModuleInit {
     private readonly authService: AuthService,
     private readonly cloudDeviceService: CloudDeviceService,
     private readonly databaseDeviceService: DataBaseDeviceService,
+    private readonly hejHomeRoomService: HejHomeRoomService,
     private readonly roomService: RoomService,
-    private readonly taskService: TaskService,
+    private readonly roomSensorService: RoomSensorService,
+    private readonly deviceCheckService: DeviceCheckService,
   ) {}
 
   private async initRooms() {
-    const rooms = await this.roomService.getHomesWithRooms();
+    const rooms = await this.hejHomeRoomService.getHomesWithRooms();
     await this.roomService.initRooms(
       rooms.map((room) => ({ ...room, id: room.room_id })),
     );
@@ -47,10 +50,10 @@ export class InitService implements OnModuleInit {
     const rooms = await this.initRooms();
     await this.initDevice(rooms);
     for (const room of rooms) {
-      await this.roomService.matchRoomWithSensor(room.room_id);
+      await this.roomSensorService.matchRoomWithSensor(room.room_id);
     }
     this.logger.log('onModuleInit success');
-    this.taskService.hejhomeAPICheck();
+    this.deviceCheckService.checkDevices();
     this.logger.log('onModuleInit api check');
   }
 }

@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import _ from 'lodash';
 import { HejhomeApiService } from '../hejhome-api/hejhome-api.service';
 import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 import { DataBaseDeviceService } from '../device/database-device.service';
@@ -11,6 +10,16 @@ export class DeviceStateService {
     private readonly hejhomeApiService: HejhomeApiService,
     private readonly databaseDeviceService: DataBaseDeviceService,
   ) {}
+
+  async getDeviceStateAll() {
+    const data = await this.hejhomeApiService.getDeviceStateAll();
+    if ('message' in data) {
+      this.logger.error(`장치 상태 조회 실패: ${data.message}`);
+      return;
+    }
+
+    return data;
+  }
 
   async getDeviceState<T extends ResponseDeviceState>(
     deviceId: string,

@@ -8,6 +8,7 @@ import { HejhomeApiModule } from '../hejhome-api/hejhome-api.module';
 import { MessageTemplateModule } from '../message-template/message-template.module';
 import { DeviceSubscriber } from './entities/device.entity.subscriber';
 import { PushMessagingModule } from '../push-messaging/push-messaging.module';
+import { DeviceHandler } from './device.handler';
 
 @Module({
   imports: [
@@ -17,7 +18,12 @@ import { PushMessagingModule } from '../push-messaging/push-messaging.module';
     PushMessagingModule,
   ],
   controllers: [DeviceController],
-  providers: [DataBaseDeviceService, CloudDeviceService, DeviceSubscriber],
+  providers: [
+    DataBaseDeviceService,
+    CloudDeviceService,
+    DeviceSubscriber,
+    DeviceHandler,
+  ],
   exports: [DataBaseDeviceService, CloudDeviceService],
 })
 export class DeviceModule {}

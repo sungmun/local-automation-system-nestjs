@@ -7,7 +7,7 @@ import {
   ResponseIrAirconditionerState,
   ResponseSensorTHState,
 } from '../hejhome-api/hejhome-api.interface';
-import { Device } from 'src/device/entities/device.entity';
+import { Device } from '../device/entities/device.entity';
 
 describe('DeviceStateService', () => {
   let service: DeviceStateService;

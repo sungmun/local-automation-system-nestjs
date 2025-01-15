@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DeviceController } from './device.controller';
 import { DataBaseDeviceService } from './database-device.service';
-import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
 import { NotFoundException } from '@nestjs/common';
 import { Device } from './entities/device.entity';
+import { plainToInstance } from 'class-transformer';
+import { DetailDeviceResponseDto } from './dto/response/detail-device-response.dto';
+import { ListDeviceResponseDto } from './dto/response/list-device-response.dto';
 
 describe('DeviceController', () => {
   let controller: DeviceController;
@@ -21,8 +23,6 @@ describe('DeviceController', () => {
             updateActive: jest.fn(),
             updateActiveMessageTemplate: jest.fn(),
             connectMessageTemplate: jest.fn(),
-            changedDeviceSendMessage: jest.fn(),
-            updateState: jest.fn(),
           },
         },
       ],
@@ -79,7 +79,7 @@ describe('DeviceController', () => {
       jest.spyOn(service, 'findOne').mockResolvedValue(device);
 
       const result = await controller.detailDevice('1');
-      expect(result).toEqual(device);
+      expect(result).toEqual(plainToInstance(DetailDeviceResponseDto, device));
     });
 
     it('장치를 찾지 못하면 예외를 던져야 한다', async () => {
@@ -116,7 +116,9 @@ describe('DeviceController', () => {
       jest.spyOn(service, 'findAll').mockResolvedValue(devices);
 
       const result = await controller.getDevices();
-      expect(result).toEqual(devices);
+      expect(result).toEqual(
+        plainToInstance(ListDeviceResponseDto, { list: devices }),
+      );
     });
   });
 
@@ -137,37 +139,13 @@ describe('DeviceController', () => {
     });
   });
 
-  describe('createMessageTemplate', () => {
+  describe('connectMessageTemplate', () => {
     it('장치에 메시지 템플릿을 연결해야 한다', async () => {
-      await controller.createMessageTemplate('1', 'template1');
+      await controller.connectMessageTemplate('1', 'template1');
       expect(service.connectMessageTemplate).toHaveBeenCalledWith(
         '1',
         'template1',
       );
-    });
-  });
-
-  describe('finishEvent', () => {
-    it('장치 상태를 업데이트해야 한다', async () => {
-      const state: ResponseDeviceState = {
-        id: '1',
-        deviceType: 'Type1',
-        deviceState: { power: 'on' },
-      };
-      await controller.finishEvent(state);
-      expect(service.updateState).toHaveBeenCalledWith('1', state.deviceState);
-    });
-  });
-
-  describe('changedDeviceSendMessage', () => {
-    it('장치 상태가 변경되었을 때 메시지를 전송해야 한다', async () => {
-      const state: ResponseDeviceState = {
-        id: '1',
-        deviceType: 'Type1',
-        deviceState: { power: 'on' },
-      };
-      await controller.changedDeviceSendMessage(state);
-      expect(service.changedDeviceSendMessage).toHaveBeenCalledWith(state);
     });
   });
 });

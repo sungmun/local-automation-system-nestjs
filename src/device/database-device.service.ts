@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Device } from './entities/device.entity';
 import { MessageTemplateService } from '../message-template/message-template.service';
 import { ResponseDeviceState } from '../hejhome-api/hejhome-api.interface';
@@ -39,6 +39,12 @@ export class DataBaseDeviceService {
       throw new NotFoundException('device not found error', id);
     }
     return device;
+  }
+
+  async findInIds(ids: string[]): Promise<Device[]> {
+    return this.deviceRepository.find({
+      where: { id: In(ids) },
+    });
   }
 
   async updateActive(id: string, active: boolean): Promise<void> {

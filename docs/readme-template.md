@@ -92,6 +92,7 @@ expires_in 이 없으면 자동으로 토큰을 재발급 받습니다.
 - `set.{deviceType}.**`: 장치 상태가 변경이 됬는지 안됬는지 확인이 필요할때 발생
 - `changed.{deviceType}.**`: 장치의 상태가 변경이 됬을 때 발생
 - `finish.{deviceType}.**`: 장치의 상태가 변경이 되고 모든 작업이 완료되었을 때 발생
+- `recipe.condition.check`: 레시피 조건이 충족되었을 때 발생
 
 ## 푸시 발송 참고 사항
 

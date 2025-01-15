@@ -1,33 +1,45 @@
-import { Body, Controller, Logger, Param, Patch, Put } from '@nestjs/common';
-import { RoomService } from './room.service';
-import { OnEvent } from '@nestjs/event-emitter';
-import { ResponseSensorTHState } from '../hejhome-api/hejhome-api.interface';
-import { UpdateRoomDto } from './dto/updateRoom.dto';
+import { Controller, Get, Logger, Param, Put } from '@nestjs/common';
+import { RoomCrudService } from './room-crud.service';
+import { plainToInstance } from 'class-transformer';
+import { ListRoomResponseDto } from './dto/response/list-room-response.dto';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import { RoomDto } from './dto/room.dto';
 
+@ApiTags('방')
 @Controller('/rooms')
 export class RoomController {
   private readonly logger = new Logger(RoomController.name);
-  constructor(private readonly roomService: RoomService) {}
+  constructor(private readonly roomCrudService: RoomCrudService) {}
 
-  @OnEvent('changed.SensorTh.*', { async: true })
-  async setRoomTemperature(state: ResponseSensorTHState) {
-    this.logger.debug('setRoomTemperature', state);
-    const { id, deviceState } = state;
-    await this.roomService.setRoomTemperature(id, deviceState.temperature);
+  @ApiOperation({ summary: '방 목록 조회' })
+  @ApiOkResponse({
+    description: '모든 방 목록을 반환합니다.',
+    type: ListRoomResponseDto,
+  })
+  @Get()
+  async findAll() {
+    const rooms = await this.roomCrudService.findAll();
+    return plainToInstance(ListRoomResponseDto, { list: rooms });
   }
 
+  @ApiOperation({ summary: '방 활성화 상태 변경' })
+  @ApiParam({
+    name: 'roomId',
+    description: '방 ID',
+    type: 'number',
+  })
+  @ApiOkResponse({
+    description: '변경된 방 정보를 반환합니다.',
+    type: RoomDto,
+  })
   @Put('/:roomId/active')
   async setActiveRoom(@Param('roomId') roomId: number) {
-    await this.roomService.setRoomActiveById(roomId);
-    return this.roomService.getRoomById(roomId);
-  }
-
-  @Patch('/:roomId')
-  async setRoom(
-    @Param('roomId') roomId: number,
-    @Body() updateRoomDto: UpdateRoomDto,
-  ) {
-    await this.roomService.setRoomById(roomId, updateRoomDto);
-    return this.roomService.getRoomById(roomId);
+    await this.roomCrudService.setRoomActiveById(roomId);
+    return this.roomCrudService.getRoomById(roomId);
   }
 }

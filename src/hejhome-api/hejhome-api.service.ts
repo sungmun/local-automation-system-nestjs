@@ -13,18 +13,20 @@ import {
   ResponseHomeWithRooms,
   ResponseSensorTHState,
 } from './hejhome-api.interface';
-import { Axios, AxiosError, AxiosResponse } from 'axios';
+import { default as Axios } from 'axios';
+import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 
 @Injectable()
 export class HejhomeApiService {
-  private authInstance: Axios;
-  private instance: Axios;
+  private authInstance: AxiosInstance;
+  private instance: AxiosInstance;
   private readonly logger = new Logger(HejhomeApiService.name);
 
   constructor(private readonly configService: ConfigService) {
     const clientId = configService.get('CLIENT_ID');
     const clientSecret = configService.get('CLIENT_SECRET');
-    this.authInstance = new Axios({
+
+    this.authInstance = Axios.create({
       baseURL: 'https://goqual.io/oauth',
       httpAgent: new http.Agent({ keepAlive: true }),
       httpsAgent: new https.Agent({ keepAlive: true }),
@@ -38,7 +40,7 @@ export class HejhomeApiService {
   setAccessToken(accessToken: string) {
     this.logger.debug('accessToken', accessToken);
 
-    this.instance = new Axios({
+    this.instance = Axios.create({
       baseURL: 'https://goqual.io/openapi',
       httpAgent: new http.Agent({ keepAlive: true }),
       httpsAgent: new https.Agent({ keepAlive: true }),
@@ -47,7 +49,7 @@ export class HejhomeApiService {
       },
       transformResponse: [
         (data) => {
-          if (typeof data === 'string') {
+          if (data && typeof data === 'string') {
             return JSON.parse(data);
           }
           return data;
@@ -69,7 +71,7 @@ export class HejhomeApiService {
 
   private hejhomeApiErrorHandler<T extends object>(methodName: string) {
     return (response: AxiosResponse<T>) => {
-      if ('message' in response.data) {
+      if (response.data && 'message' in response.data) {
         this.logger.error(`${methodName} : ${response.data.message}`);
         throw new Error(response.data.message as string);
       }
@@ -111,6 +113,16 @@ export class HejhomeApiService {
       .get<T>(`/device/${deviceId}`)
       .then(this.hejhomeApiErrorHandler('getDeviceState'))
       .catch(this.axiosErrorHandler('getDeviceState'));
+    return response.data;
+  }
+
+  async getDeviceStateAll<
+    T extends ResponseDeviceState[] | ResponseDeviceStateError,
+  >() {
+    const response = await this.instance
+      .get<T>(`/devices/state`)
+      .then(this.hejhomeApiErrorHandler('getDeviceStateAll'))
+      .catch(this.axiosErrorHandler('getDeviceStateAll'));
     return response.data;
   }
 
