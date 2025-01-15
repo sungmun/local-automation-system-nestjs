@@ -2,7 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HejhomeApiService } from './hejhome-api.service';
 import { ConfigService } from '@nestjs/config';
 
-import { Axios, AxiosError } from 'axios';
+import { AxiosError } from 'axios';
+
 import {
   ResponseAccessToken,
   ResponseDevice,
@@ -42,7 +43,6 @@ const hejhomeApiErrorProcessTest = async (
 
 describe('HejhomeApiService', () => {
   let service: HejhomeApiService;
-  let configService: ConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -59,7 +59,6 @@ describe('HejhomeApiService', () => {
 
     service = module.get<HejhomeApiService>(HejhomeApiService);
     service.setAccessToken('test-access-token');
-    configService = module.get<ConfigService>(ConfigService);
   });
 
   describe('setAccessToken', () => {
@@ -68,7 +67,6 @@ describe('HejhomeApiService', () => {
       service.setAccessToken(accessToken);
 
       const mockResponseData = '{"key":"value"}';
-      const expectedTransformedData = { key: 'value' };
       const transformResponse =
         service['instance'].defaults.transformResponse[0];
       const transformedData = transformResponse(mockResponseData, null, null);
