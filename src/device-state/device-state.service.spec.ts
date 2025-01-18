@@ -23,6 +23,7 @@ describe('DeviceStateService', () => {
           useValue: {
             getDeviceRawState: jest.fn(),
             getDeviceState: jest.fn(),
+            getDeviceStateAll: jest.fn(),
           },
         },
         {
@@ -148,6 +149,59 @@ describe('DeviceStateService', () => {
 
       expect(result).toBe(false);
       expect(databaseDeviceService.findOne).toHaveBeenCalledWith(deviceId);
+    });
+  });
+
+  describe('getDeviceStateAll', () => {
+    beforeEach(() => {
+      jest.spyOn(service['logger'], 'error').mockImplementation(() => {});
+    });
+
+    it('모든 장치의 상태를 가져와야 한다', async () => {
+      const mockDeviceStates: ResponseDeviceState[] = [
+        {
+          id: 'device-1',
+          deviceType: 'SensorTh',
+          deviceState: {
+            temperature: 22,
+            humidity: 50,
+            battery: 80,
+          },
+        },
+        {
+          id: 'device-2',
+          deviceType: 'IrAirconditioner',
+          deviceState: {
+            power: '켜짐',
+            temperature: '24',
+            mode: 1,
+            fanSpeed: 2,
+          },
+        },
+      ];
+
+      jest
+        .spyOn(hejhomeApiService, 'getDeviceStateAll')
+        .mockResolvedValue(mockDeviceStates);
+
+      const result = await service.getDeviceStateAll();
+
+      expect(result).toEqual(mockDeviceStates);
+      expect(hejhomeApiService.getDeviceStateAll).toHaveBeenCalled();
+    });
+
+    it('에러 메시지가 있는 경우 undefined를 반환하고 로그를 기록해야 한다', async () => {
+      const errorResponse = { message: '장치 상태 조회 실패' };
+      jest
+        .spyOn(hejhomeApiService, 'getDeviceStateAll')
+        .mockResolvedValue(errorResponse);
+
+      const result = await service.getDeviceStateAll();
+
+      expect(result).toBeUndefined();
+      expect(service['logger'].error).toHaveBeenCalledWith(
+        `장치 상태 조회 실패: ${errorResponse.message}`,
+      );
     });
   });
 });
