@@ -1,4 +1,3 @@
-import { ValidationError } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import type { ClassConstructor } from 'class-transformer';
 import type {
@@ -6,7 +5,13 @@ import type {
   ValidationOptions,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { isEmpty, registerDecorator, validate } from 'class-validator';
+import {
+  isEmpty,
+  isNotEmptyObject,
+  registerDecorator,
+  validate,
+  ValidationError,
+} from 'class-validator';
 
 class IsRecordTypeValidatorConstraint implements ValidatorConstraintInterface {
   validationErrors: ValidationError[][] = [];
@@ -18,6 +23,10 @@ class IsRecordTypeValidatorConstraint implements ValidatorConstraintInterface {
     if (isEmpty(record)) {
       return false;
     }
+    if (!isNotEmptyObject(record)) {
+      return false;
+    }
+
     if (!ClassTransformer) {
       return false;
     }
@@ -33,7 +42,14 @@ class IsRecordTypeValidatorConstraint implements ValidatorConstraintInterface {
     );
   }
 
-  defaultMessage() {
+  defaultMessage(args: ValidationArguments) {
+    if (isEmpty(args.value) || !isNotEmptyObject(args.value)) {
+      return '레코드가 비어있습니다';
+    }
+    if (!args.constraints?.[0]) {
+      return '유효하지 않은 레코드입니다';
+    }
+
     const message = this.validationErrors
       .map((errors) =>
         errors
@@ -47,7 +63,7 @@ class IsRecordTypeValidatorConstraint implements ValidatorConstraintInterface {
           .join(', '),
       )
       .join(', ');
-    return message;
+    return message || '유효하지 않은 레코드입니다';
   }
 }
 
