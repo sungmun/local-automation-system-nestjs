@@ -86,14 +86,41 @@ describe('RoomCrudService', () => {
 
       await service.setRoomActiveById(1);
 
+      const setCall = mockQueryBuilder.set.mock.calls[0][0];
+      const activeFunction = setCall.active;
+      const result = activeFunction();
+
       expect(mockQueryBuilder.update).toHaveBeenCalledWith(Room);
-      expect(mockQueryBuilder.set).toHaveBeenCalledWith({
-        active: expect.any(Function),
-      });
+      expect(result).toBe('CASE WHEN id = :roomId THEN true ELSE false END');
       expect(mockQueryBuilder.setParameters).toHaveBeenCalledWith({
         roomId: 1,
       });
       expect(mockQueryBuilder.execute).toHaveBeenCalled();
+    });
+
+    it('CASE 문이 올바른 형식을 반환해야 합니다', async () => {
+      const mockQueryBuilder = {
+        update: jest.fn().mockReturnThis(),
+        set: jest.fn().mockReturnThis(),
+        setParameters: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue(true),
+      };
+
+      jest
+        .spyOn(repository, 'createQueryBuilder')
+        .mockReturnValue(mockQueryBuilder as any);
+
+      await service.setRoomActiveById(2);
+
+      const setCall = mockQueryBuilder.set.mock.calls[0][0];
+      const activeFunction = setCall.active;
+      const caseStatement = activeFunction();
+
+      expect(caseStatement).toMatch(/^CASE WHEN/);
+      expect(caseStatement).toContain('id = :roomId');
+      expect(caseStatement).toContain('THEN true');
+      expect(caseStatement).toContain('ELSE false');
+      expect(caseStatement).toMatch(/END$/);
     });
   });
 
@@ -131,6 +158,65 @@ describe('RoomCrudService', () => {
 
       expect(result).toEqual(mockRooms);
       expect(repository.find).toHaveBeenCalled();
+    });
+  });
+
+  describe('updateRoom', () => {
+    it('방 정보를 업데이트해야 합니다', async () => {
+      const roomId = '1';
+      const updateData: Partial<Room> = {
+        name: '업데이트된 거실',
+        temperature: 26,
+        humidity: 65,
+      };
+      const mockUpdateResult = {
+        affected: 1,
+        raw: [],
+        generatedMaps: [],
+      };
+
+      jest.spyOn(repository, 'update').mockResolvedValue(mockUpdateResult);
+
+      const result = await service.updateRoom(roomId, updateData);
+
+      expect(repository.update).toHaveBeenCalledWith(roomId, updateData);
+      expect(result).toEqual(mockUpdateResult);
+    });
+
+    it('부분적인 업데이트를 수행해야 합니다', async () => {
+      const roomId = '1';
+      const updateData: Partial<Room> = {
+        name: '업데이트된 거실',
+      };
+      const mockUpdateResult = {
+        affected: 1,
+        raw: [],
+        generatedMaps: [],
+      };
+
+      jest.spyOn(repository, 'update').mockResolvedValue(mockUpdateResult);
+
+      const result = await service.updateRoom(roomId, updateData);
+
+      expect(repository.update).toHaveBeenCalledWith(roomId, updateData);
+      expect(result).toEqual(mockUpdateResult);
+    });
+
+    it('빈 업데이트 데이터로도 동작해야 합니다', async () => {
+      const roomId = '1';
+      const updateData: Partial<Room> = {};
+      const mockUpdateResult = {
+        affected: 0,
+        raw: [],
+        generatedMaps: [],
+      };
+
+      jest.spyOn(repository, 'update').mockResolvedValue(mockUpdateResult);
+
+      const result = await service.updateRoom(roomId, updateData);
+
+      expect(repository.update).toHaveBeenCalledWith(roomId, updateData);
+      expect(result).toEqual(mockUpdateResult);
     });
   });
 });
