@@ -33,6 +33,36 @@ describe('TimerManagerService', () => {
       const result = await service.promiseSetTimer('test', 1000);
       expect(result).toBe(false);
     });
+
+    it('타이머가 만료되면 true를 반환해야 합니다', async () => {
+      const promise = service.promiseSetTimer('test', 1000);
+
+      // 타이머 실행
+      jest.advanceTimersByTime(1000);
+
+      // Promise가 true로 resolve 되었는지 확인
+      await expect(promise).resolves.toBe(true);
+
+      // 타이머가 제거되었는지 확인
+      expect(service['timers'].has('test')).toBe(false);
+    });
+
+    it('타이머가 만료되기 전에 clearTimer가 호출되면 타이머가 제거되어야 합니다', async () => {
+      const promise = service.promiseSetTimer('test', 1000);
+
+      // 타이머 실행 전에 clear
+      service.clearTimer('test');
+
+      // Promise가 이미 resolve 되었는지 확인
+      await expect(promise).resolves.toBe(true);
+
+      // 타이머가 제거되었는지 확인
+      expect(service['timers'].has('test')).toBe(false);
+
+      // 원래 예정된 시간이 지나도 타이머가 없어야 함
+      jest.advanceTimersByTime(1000);
+      expect(service['timers'].has('test')).toBe(false);
+    });
   });
 
   describe('setTimer', () => {
