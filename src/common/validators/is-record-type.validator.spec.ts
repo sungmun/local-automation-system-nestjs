@@ -1,5 +1,5 @@
 import { plainToInstance } from 'class-transformer';
-import { IsNotEmpty, validate } from 'class-validator';
+import { IsNotEmpty, IsString, validate } from 'class-validator';
 import { IsRecordType } from './is-record-type.validator';
 
 class TestRecordValue {
@@ -203,6 +203,78 @@ describe('IsRecordType', () => {
       expect(errors[0].constraints.IsRecordType).toContain(
         'field2 should not be empty',
       );
+    });
+
+    it('중첩된 유효성 검사 오류 메시지를 반환해야 합니다', async () => {
+      class NestedValue {
+        @IsNotEmpty()
+        nested: string;
+      }
+
+      class TestRecordValueWithNested {
+        @IsNotEmpty()
+        value: string;
+
+        @IsRecordType(NestedValue)
+        nestedRecord: Record<string, NestedValue>;
+      }
+
+      const dto = plainToInstance(TestRecordValueWithNested, {
+        value: 'test1',
+        nestedRecord: {
+          nested1: { nested: '' },
+          nested2: { nested: '' },
+        },
+      });
+
+      const errors = await validate(dto);
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors[0].constraints.IsRecordType).toBe(
+        'nested should not be empty, nested should not be empty',
+      );
+    });
+
+    it('여러 제약 조건의 오류 메시지를 결합해야 합니다', async () => {
+      class NestedValue {
+        @IsNotEmpty()
+        @IsString()
+        nested: string;
+      }
+
+      class TestRecordValueWithMultipleConstraints {
+        @IsRecordType(NestedValue)
+        record: Record<string, NestedValue>;
+      }
+
+      const dto = plainToInstance(TestRecordValueWithMultipleConstraints, {
+        record: {
+          key1: { nested: null },
+        },
+      });
+
+      const errors = await validate(dto);
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors[0].constraints.IsRecordType).toContain(
+        'nested should not be empty',
+      );
+      expect(errors[0].constraints.IsRecordType).toContain(
+        'nested must be a string',
+      );
+    });
+
+    it('빈 레코드에 대한 메시지를 반환해야 합니다', async () => {
+      class TestDto {
+        @IsRecordType(TestRecordValue)
+        record: Record<string, TestRecordValue>;
+      }
+
+      const dto = plainToInstance(TestDto, {
+        record: {},
+      });
+
+      const errors = await validate(dto);
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors[0].constraints.IsRecordType).toBe('레코드가 비어있습니다');
     });
   });
 });

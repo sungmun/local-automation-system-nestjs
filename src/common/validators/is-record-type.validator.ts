@@ -54,16 +54,13 @@ class IsRecordTypeValidatorConstraint implements ValidatorConstraintInterface {
       .map((errors) =>
         errors
           .reduce(
-            (acc, error) =>
-              error.constraints
-                ? [...acc, ...Object.values(error.constraints)]
-                : acc,
+            (acc, error) => acc.concat(...Object.values(error.constraints)),
             [],
           )
           .join(', '),
       )
       .join(', ');
-    return message || '유효하지 않은 레코드입니다';
+    return message;
   }
 }
 
