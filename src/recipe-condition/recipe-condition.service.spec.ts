@@ -122,6 +122,28 @@ describe('RecipeConditionService', () => {
       expect(eventEmitterSpy).not.toHaveBeenCalled();
       expect(result).toBe(false);
     });
+
+    it('조건이 없으면 false를 반환해야 합니다', async () => {
+      const deviceId = 'device123';
+      const eventEmitterSpy = jest.spyOn(service['eventEmitter'], 'emit');
+
+      recipeConditionHejHomeDeviceStateRepository.findOne.mockResolvedValue(
+        null,
+      );
+
+      const result =
+        await service.validateHejHomeDeviceStateByDeviceId(deviceId);
+
+      expect(
+        recipeConditionHejHomeDeviceStateRepository.findOne,
+      ).toHaveBeenCalledWith({
+        where: { deviceId },
+        relations: { group: true },
+      });
+      expect(mockValidator.validate).not.toHaveBeenCalled();
+      expect(eventEmitterSpy).not.toHaveBeenCalled();
+      expect(result).toBe(false);
+    });
   });
 
   describe('findRecipeConditionsAndGroupByTypeIn', () => {

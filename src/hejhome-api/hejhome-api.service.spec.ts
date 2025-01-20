@@ -13,6 +13,7 @@ import {
   ResponseSensorTHState,
   RequestDeviceControl,
   IrAirconditionerControl,
+  ResponseDeviceState,
 } from './hejhome-api.interface';
 const errorProcessTest = async (
   beforeErrorSpy: jest.SpyInstance,
@@ -538,6 +539,78 @@ describe('HejhomeApiService', () => {
           async () => service.setDeviceControl('device-id', {} as any),
         );
         expect(logSpy).toHaveBeenCalledWith('setDeviceControl(500) :{}');
+      });
+    });
+  });
+
+  describe('getDeviceStateAll', () => {
+    it('올바른 데이터를 반환해야 한다', async () => {
+      const mockResponse: ResponseDeviceState[] = [
+        {
+          id: 'device-1',
+          deviceType: 'SensorTh',
+          deviceState: {
+            temperature: 22,
+            humidity: 50,
+            battery: 80,
+          },
+        },
+        {
+          id: 'device-2',
+          deviceType: 'IrAirconditioner',
+          deviceState: {
+            power: '켜짐',
+            temperature: '24',
+            mode: 1,
+            fanSpeed: 2,
+          },
+        },
+      ];
+
+      const getSpy = jest
+        .spyOn(service['instance'], 'get')
+        .mockResolvedValueOnce({ data: mockResponse });
+
+      const result = await service.getDeviceStateAll();
+
+      expect(result).toEqual(mockResponse);
+      expect(getSpy).toHaveBeenCalledWith('/devices/state');
+    });
+
+    describe('오류를 처리해야 한다', () => {
+      let logSpy;
+      beforeEach(async () => {
+        logSpy = jest
+          .spyOn(service['logger'], 'error')
+          .mockImplementation(() => {});
+      });
+
+      it('hejhome-api 에러', async () => {
+        await hejhomeApiErrorProcessTest(
+          jest.spyOn(service['instance'], 'get'),
+          async () => service.getDeviceStateAll(),
+        );
+        expect(logSpy).toHaveBeenCalledWith(
+          'getDeviceStateAll : hejhome-api-error',
+        );
+      });
+
+      it('오류 응답데이터가 있다', async () => {
+        await errorProcessTest(
+          jest.spyOn(service['instance'], 'get'),
+          () => service.getDeviceStateAll(),
+          { message: 'test-error-message' },
+        );
+        expect(logSpy).toHaveBeenCalledWith(
+          `getDeviceStateAll(500) :{"message":"test-error-message"}`,
+        );
+      });
+
+      it('오류 응답데이터가 없다', async () => {
+        await errorProcessTest(jest.spyOn(service['instance'], 'get'), () =>
+          service.getDeviceStateAll(),
+        );
+        expect(logSpy).toHaveBeenCalledWith('getDeviceStateAll(500) :{}');
       });
     });
   });

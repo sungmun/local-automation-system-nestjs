@@ -9,6 +9,7 @@ import {
   RecipeCommand,
   RecipeCommandPlatform,
 } from '../recipe-command/entities/recipe-command.entity';
+import { HejHomeRecipeCommand } from '../recipe-command/entities/child-recipe-command';
 
 describe('RecipeCrudService', () => {
   let service: RecipeCrudService;
@@ -206,6 +207,204 @@ describe('RecipeCrudService', () => {
         ...updateRecipeWithRelationsDto,
         recipeCommands: [expectedRecipeCommand],
       });
+    });
+
+    it('레시피가 존재하지 않으면 NotFoundException을 발생시켜야 합니다', async () => {
+      const updateRecipeDto: UpdateRecipeRequestDto = {
+        name: '업데이트된 레시피',
+        recipeCommands: [],
+        recipeGroups: [],
+      };
+
+      recipeRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.update(1, updateRecipeDto)).rejects.toThrow(
+        new NotFoundException('Recipe with ID 1 not found'),
+      );
+
+      expect(recipeRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: {
+          recipeCommands: true,
+          recipeGroups: { conditions: true },
+        },
+      });
+    });
+
+    it('연관 테이블 업데이트 시 레시피가 존재하지 않으면 NotFoundException을 발생시켜야 합니다', async () => {
+      const updateRecipeDto: UpdateRecipeRequestDto = {
+        name: '업데이트된 레시피',
+        recipeCommands: [
+          {
+            command: { test: 'test' },
+            deviceId: 'device123',
+            name: '장치 명령',
+            platform: RecipeCommandPlatform.HEJ_HOME,
+          } as HejHomeRecipeCommand,
+        ],
+      };
+
+      recipeRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.update(1, updateRecipeDto)).rejects.toThrow(
+        new NotFoundException('Recipe with ID 1 not found'),
+      );
+
+      expect(recipeRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: {
+          recipeCommands: true,
+          recipeGroups: { conditions: true },
+        },
+      });
+      expect(recipeCommandService.createRecipeCommands).not.toHaveBeenCalled();
+      expect(recipeRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('recipeCommands만 업데이트하는 경우를 처리해야 합니다', async () => {
+      const recipeCommand = {
+        command: { test: 'test' },
+        deviceId: 'device123',
+        name: '장치 명령',
+        platform: RecipeCommandPlatform.HEJ_HOME,
+      };
+
+      const updateRecipeDto: UpdateRecipeRequestDto = {
+        recipeCommands: [recipeCommand],
+      };
+
+      const existingRecipe = {
+        id: 1,
+        name: '기존 레시피',
+        recipeCommands: [],
+        recipeGroups: [],
+      };
+
+      const expectedRecipeCommand = {
+        ...recipeCommand,
+        platform: 'device-hejhome',
+        order: 0,
+      } as unknown as RecipeCommand;
+
+      recipeRepository.findOne.mockResolvedValue(existingRecipe);
+      recipeCommandService.createRecipeCommands.mockResolvedValue([
+        expectedRecipeCommand,
+      ]);
+
+      await service.update(1, updateRecipeDto);
+
+      expect(recipeRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: {
+          recipeCommands: true,
+          recipeGroups: { conditions: true },
+        },
+      });
+      expect(recipeCommandService.createRecipeCommands).toHaveBeenCalledWith([
+        recipeCommand,
+      ]);
+      expect(recipeRepository.save).toHaveBeenCalledWith({
+        ...existingRecipe,
+        recipeCommands: [expectedRecipeCommand],
+      });
+    });
+  });
+
+  describe('remove', () => {
+    it('레시피를 삭제해야 합니다', async () => {
+      const recipeId = 1;
+      const deleteResult = { affected: 1 };
+
+      recipeRepository.delete.mockResolvedValue(deleteResult);
+
+      const result = await service.remove(recipeId);
+
+      expect(recipeRepository.delete).toHaveBeenCalledWith(recipeId);
+      expect(result).toEqual(deleteResult);
+    });
+  });
+
+  describe('findOneAndUpdate', () => {
+    it('레시피를 찾아서 업데이트해야 합니다', async () => {
+      const where = { id: 1 };
+      const relations = { recipeCommands: true };
+      const updateSet = { name: '업데이트된 레시피' };
+      const updatedRecipe = {
+        id: 1,
+        name: '업데이트된 레시피',
+        recipeCommands: [],
+      };
+
+      recipeRepository.update.mockResolvedValue({ affected: 1 });
+      recipeRepository.findOne.mockResolvedValue(updatedRecipe);
+
+      const result = await service.findOneAndUpdate(
+        where,
+        relations,
+        updateSet,
+      );
+
+      expect(recipeRepository.update).toHaveBeenCalledWith(where, updateSet);
+      expect(recipeRepository.findOne).toHaveBeenCalledWith({
+        where,
+        relations,
+      });
+      expect(result).toEqual(updatedRecipe);
+    });
+
+    it('레시피가 존재하지 않으면 NotFoundException을 발생시켜야 합니다', async () => {
+      const where = { id: 999 };
+      const relations = { recipeCommands: true };
+      const updateSet = { name: '업데이트된 레시피' };
+
+      recipeRepository.update.mockResolvedValue({ affected: 0 });
+
+      await expect(
+        service.findOneAndUpdate(where, relations, updateSet),
+      ).rejects.toThrow(
+        new NotFoundException(
+          `Recipe with where ${JSON.stringify(where)} not found`,
+        ),
+      );
+
+      expect(recipeRepository.update).toHaveBeenCalledWith(where, updateSet);
+      expect(recipeRepository.findOne).not.toHaveBeenCalled();
+    });
+
+    it('복잡한 where 조건으로 레시피를 업데이트해야 합니다', async () => {
+      const where = { id: 1, active: true };
+      const relations = {
+        recipeCommands: true,
+        recipeGroups: { conditions: true },
+      };
+      const updateSet = {
+        name: '업데이트된 레시피',
+        description: '업데이트된 설명',
+      };
+      const updatedRecipe = {
+        id: 1,
+        name: '업데이트된 레시피',
+        description: '업데이트된 설명',
+        active: true,
+        recipeCommands: [],
+        recipeGroups: [],
+      };
+
+      recipeRepository.update.mockResolvedValue({ affected: 1 });
+      recipeRepository.findOne.mockResolvedValue(updatedRecipe);
+
+      const result = await service.findOneAndUpdate(
+        where,
+        relations,
+        updateSet,
+      );
+
+      expect(recipeRepository.update).toHaveBeenCalledWith(where, updateSet);
+      expect(recipeRepository.findOne).toHaveBeenCalledWith({
+        where,
+        relations,
+      });
+      expect(result).toEqual(updatedRecipe);
     });
   });
 });

@@ -14,7 +14,7 @@ function _OnSafeEvent() {
 
     descriptor.value = async function (...args: any[]) {
       try {
-        await originalMethod.call(this, ...args);
+        return await originalMethod.call(this, ...args);
       } catch (err) {
         logger.error(err);
       }

@@ -19,7 +19,7 @@ class IsArrayUniqTypeValidatorConstraint
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `${args.constraints[0]} 타입은 배열에 하나만 존재해야 합니다.`;
+    return `${args.constraints[0].name} 타입은 배열에 하나만 존재해야 합니다.`;
   }
 }
 
