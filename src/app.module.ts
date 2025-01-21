@@ -20,6 +20,7 @@ import { LogModule } from './log/log.module';
 import { RecipeModule } from './recipe/recipe.module';
 import { RecipeCommandModule } from './recipe-command/recipe-command.module';
 import { RecipeConditionModule } from './recipe-condition/recipe-condition.module';
+import { RepositoryCommentLoggingModule } from './repository-comment-logging/repository-comment-logging.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { RecipeConditionModule } from './recipe-condition/recipe-condition.modul
       logging: process.env.NODE_ENV !== 'production',
       subscribers: [DeviceSubscriber],
     }),
+    RepositoryCommentLoggingModule.forRoot(),
     ...(process.env.NODE_ENV !== 'test' ? [ScheduleModule.forRoot()] : []),
     InitModule,
     TaskModule,
